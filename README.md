@@ -35,6 +35,7 @@ The Interactive Swagger API Documentation (for seed testing) is at: `http://loca
 To ensure your database tables are up to date, run the Alembic migrations schema upgrade:
 
 ```bash
+
 docker compose exec api alembic upgrade head
 ```
 
