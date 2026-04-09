@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.features.auth.router import router as auth_router
 from app.features.events.router import router as events_router
 
 app = FastAPI(title="Eventify API")
@@ -13,4 +14,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(events_router, prefix="/api/v1/events", tags=["Events"])
