@@ -11,7 +11,7 @@ class EventBase(BaseModel):
 class EventCreate(EventBase):
     pass
 
-class Event(EventBase):
+class EventRead(EventBase):
     id: int
     created_at: datetime
 

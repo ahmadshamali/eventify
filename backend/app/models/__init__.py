@@ -17,7 +17,7 @@
 from app.models.event import Event
 
 # Add new models below as you create them:
-# from app.models.user import User
+from app.models.user import User, Role, OrganizerProfile, StudentProfile
 # from app.models.registration import Registration
 # from app.models.attendance import Attendance
 # from app.models.certificate import Certificate
