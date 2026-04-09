@@ -1,5 +1,40 @@
-// # The single axios instance used by ALL api files
-// │                                 # Sets baseURL to VITE_API_URL from .env
-// │                                 # Automatically attaches JWT token to every request header
-// │                                 # Handles 401 responses globally (redirect to login)
-// │                                 # Every *Api.ts file imports this instead of raw axios
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api/v1'
+
+interface ApiRequestOptions extends RequestInit {
+  token?: string
+}
+
+export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
+  const { token, headers, ...rest } = options
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...rest,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...headers,
+    },
+  })
+
+  if (!response.ok) {
+    let message = 'Request failed'
+
+    try {
+      const errorData = await response.json()
+      if (typeof errorData?.detail === 'string') {
+        message = errorData.detail
+      } else if (Array.isArray(errorData?.detail)) {
+        message = errorData.detail
+          .map((item: { msg?: string }) => item.msg)
+          .filter(Boolean)
+          .join(', ')
+      }
+    } catch {
+      message = response.statusText || message
+    }
+
+    throw new Error(message)
+  }
+
+  return response.json() as Promise<T>
+}
