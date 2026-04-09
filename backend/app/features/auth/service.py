@@ -1,5 +1,6 @@
 
 import logging
+from sqlalchemy.orm import joinedload
 from app.core.security import hash_password, verify_password
 from app.models.user import User, StudentProfile, OrganizerProfile, Role
 from app.features.auth.schemas import UserRegister
