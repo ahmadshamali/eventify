@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchEvents } from './eventApi';
+import {Link} from "react-router-dom";
 
 function EventsPage() {
   const { data: events = [], isLoading: loading, error } = useQuery({
@@ -9,6 +10,8 @@ function EventsPage() {
 
   return (
     <>
+        <Link to={'/events2'}>Events2</Link>
+
       <div className="bg-glow"></div>
       <div className="bg-glow"></div>
       

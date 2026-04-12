@@ -12,6 +12,7 @@ def register_user(db, user_data: UserRegister):
     """
     Register a new user (student or organizer) with associated profile.
     """
+
     # Get role_id from role_name
     role = db.query(Role).filter(Role.role_name == user_data.role).first()
     if not role:
