@@ -53,44 +53,69 @@ function CreateEventPage() {
     const onSubmit: SubmitHandler<EventInputs> = (data) => createEventAsync(buildPayload(data));
 
     return (
-        <div className="create-event-page">
-            <div className="container">
-                <header className="header">
-                    <h1 className="title">Create Event</h1>
-                    <p className="subtitle">Add a new event</p>
+        <div className="relative min-h-screen overflow-hidden bg-slate-900 px-5 py-10 text-slate-50">
+            <div className="pointer-events-none fixed -left-52 -top-52 h-[600px] w-[600px] rounded-full bg-blue-500/35 blur-[100px]" />
+            <div className="pointer-events-none fixed -bottom-52 -right-52 h-[600px] w-[600px] rounded-full bg-cyan-500/25 blur-[100px]" />
+
+            <div className="relative mx-auto w-full max-w-[600px]">
+                <header className="mb-14 text-center">
+                    <h1 className="mb-4 bg-gradient-to-br from-white to-slate-300 bg-clip-text text-5xl font-bold tracking-tight text-transparent">
+                      Create Event
+                    </h1>
+                    <p className="text-xl font-light text-slate-400">Add a new event</p>
                 </header>
-                <div className="event-card">
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        <input placeholder={'title'} {...register('title')}/>
+                <div className="rounded-2xl border border-white/10 bg-slate-800/70 p-8 backdrop-blur-md">
+                    <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+                        <input
+                          className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                          placeholder={'title'}
+                          {...register('title')}
+                        />
 
                         {errors.title && (
-                            <p style={{color: 'red'}}>{errors.title.message}</p>
+                            <p className="text-sm text-red-400">{errors.title.message}</p>
                         )}
 
-                        <input placeholder={'subtitle'} {...register('subtitle')}/>
+                        <input
+                          className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                          placeholder={'subtitle'}
+                          {...register('subtitle')}
+                        />
 
                         {errors.subtitle && (
-                            <p style={{color: 'red'}}>{errors.subtitle.message}</p>
+                            <p className="text-sm text-red-400">{errors.subtitle.message}</p>
                         )}
 
-                        <textarea placeholder={'description'} {...register('description')}/>
+                        <textarea
+                          className="min-h-[100px] w-full resize-y rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                          placeholder={'description'}
+                          {...register('description')}
+                        />
 
                         {errors.description && (
-                            <p style={{color: 'red'}}>{errors.description.message}</p>
+                            <p className="text-sm text-red-400">{errors.description.message}</p>
                         )}
 
-                        <input placeholder={'capacity'} {...register('capacity')}/>
+                        <input
+                          className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                          placeholder={'capacity'}
+                          {...register('capacity')}
+                        />
 
                         {errors.capacity && (
-                            <p style={{color: 'red'}}>{errors.capacity.message}</p>
+                            <p className="text-sm text-red-400">{errors.capacity.message}</p>
                         )}
 
-                        <button className="btn" type="submit" disabled={isLoading}>
+                        <button
+                          className="rounded-lg bg-blue-500 px-6 py-3 font-semibold text-white transition hover:bg-blue-600 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] disabled:cursor-wait disabled:opacity-70"
+                          type="submit"
+                          disabled={isLoading}
+                        >
                             {isLoading ? 'Creating...' : 'Create Event'}
                         </button>
                     </form>
 
-                    {error && <p style={{color: 'red'}}>{error.message}</p>}
+                    {error && <p className="mt-4 text-sm text-red-400">{error.message}</p>}
                 </div>
             </div>
         </div>
