@@ -1,7 +1,6 @@
 export type UserRole = 'student' | 'organizer'
 
 export interface StudentProfilePayload {
-  student_number: string
   major: string
 }
 
