@@ -1,5 +1,10 @@
 export type UserRole = 'student' | 'organizer'
 
+export interface LoginRequest {
+  email: string
+  password: string
+}
+
 export interface StudentProfilePayload {
   major: string
 }
@@ -59,4 +64,8 @@ export interface User {
   role: Role | null
   student_profile: StudentProfile | null
   organizer_profile: OrganizerProfile | null
+}
+
+export interface LoginResponse {
+  user: User
 }

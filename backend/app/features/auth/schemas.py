@@ -79,6 +79,15 @@ class UserRegister(UserBase):
         return self
 
 
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=1, max_length=255)
+
+
+class AuthLoginResponse(BaseModel):
+    user: "UserRead"
+
+
 class RoleRead(BaseModel):
     role_id: int
     role_name: str
@@ -100,3 +109,6 @@ class UserRead(UserBase):
 
     class Config:
         from_attributes = True
+
+
+AuthLoginResponse.model_rebuild()
