@@ -6,10 +6,10 @@ import {type SubmitHandler, useForm} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
 
 const schema = z.object({
-    title: z.string().min(1, {message: 'Title is required'}).email({message: 'Invalid email address'}),
-    subtitle: z.string().min(1, {message: 'Subtitle is required'}),
-    description: z.string().min(1, {message: 'Description is required'}),
-    capacity: z.string().min(10, {message: 'Minimum is 10'}). max(100, {message: 'Maximum is 100'}),
+    title: z.string().min(1, {message: 'Title is required'}).max(100, {message: 'Title must be at most 100 characters'}),
+    subtitle: z.string().min(1, {message: 'Subtitle is required'}).max(100, {message: 'Subtitle must be at most 100 characters'}),
+    description: z.string().max(200, {message: 'Description must be at most 200 characters'}),
+    capacity: z.string().regex(/^\d*$/, {message: 'Capacity must be a whole number'}),
 });
 
 type EventInputs = {
@@ -38,17 +38,19 @@ function CreateEventPage() {
     // Validation
 
     const {isPending: isLoading, error, mutateAsync: createEventAsync} = useMutation({
-       mutationFn: (payload: CreateEventPayload) => {
-           return new Promise((resolve, _) => {
-               setTimeout(async () => {
-                   await createEvent(payload);
-                   resolve(true);
-               }, 2000);
-           });
+       mutationFn: async (payload: CreateEventPayload) => {
+           await createEvent(payload);
        },
     });
 
-    const onSubmit: SubmitHandler<EventInputs> = (data) => createEventAsync(data);
+    const buildPayload = (data: EventInputs): CreateEventPayload => ({
+        title: data.title.trim(),
+        subtitle: data.subtitle.trim(),
+        description: data.description.trim() || undefined,
+        capacity: data.capacity.trim() ? Number(data.capacity) : undefined,
+    });
+
+    const onSubmit: SubmitHandler<EventInputs> = (data) => createEventAsync(buildPayload(data));
 
     return (
         <div className="create-event-page">

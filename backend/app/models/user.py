@@ -23,7 +23,7 @@ class User(Base):
         nullable=False,
         index=True
         )
-    email  = Column(String(255), index=True, nullable=False)
+    email  = Column(String(255), index=True, unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     full_name = Column(String(255), nullable=False)
     email_verified = Column(Boolean, nullable=False, default=False)

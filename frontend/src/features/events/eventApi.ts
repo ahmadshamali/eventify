@@ -8,7 +8,7 @@ export const fetchEvents = async (): Promise<Event[]> => {
   return response.json()
 }
 
-export const createEvent = async (payload: CreateEventPayload): Promise<Event[]> => {
+export const createEvent = async (payload: CreateEventPayload): Promise<Event> => {
   const response = await fetch('http://localhost:8000/api/v1/events/',{
     method: 'POST',
     headers: {'Content-Type' : 'application/json',

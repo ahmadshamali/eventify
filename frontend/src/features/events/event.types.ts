@@ -9,7 +9,7 @@ export interface Event {
 
 export interface CreateEventPayload{
   title: string;
-  subtitle? : string;
+  subtitle: string;
   description? : string;
   capacity? : number;
 }

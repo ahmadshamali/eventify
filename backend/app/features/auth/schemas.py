@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Literal, Optional
 
-from pydantic import BaseModel, EmailStr, Field, model_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 
 RoleName = Literal["student", "organizer"]
@@ -9,7 +9,6 @@ AccountStatus = Literal["pending", "approved", "rejected", "active", "disabled",
 
 
 class StudentProfileBase(BaseModel):
-    student_number: str = Field(..., min_length=1, max_length=20)
     major: str = Field(..., min_length=1, max_length=255)
 
 
@@ -47,6 +46,14 @@ class OrganizerProfileRead(OrganizerProfileBase):
 class UserBase(BaseModel):
     email: EmailStr
     full_name: str = Field(..., min_length=1, max_length=255)
+
+    @field_validator("email")
+    @classmethod
+    def validate_email_domain(cls, value):
+        email = str(value).lower()
+        if not (email.endswith("@student.birzeit.edu") or email.endswith("@staff.birzeit.edu")):
+            raise ValueError("email must end with @student.birzeit.edu or @staff.birzeit.edu")
+        return email
 
 
 class UserRegister(UserBase):

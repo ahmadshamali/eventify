@@ -1,88 +1,58 @@
-import {Link, useNavigate} from 'react-router-dom'
+import {Link} from 'react-router-dom'
 import {register as registerUser} from './authApi'
-import type {RegisterRequest, UserRole} from './auth.types'
+import type {RegisterRequest} from './auth.types'
 import * as z from "zod";
 import {type SubmitHandler, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useMutation} from "@tanstack/react-query";
 
+const allowedEmailDomain = /@(student|staff)\.birzeit\.edu$/i
 
-type RegisterFormState = {
-    full_name: string
-    email: string
-    password: string
-    role: UserRole
-    student_number: string
-    major: string
-    club_name: string
-}
+const registerFormSchema = z.object({
+    full_name: z.string().trim().min(1, {message: 'Full name is required'}).max(255, {message: 'Full name must be at most 255 characters'}),
+    email: z.string().trim().email({message: 'Invalid email address'}).refine((value) => allowedEmailDomain.test(value), {
+        message: 'Email must end with @student.birzeit.edu or @staff.birzeit.edu',
+    }),
+    password: z.string().min(8, {message: 'Password must be at least 8 characters'}).max(255, {message: 'Password must be at most 255 characters'}),
+    role: z.enum(['student', 'organizer']),
+    major: z.string().trim(),
+    club_name: z.string().trim(),
+}).superRefine((data, ctx) => {
+    if (data.role === 'student') {
+        if (data.major.length === 0) {
+            ctx.addIssue({code: z.ZodIssueCode.custom, path: ['major'], message: 'Student major is required'});
+        } else if (data.major.length > 255) {
+            ctx.addIssue({code: z.ZodIssueCode.custom, path: ['major'], message: 'Major must be at most 255 characters'});
+        }
+    }
+
+    if (data.role === 'organizer') {
+        if (data.club_name.length === 0) {
+            ctx.addIssue({code: z.ZodIssueCode.custom, path: ['club_name'], message: 'Club is required'});
+        } else if (data.club_name.length > 255) {
+            ctx.addIssue({code: z.ZodIssueCode.custom, path: ['club_name'], message: 'Club name must be at most 255 characters'});
+        }
+    }
+});
+
+type RegisterFormState = z.infer<typeof registerFormSchema>
 
 const initialFormState: RegisterFormState = {
     full_name: '',
     email: '',
     password: '',
     role: 'student',
-    student_number: '',
     major: '',
     club_name: '',
 }
 
-const registerFormSchema = z.object({
-    full_name: z.string().min(1, {message: 'Full name is required'}),
-    email: z.string().email({message: 'Invalid email address'}),
-    password: z.string().min(8, {message: 'Password must be at least 8 characters'}),
-    role: z.enum(['student', 'organizer']),
-    student_number: z.string(),
-    major: z.string(),
-    club_name: z.string(),
-}).refine((data) => {
-    if (data.role === 'student') {
-        return data.student_number.length >= 6;
-    }
-
-    return true;
-}, {
-    message: "Student number must be at least 6 characters",
-    path: ['student_number'],
-}).refine((data) => {
-    if (data.role === 'student') {
-        return data.major.length >= 1;
-    }
-
-    return true;
-}, {
-    message: "Student major is required",
-    path: ['major'],
-}).refine((data) => {
-    if (data.role === 'organizer') {
-        return data.club_name.length >= 1;
-    }
-
-    return true;
-}, {
-    message: "Club is required",
-    path: ['club_name'],
-});
-
-type FormInputs = {
-    full_name: string
-    email: string
-    password: string
-    role: UserRole
-    student_number: string
-    major: string
-    club_name: string
-}
-
 function RegisterPage() {
-    const navigate = useNavigate();
-
     const {
         watch,
         register,
         handleSubmit,
         formState: {errors},
-    } = useForm<FormInputs>({
+    } = useForm<RegisterFormState>({
         resolver: zodResolver(registerFormSchema),
         defaultValues: initialFormState
     });
@@ -93,7 +63,7 @@ function RegisterPage() {
         }
     })
 
-    const onSubmit: SubmitHandler<FormInputs> = (data) => {
+    const onSubmit: SubmitHandler<RegisterFormState> = (data) => {
         const payload = buildPayload(data);
         return callRegisterUser(payload);
     }
@@ -102,11 +72,10 @@ function RegisterPage() {
         if (data.role === 'student') {
             return {
                 full_name: data.full_name.trim(),
-                email: data.email.trim(),
+                email: data.email.trim().toLowerCase(),
                 password: data.password,
                 role: 'student',
                 student_profile: {
-                    student_number: data.student_number.trim(),
                     major: data.major.trim(),
                 },
             }
@@ -114,7 +83,7 @@ function RegisterPage() {
 
         return {
             full_name: data.full_name.trim(),
-            email: data.email.trim(),
+            email: data.email.trim().toLowerCase(),
             password: data.password,
             role: 'organizer',
             organizer_profile: {
@@ -192,18 +161,6 @@ function RegisterPage() {
 
                     {isStudent ? (
                         <>
-                            <label className="auth-field">
-                                <span>Student number</span>
-                                <input
-                                    placeholder="202300123"
-                                    {...register('student_number')}
-                                />
-                            </label>
-
-                            {errors.student_number && (
-                                <p style={{color: 'red'}}>{errors.student_number.message}</p>
-                            )}
-
                             <label className="auth-field">
                                 <span>Major</span>
                                 <input

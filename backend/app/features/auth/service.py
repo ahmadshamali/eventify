@@ -1,6 +1,7 @@
 
 import logging
 from sqlalchemy.orm import joinedload
+from sqlalchemy.exc import IntegrityError
 from app.core.security import hash_password, verify_password
 from app.models.user import User, StudentProfile, OrganizerProfile, Role
 from app.features.auth.schemas import UserRegister
@@ -13,10 +14,27 @@ def register_user(db, user_data: UserRegister):
     Register a new user (student or organizer) with associated profile.
     """
 
+    student_number = user_data.email.split("@", 1)[0]
+    if user_data.role == "student" and not student_number:
+        raise ValueError("Unable to derive student number from email")
+
+    existing_user = db.query(User).filter(User.email == user_data.email).first()
+    if existing_user:
+        raise ValueError("Email is already registered")
+
     # Get role_id from role_name
     role = db.query(Role).filter(Role.role_name == user_data.role).first()
     if not role:
         raise ValueError(f"Role '{user_data.role}' not found")
+
+    if user_data.role == "student" and user_data.student_profile:
+        existing_student_profile = (
+            db.query(StudentProfile)
+            .filter(StudentProfile.student_number == student_number)
+            .first()
+        )
+        if existing_student_profile:
+            raise ValueError("Student number is already registered")
     
     # Create user
     db_user = User(
@@ -34,7 +52,7 @@ def register_user(db, user_data: UserRegister):
     if user_data.role == "student" and user_data.student_profile:
         student_profile = StudentProfile(
             student_id=db_user.user_id,
-            student_number=user_data.student_profile.student_number,
+            student_number=student_number,
             major=user_data.student_profile.major
         )
         db.add(student_profile)
@@ -49,7 +67,17 @@ def register_user(db, user_data: UserRegister):
         )
         db.add(organizer_profile)
 
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        error_message = str(getattr(exc, "orig", exc)).lower()
+        if "student_number" in error_message:
+            raise ValueError("Student number is already registered")
+        if "email" in error_message:
+            raise ValueError("Email is already registered")
+        raise ValueError("Invalid registration data or duplicate entry")
+
     db.refresh(db_user)
 
     db_user = db.query(User).options(
