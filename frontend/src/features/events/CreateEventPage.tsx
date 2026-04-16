@@ -1,110 +1,98 @@
-import { useState } from 'react';
-import { createEvent } from './eventApi';
+import {createEvent} from './eventApi';
+import {useMutation} from "@tanstack/react-query";
+import type {CreateEventPayload} from "./event.types.ts";
+import * as z from "zod";
+import {type SubmitHandler, useForm} from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod"
 
-function CreateEventPage(){
-
-    const [formData, setFormData] = useState({
-  title: '',
-  subtitle: '',
-  description: '',
-  capacity: '',
+const schema = z.object({
+    title: z.string().min(1, {message: 'Title is required'}).email({message: 'Invalid email address'}),
+    subtitle: z.string().min(1, {message: 'Subtitle is required'}),
+    description: z.string().min(1, {message: 'Description is required'}),
+    capacity: z.string().min(10, {message: 'Minimum is 10'}). max(100, {message: 'Maximum is 100'}),
 });
-const [loading, setLoading] = useState(false);
-const [error, setError] = useState('');
-const [success, setSuccess] = useState('');
 
-    function handleChange(
-        event : React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>){
+type EventInputs = {
+    title: string
+    subtitle: string
+    description: string
+    capacity: string
+}
 
-        const {name, value} = event.target;
+function CreateEventPage() {
 
-        setFormData((prev) => ({
-            ...prev,
-            [name] : value,
-        }));
-        
-        
-    }
-
-    async function handleSubmit(event: React.FormEvent){
-
-    event.preventDefault();
-    
-    setLoading(true);
-    setSuccess('');
-    setError('');
-
-    try {
-        const payload = {
-            ...formData,
-      capacity: formData.capacity ? Number(formData.capacity) : undefined,
-        };
-        await createEvent(payload);
-
-        setSuccess('Event created successfully');
-
-        setFormData({
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<EventInputs>({
+        resolver: zodResolver(schema),
+        defaultValues: {
             title: '',
             subtitle: '',
             description: '',
             capacity: '',
-        });
-    }catch (err) {
-    setError('Failed to create event');
-  } finally {
-    setLoading(false);
-  }
+        }
+    });
 
-    }
+    // Validation
+
+    const {isPending: isLoading, error, mutateAsync: createEventAsync} = useMutation({
+       mutationFn: (payload: CreateEventPayload) => {
+           return new Promise((resolve, _) => {
+               setTimeout(async () => {
+                   await createEvent(payload);
+                   resolve(true);
+               }, 2000);
+           });
+       },
+    });
+
+    const onSubmit: SubmitHandler<EventInputs> = (data) => createEventAsync(data);
 
     return (
-<div className="create-event-page"> 
-  <div className="container">
-    <header className="header">
-      <h1 className="title">Create Event</h1>
-      <p className="subtitle">Add a new event</p>
-    </header>
-<div className="event-card">
-    <form onSubmit={handleSubmit}>
-      <input
-        name="title"
-        placeholder="Title"
-        value={formData.title}
-        onChange={handleChange}
-      />
+        <div className="create-event-page">
+            <div className="container">
+                <header className="header">
+                    <h1 className="title">Create Event</h1>
+                    <p className="subtitle">Add a new event</p>
+                </header>
+                <div className="event-card">
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <input placeholder={'title'} {...register('title')}/>
 
-      <input
-        name="subtitle"
-        placeholder="Subtitle"
-        value={formData.subtitle}
-        onChange={handleChange}
-      />
+                        {errors.title && (
+                            <p style={{color: 'red'}}>{errors.title.message}</p>
+                        )}
 
-      <textarea
-        name="description"
-        placeholder="Description"
-        value={formData.description}
-        onChange={handleChange}
-      />
+                        <input placeholder={'subtitle'} {...register('subtitle')}/>
 
-      <input
-        type = "number"
-        name="capacity"
-        placeholder="Capacity"
-        value={formData.capacity}
-        onChange={handleChange}
-      />
+                        {errors.subtitle && (
+                            <p style={{color: 'red'}}>{errors.subtitle.message}</p>
+                        )}
 
-      <button className="btn" type="submit" disabled={loading}>
-          {loading ? 'Creating...' : 'Create Event'}
-        </button>
-    </form>
+                        <textarea placeholder={'description'} {...register('description')}/>
 
-    {error && <p style={{ color: 'red' }}>{error}</p>}
-    {success && <p style={{ color: 'green' }}>{success}</p>}
-    </div>
-  </div>
-  </div>
-);
+                        {errors.description && (
+                            <p style={{color: 'red'}}>{errors.description.message}</p>
+                        )}
+
+                        <input placeholder={'capacity'} {...register('capacity')}/>
+
+                        {errors.capacity && (
+                            <p style={{color: 'red'}}>{errors.capacity.message}</p>
+                        )}
+
+                        <button className="btn" type="submit" disabled={isLoading}>
+                            {isLoading ? 'Creating...' : 'Create Event'}
+                        </button>
+                    </form>
+
+                    {error && <p style={{color: 'red'}}>{error.message}</p>}
+                </div>
+            </div>
+        </div>
+    );
 }
+
 export default CreateEventPage;
