@@ -4,7 +4,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
 from app.core.security import hash_password, verify_password
 from app.models.user import User, StudentProfile, OrganizerProfile, Role
-from app.features.auth.schemas import UserRegister
+from app.features.auth.schemas import UserRegister, UserLogin
 
 logger = logging.getLogger(__name__)
 
@@ -86,4 +86,30 @@ def register_user(db, user_data: UserRegister):
         joinedload(User.organizer_profile)
     ).filter(User.user_id == db_user.user_id).first()
     
+    return db_user
+
+
+def login_user(db, credentials: UserLogin):
+    """
+    Authenticate user by email and password.
+    """
+    normalized_email = str(credentials.email).strip().lower()
+
+    db_user = (
+        db.query(User)
+        .options(
+            joinedload(User.role),
+            joinedload(User.student_profile),
+            joinedload(User.organizer_profile),
+        )
+        .filter(User.email == normalized_email)
+        .first()
+    )
+
+    if not db_user:
+        raise ValueError("Invalid email or password")
+
+    if not verify_password(credentials.password, db_user.password_hash):
+        raise ValueError("Invalid email or password")
+
     return db_user
