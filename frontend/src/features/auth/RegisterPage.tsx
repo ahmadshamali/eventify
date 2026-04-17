@@ -127,7 +127,7 @@ function RegisterPage() {
                         <span className="text-[0.95rem] text-slate-300">Full name</span>
                         <input
                             className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
-                            placeholder="Ahmad Ali"
+                            placeholder="Ahmad Shamali"
                             {...register('full_name')}
                         />
                     </label>

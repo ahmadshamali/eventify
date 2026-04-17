@@ -45,6 +45,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=False)
     op.create_index(op.f('ix_users_role_id'), 'users', ['role_id'], unique=False)
     op.create_index(op.f('ix_users_user_id'), 'users', ['user_id'], unique=False)
+    
     op.create_table('organizer_profiles',
     sa.Column('organizer_id', sa.Integer(), nullable=False),
     sa.Column('club_name', sa.String(length=255), nullable=False),
