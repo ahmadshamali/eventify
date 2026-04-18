@@ -35,6 +35,7 @@ The Interactive Swagger API Documentation (for seed testing) is at: `http://loca
 To ensure your database tables are up to date, run the Alembic migrations schema upgrade:
 
 ```bash
+
 docker compose exec api alembic upgrade head
 ```
 
@@ -67,5 +68,3 @@ If you make any changes to the models in `backend/models.py` (like adding a new 
    ```
 
 Because your `./backend` directory is mounted dynamically into the Docker container via `volumes`, any edits you save to your Python logic are hot-reloaded instantly without needing to rebuild the Docker image!
-
-#AHMAD
