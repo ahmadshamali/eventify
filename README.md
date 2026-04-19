@@ -75,7 +75,7 @@ The project uses **Mailtrap** for email testing in development. When users regis
 
 3. **Create `.env.local` in the project root**:
    ```bash
-   # At: c:/AHMAD/eventify/.env.local
+   # At: c:/Users/<your-username>/eventify-1/.env.local
    SMTP_HOST=sandbox.smtp.mailtrap.io
    SMTP_PORT=587
    SMTP_USER=YOUR_MAILTRAP_USERNAME
