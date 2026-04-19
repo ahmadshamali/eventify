@@ -27,8 +27,9 @@ class User(Base):
     password_hash = Column(String(255), nullable=False)
     full_name = Column(String(255), nullable=False)
     email_verified = Column(Boolean, nullable=False, default=False)
+    verification_token = Column(String(255), nullable=True, unique=True, index=True)
     account_status = Column(
-        Enum("pending", "approved", "rejected", "active", "disabled", "deleted"),
+        Enum("pending", "pending_approval", "approved", "rejected", "active", "disabled", "deleted"),
         nullable=False,
         default="pending"
     )

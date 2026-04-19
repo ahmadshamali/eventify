@@ -5,7 +5,7 @@ from pydantic import BaseModel, EmailStr, Field, field_validator, model_validato
 
 
 RoleName = Literal["student", "organizer"]
-AccountStatus = Literal["pending", "approved", "rejected", "active", "disabled", "deleted"]
+AccountStatus = Literal["pending", "pending_approval", "approved", "rejected", "active", "disabled", "deleted"]
 
 
 class StudentProfileBase(BaseModel):
@@ -84,8 +84,14 @@ class UserLogin(BaseModel):
     password: str = Field(..., min_length=1, max_length=255)
 
 
+class VerifyEmailRequest(BaseModel):
+    token: str = Field(..., min_length=1)
+
+
 class AuthLoginResponse(BaseModel):
     user: "UserRead"
+    access_token: str
+    token_type: str = "bearer"
 
 
 class RoleRead(BaseModel):
