@@ -1,5 +1,6 @@
 
 import logging
+import uuid
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
 from app.core.security import hash_password, verify_password
@@ -43,7 +44,8 @@ def register_user(db, user_data: UserRegister):
         password_hash=hash_password(user_data.password),
         role_id=role.role_id,
         email_verified=False,
-        account_status="pending"
+        account_status="pending",
+        verification_token=str(uuid.uuid4())
     )
     db.add(db_user)
     db.flush()  # Flush to get the user_id
@@ -89,9 +91,52 @@ def register_user(db, user_data: UserRegister):
     return db_user
 
 
+def verify_email(db, token: str):
+    """
+    Verify user email using verification token.
+    For students: set email_verified=True and account_status='active'
+    For organizers: set email_verified=True and account_status='pending_approval'
+    """
+    db_user = db.query(User).filter(User.verification_token == token).first()
+    
+    if not db_user:
+        raise ValueError("Invalid or expired verification token")
+    
+    if db_user.email_verified:
+        raise ValueError("Email is already verified")
+    
+    db_user.email_verified = True
+    db_user.verification_token = None  # Invalidate token after use
+    
+    # Set account status based on role
+    role = db.query(Role).filter(Role.role_id == db_user.role_id).first()
+    if role and role.role_name == "student":
+        db_user.account_status = "active"
+    elif role and role.role_name == "organizer":
+        db_user.account_status = "pending_approval"
+    
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise ValueError("Database error during email verification")
+    
+    db.refresh(db_user)
+    
+    db_user = db.query(User).options(
+        joinedload(User.role),
+        joinedload(User.student_profile),
+        joinedload(User.organizer_profile)
+    ).filter(User.user_id == db_user.user_id).first()
+    
+    return db_user
+
+
 def login_user(db, credentials: UserLogin):
     """
     Authenticate user by email and password.
+    - Email must be verified
+    - Account status must be 'active'
     """
     normalized_email = str(credentials.email).strip().lower()
 
@@ -111,5 +156,13 @@ def login_user(db, credentials: UserLogin):
 
     if not verify_password(credentials.password, db_user.password_hash):
         raise ValueError("Invalid email or password")
+    
+    if not db_user.email_verified:
+        raise ValueError("Email is not verified. Please check your email for verification link.")
+    
+    if db_user.account_status != "active":
+        if db_user.account_status == "pending_approval":
+            raise ValueError("Account is pending admin approval. Please wait for approval.")
+        raise ValueError(f"Account is {db_user.account_status}. Contact support for more information.")
 
     return db_user

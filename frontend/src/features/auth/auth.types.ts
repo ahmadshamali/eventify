@@ -5,6 +5,10 @@ export interface LoginRequest {
   password: string
 }
 
+export interface VerifyEmailRequest {
+  token: string
+}
+
 export interface StudentProfilePayload {
   major: string
 }
@@ -57,7 +61,7 @@ export interface User {
   email: string
   full_name: string
   email_verified: boolean
-  account_status: 'pending' | 'approved' | 'rejected' | 'active' | 'disabled' | 'deleted'
+  account_status: 'pending' | 'pending_approval' | 'approved' | 'rejected' | 'active' | 'disabled' | 'deleted'
   permanent_qr_token: string | null
   created_at: string
   updated_at: string
@@ -68,4 +72,6 @@ export interface User {
 
 export interface LoginResponse {
   user: User
+  access_token: string
+  token_type: 'bearer'
 }

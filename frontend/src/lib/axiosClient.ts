@@ -6,12 +6,14 @@ interface ApiRequestOptions extends RequestInit {
 
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
   const { token, headers, ...rest } = options
+  const storedToken = typeof window !== 'undefined' ? localStorage.getItem('eventify_access_token') : null
+  const authToken = token ?? storedToken ?? undefined
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...rest,
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       ...headers,
     },
   })

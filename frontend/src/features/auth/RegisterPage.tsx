@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { register as registerUser } from './authApi'
 import type { RegisterRequest } from './auth.types'
 import * as z from 'zod'
@@ -59,6 +60,8 @@ const initialFormState: RegisterFormState = {
 }
 
 function RegisterPage() {
+    const navigate = useNavigate()
+
     const {
         watch,
         register,
@@ -72,6 +75,9 @@ function RegisterPage() {
     const { isPending: isSubmitting, error, mutateAsync: callRegisterUser } = useMutation({
         mutationFn: (payload: RegisterRequest) => {
             return registerUser(payload)
+        },
+        onSuccess: (user) => {
+            navigate(`/verify-email?email=${encodeURIComponent(user.email)}`)
         },
     })
 
