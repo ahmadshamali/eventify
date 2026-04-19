@@ -42,7 +42,8 @@ function LoginPage() {
     mutationFn: (payload: LoginRequest) => {
       return login(payload)
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      localStorage.setItem('eventify_access_token', response.access_token)
       navigate('/events')
     },
   })
