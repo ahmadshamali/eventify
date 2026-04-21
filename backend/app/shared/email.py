@@ -9,13 +9,13 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 
-def send_verification_email(email: str, verification_token: str, frontend_url: Optional[str] = None) -> bool:
+def send_verification_email(email: str, verification_code: str, frontend_url: Optional[str] = None) -> bool:
     """
     Send verification email to user via SMTP.
     
     Args:
         email: User's email address
-        verification_token: Unique verification token
+        verification_code: 6-digit verification code
         frontend_url: Frontend URL for verification link (uses config if not provided)
     
     Returns:
@@ -33,7 +33,7 @@ def send_verification_email(email: str, verification_token: str, frontend_url: O
         raise ValueError("Email service not configured. Please contact support.")
     
     frontend_url = frontend_url or settings.FRONTEND_URL
-    verification_link = f"{frontend_url}/verify-email?token={verification_token}"
+    verification_page = f"{frontend_url}/verify-email"
     
     html_body = f"""
     <html>
@@ -41,18 +41,16 @@ def send_verification_email(email: str, verification_token: str, frontend_url: O
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
                 <h2 style="color: #0066cc;">Email Verification</h2>
                 <p>Welcome to Eventify!</p>
-                <p>Please verify your email address by clicking the link below:</p>
-                <p style="margin: 30px 0;">
-                    <a href="{verification_link}" style="display: inline-block; background-color: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                        Verify Email
-                    </a>
+                <p>Use this 6-digit code to verify your email address:</p>
+                <p style="margin: 30px 0; font-size: 2rem; font-weight: bold; letter-spacing: 0.35em; color: #0066cc;">
+                    {verification_code}
                 </p>
-                <p>Or copy and paste this link in your browser:</p>
+                <p>Enter the code on the verification page:</p>
                 <p style="word-break: break-all; color: #666;">
-                    <code>{verification_link}</code>
+                    <code>{verification_page}</code>
                 </p>
                 <p style="margin-top: 30px; font-size: 0.9em; color: #999;">
-                    This link will expire in 24 hours.<br>
+                    This code will expire in 24 hours.<br>
                     If you didn't create this account, please ignore this email.
                 </p>
             </div>
@@ -65,10 +63,13 @@ def send_verification_email(email: str, verification_token: str, frontend_url: O
     
     Welcome to Eventify!
     
-    Please verify your email address by opening this link:
-    {verification_link}
+    Use this 6-digit code to verify your email address:
+    {verification_code}
     
-    This link will expire in 24 hours.
+    Enter the code on the verification page:
+    {verification_page}
+    
+    This code will expire in 24 hours.
     If you didn't create this account, please ignore this email.
     """
     

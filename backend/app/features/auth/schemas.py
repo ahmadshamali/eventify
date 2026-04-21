@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Literal, Optional
 
-from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+from pydantic import BaseModel, EmailStr, Field, AliasChoices, field_validator, model_validator
 
 
 RoleName = Literal["student", "organizer"]
@@ -85,7 +85,7 @@ class UserLogin(BaseModel):
 
 
 class VerifyEmailRequest(BaseModel):
-    token: str = Field(..., min_length=1)
+    code: str = Field(..., min_length=6, max_length=6, validation_alias=AliasChoices("code", "token"))
 
 
 class AuthLoginResponse(BaseModel):

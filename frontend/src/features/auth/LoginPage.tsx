@@ -1,10 +1,12 @@
 import { useForm, type SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import * as z from 'zod'
 import { login } from './authApi'
 import type { LoginRequest } from './auth.types'
+import { useAuth } from '../../context/AuthContext'
 
 const allowedEmailDomain = /@(student|staff)\.birzeit\.edu$/i
 
@@ -28,6 +30,8 @@ const initialFormState: LoginFormState = {
 
 function LoginPage() {
   const navigate = useNavigate()
+  const { signIn } = useAuth()
+  const [showPassword, setShowPassword] = useState(false)
 
   const {
     register,
@@ -43,7 +47,7 @@ function LoginPage() {
       return login(payload)
     },
     onSuccess: (response) => {
-      localStorage.setItem('eventify_access_token', response.access_token)
+      signIn(response.access_token, response.user.full_name)
       navigate('/events')
     },
   })
@@ -88,14 +92,38 @@ function LoginPage() {
 
           <label className="grid gap-2" htmlFor="password">
             <span className="text-[0.95rem] text-slate-300">Password</span>
-            <input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              {...register('password')}
-              className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
-              required
-            />
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter your password"
+                {...register('password')}
+                className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 pr-20 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
+                required
+              />
+              <button
+                className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-white/10"
+                type="button"
+                onClick={() => setShowPassword((value) => !value)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? (
+                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path d="M3 3l18 18" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M10.5 10.6a3 3 0 004 4" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M7.5 7.8A10.5 10.5 0 003 12c1.8 3.4 5.1 6 9 6 1.2 0 2.4-.2 3.5-.6" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M14.7 5.2A10.5 10.5 0 0121 12c-1.1 2.1-2.8 4-4.9 5.3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : (
+                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12Z" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="12" cy="12" r="3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+                <span>{showPassword ? 'Hide' : 'Show'}</span>
+              </button>
+            </div>
           </label>
 
           {errors.password && <p className="text-sm text-red-400">{errors.password.message}</p>}

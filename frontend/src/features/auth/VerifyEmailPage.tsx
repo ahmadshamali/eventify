@@ -9,7 +9,7 @@ import { verifyEmail } from './authApi'
 import type { VerifyEmailRequest } from './auth.types'
 
 const verifyEmailSchema = z.object({
-  token: z.string().trim().min(1, { message: 'Verification token is required' }),
+  code: z.string().trim().regex(/^\d{6}$/, { message: 'Verification code must be a 6-digit number' }),
 })
 
 type VerifyEmailFormState = z.infer<typeof verifyEmailSchema>
@@ -17,7 +17,7 @@ type VerifyEmailFormState = z.infer<typeof verifyEmailSchema>
 function VerifyEmailPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const tokenFromUrl = searchParams.get('token') ?? ''
+  const codeFromUrl = searchParams.get('code') ?? searchParams.get('token') ?? ''
   const emailFromUrl = searchParams.get('email') ?? ''
 
   const {
@@ -27,14 +27,14 @@ function VerifyEmailPage() {
     formState: { errors },
   } = useForm<VerifyEmailFormState>({
     resolver: zodResolver(verifyEmailSchema),
-    defaultValues: { token: tokenFromUrl },
+    defaultValues: { code: codeFromUrl },
   })
 
   useEffect(() => {
-    if (tokenFromUrl) {
-      setValue('token', tokenFromUrl)
+    if (codeFromUrl) {
+      setValue('code', codeFromUrl)
     }
-  }, [setValue, tokenFromUrl])
+  }, [codeFromUrl, setValue])
 
   const {
     mutateAsync: callVerifyEmail,
@@ -47,10 +47,10 @@ function VerifyEmailPage() {
   })
 
   useEffect(() => {
-    if (tokenFromUrl && !isSuccess && !isSubmitting) {
-      void callVerifyEmail({ token: tokenFromUrl.trim() })
+    if (codeFromUrl && !isSuccess && !isSubmitting) {
+      void callVerifyEmail({ code: codeFromUrl.trim() })
     }
-  }, [callVerifyEmail, isSubmitting, isSuccess, tokenFromUrl])
+  }, [callVerifyEmail, codeFromUrl, isSubmitting, isSuccess])
 
   useEffect(() => {
     if (isSuccess) {
@@ -64,7 +64,7 @@ function VerifyEmailPage() {
   }, [isSuccess, navigate])
 
   const onSubmit: SubmitHandler<VerifyEmailFormState> = (formData) => {
-    return callVerifyEmail({ token: formData.token.trim() })
+    return callVerifyEmail({ code: formData.code.trim() })
   }
 
   return (
@@ -85,18 +85,20 @@ function VerifyEmailPage() {
         </div>
 
         <form className="grid gap-4 p-8 md:p-12" onSubmit={handleSubmit(onSubmit)}>
-          <label className="grid gap-2" htmlFor="token">
-            <span className="text-[0.95rem] text-slate-300">Verification token</span>
+          <label className="grid gap-2" htmlFor="code">
+            <span className="text-[0.95rem] text-slate-300">Verification code</span>
             <input
-              id="token"
+              id="code"
               type="text"
-              placeholder="Paste your token"
-              {...register('token')}
+              placeholder="Enter 6-digit code"
+              {...register('code')}
+              inputMode="numeric"
+              autoComplete="one-time-code"
               className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
             />
           </label>
 
-          {errors.token && <p className="text-sm text-red-400">{errors.token.message}</p>}
+          {errors.code && <p className="text-sm text-red-400">{errors.code.message}</p>}
 
           {isSuccess ? (
             <div className="rounded-[14px] border border-emerald-400/35 bg-emerald-900/45 px-4 py-3 text-[0.95rem] text-emerald-200">
