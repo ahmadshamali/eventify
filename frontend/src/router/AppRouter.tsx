@@ -104,6 +104,7 @@ export default function AppRouter() {
 
             <Route element={<ProtectedRoute allowedRoles={['organizer', 'admin']} />}>
               <Route path="/events/create" element={<CreateEventPage />} />
+              <Route path="/events/:eventId/edit" element={<CreateEventPage />} />
             </Route>
 
             <Route element={<ProtectedRoute allowedRoles={['admin']} />}>

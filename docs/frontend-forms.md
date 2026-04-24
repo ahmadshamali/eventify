@@ -25,3 +25,6 @@
 - Inspect backend schema before writing validation
 - Do not guess field types
 - Do not rewrite UI unless asked
+
+## Color and styel
+- as other pages , same colors and make them same theme and match each other

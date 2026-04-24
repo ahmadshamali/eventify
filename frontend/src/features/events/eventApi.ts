@@ -1,23 +1,39 @@
-import type { Event, CreateEventPayload} from './event.types';
+import { apiRequest } from '../../lib/axiosClient'
+import type {
+  CancelEventPayload,
+  CreateEventPayload,
+  Event,
+  Registration,
+  UpdateEventPayload,
+} from './event.types'
 
 export const fetchEvents = async (): Promise<Event[]> => {
-  const response = await fetch('http://localhost:8000/api/v1/events/')
-  if (!response.ok) {
-    throw new Error('Could not connect to the backend. Is it actually running?')
-  }
-  return response.json()
+  return apiRequest<Event[]>('/events/')
 }
 
 export const createEvent = async (payload: CreateEventPayload): Promise<Event> => {
-  const response = await fetch('http://localhost:8000/api/v1/events/',{
+  return apiRequest<Event>('/events/', {
     method: 'POST',
-    headers: {'Content-Type' : 'application/json',
-  },
-  body: JSON.stringify(payload), //converts JS object to JSON
-});
-if (!response.ok) {
-    throw new Error('Failed to create event');
-  }
+    body: JSON.stringify(payload),
+  })
+}
 
-  return response.json();
-};
+export const updateEvent = async (eventId: number, payload: UpdateEventPayload): Promise<Event> => {
+  return apiRequest<Event>(`/events/${eventId}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}
+
+export const cancelEvent = async (eventId: number, payload: CancelEventPayload): Promise<Event> => {
+  return apiRequest<Event>(`/events/${eventId}/cancel`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export const registerForEvent = async (eventId: number): Promise<Registration> => {
+  return apiRequest<Registration>(`/events/${eventId}/register`, {
+    method: 'POST',
+  })
+}
