@@ -54,10 +54,10 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
 @router.post("/verify-email", response_model=UserRead, status_code=status.HTTP_200_OK)
 def verify_email_endpoint(request: VerifyEmailRequest, db: Session = Depends(get_db)):
     """
-    Verify user email using verification token.
+    Verify user email using a 6-digit verification code.
     """
     try:
-        db_user = verify_email(db, request.token)
+        db_user = verify_email(db, request.code)
         return db_user
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

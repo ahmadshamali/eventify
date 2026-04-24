@@ -39,10 +39,18 @@ def get_current_user(
 			detail="Invalid token payload.",
 		)
 
+	try:
+		user_id = int(subject)
+	except (TypeError, ValueError) as exc:
+		raise HTTPException(
+			status_code=status.HTTP_401_UNAUTHORIZED,
+			detail="Invalid token payload.",
+		) from exc
+
 	db_user = (
 		db.query(User)
-		.options(joinedload(User.role))
-		.filter(User.user_id == int(subject))
+		.options(joinedload(User.role), joinedload(User.organizer_profile), joinedload(User.student_profile))
+		.filter(User.user_id == user_id)
 		.first()
 	)
 
@@ -69,5 +77,14 @@ def require_student(current_user: User = Depends(get_current_user)) -> User:
 		raise HTTPException(
 			status_code=status.HTTP_403_FORBIDDEN,
 			detail="Only students can perform this action.",
+		)
+	return current_user
+
+
+def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+	if not current_user.role or current_user.role.role_name != "admin":
+		raise HTTPException(
+			status_code=status.HTTP_403_FORBIDDEN,
+			detail="Admin access required",
 		)
 	return current_user

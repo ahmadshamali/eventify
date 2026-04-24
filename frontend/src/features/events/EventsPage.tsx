@@ -1,30 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 
 import { cancelEvent, fetchEvents, registerForEvent } from './eventApi'
 
-function getRoleFromToken(): string | null {
-  const token = localStorage.getItem('eventify_access_token')
-  if (!token) {
-    return null
-  }
-
-  const payloadPart = token.split('.')[1]
-  if (!payloadPart) {
-    return null
-  }
-
-  try {
-    const payload = JSON.parse(atob(payloadPart)) as { role?: string }
-    return payload.role ?? null
-  } catch {
-    return null
-  }
-}
-
 function EventsPage() {
   const queryClient = useQueryClient()
-  const role = getRoleFromToken()
+  const { role } = useAuth()
+  const canCreateEvent = role === 'organizer' || role === 'admin'
 
   const { data: events = [], isLoading: loading, error } = useQuery({
     queryKey: ['events'],
@@ -64,11 +47,13 @@ function EventsPage() {
             Eventify
           </h1>
           <p className="text-xl font-light text-slate-400">Discover the most anticipated upcoming events</p>
-          <div className="mt-5">
-            <Link className="text-sm text-blue-300 transition hover:text-blue-200" to="/events/create">
-              Create a new event
-            </Link>
-          </div>
+          {canCreateEvent ? (
+            <div className="mt-5">
+              <Link className="text-sm text-blue-300 transition hover:text-blue-200" to="/events/create">
+                Create a new event
+              </Link>
+            </div>
+          ) : null}
         </header>
 
         {error && (

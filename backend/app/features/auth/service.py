@@ -1,6 +1,6 @@
 
 import logging
-import uuid
+import secrets
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
 from app.core.security import hash_password, verify_password
@@ -8,6 +8,16 @@ from app.models.user import User, StudentProfile, OrganizerProfile, Role
 from app.features.auth.schemas import UserRegister, UserLogin
 
 logger = logging.getLogger(__name__)
+
+
+def generate_verification_code(db) -> str:
+    for _ in range(20):
+        code = f"{secrets.randbelow(1_000_000):06d}"
+        existing_code = db.query(User.user_id).filter(User.verification_token == code).first()
+        if not existing_code:
+            return code
+
+    raise ValueError("Unable to generate verification code")
 
 
 def register_user(db, user_data: UserRegister):
@@ -37,48 +47,54 @@ def register_user(db, user_data: UserRegister):
         if existing_student_profile:
             raise ValueError("Student number is already registered")
     
-    # Create user
-    db_user = User(
-        email=user_data.email,
-        full_name=user_data.full_name,
-        password_hash=hash_password(user_data.password),
-        role_id=role.role_id,
-        email_verified=False,
-        account_status="pending",
-        verification_token=str(uuid.uuid4())
-    )
-    db.add(db_user)
-    db.flush()  # Flush to get the user_id
+    for attempt in range(5):
+        verification_code = generate_verification_code(db)
 
-    # Create associated profile based on role
-    if user_data.role == "student" and user_data.student_profile:
-        student_profile = StudentProfile(
-            student_id=db_user.user_id,
-            student_number=student_number,
-            major=user_data.student_profile.major
+        # Create user
+        db_user = User(
+            email=user_data.email,
+            full_name=user_data.full_name,
+            password_hash=hash_password(user_data.password),
+            role_id=role.role_id,
+            email_verified=False,
+            account_status="pending",
+            verification_token=verification_code,
         )
-        db.add(student_profile)
+        db.add(db_user)
+        db.flush()  # Flush to get the user_id
 
-    elif user_data.role == "organizer" and user_data.organizer_profile:
-        organizer_profile = OrganizerProfile(
-            organizer_id=db_user.user_id,
-            club_name=user_data.organizer_profile.club_name,
-            approved_by=None,  # Will be set when admin approves
-            approved_at=None,
-            rejection_reason=None
-        )
-        db.add(organizer_profile)
+        # Create associated profile based on role
+        if user_data.role == "student" and user_data.student_profile:
+            student_profile = StudentProfile(
+                student_id=db_user.user_id,
+                student_number=student_number,
+                major=user_data.student_profile.major,
+            )
+            db.add(student_profile)
 
-    try:
-        db.commit()
-    except IntegrityError as exc:
-        db.rollback()
-        error_message = str(getattr(exc, "orig", exc)).lower()
-        if "student_number" in error_message:
-            raise ValueError("Student number is already registered")
-        if "email" in error_message:
-            raise ValueError("Email is already registered")
-        raise ValueError("Invalid registration data or duplicate entry")
+        elif user_data.role == "organizer" and user_data.organizer_profile:
+            organizer_profile = OrganizerProfile(
+                organizer_id=db_user.user_id,
+                club_name=user_data.organizer_profile.club_name,
+                approved_by=None,  # Will be set when admin approves
+                approved_at=None,
+                rejection_reason=None,
+            )
+            db.add(organizer_profile)
+
+        try:
+            db.commit()
+            break
+        except IntegrityError as exc:
+            db.rollback()
+            error_message = str(getattr(exc, "orig", exc)).lower()
+            if "verification_token" in error_message and attempt < 4:
+                continue
+            if "student_number" in error_message:
+                raise ValueError("Student number is already registered")
+            if "email" in error_message:
+                raise ValueError("Email is already registered")
+            raise ValueError("Invalid registration data or duplicate entry")
 
     db.refresh(db_user)
 
@@ -91,16 +107,16 @@ def register_user(db, user_data: UserRegister):
     return db_user
 
 
-def verify_email(db, token: str):
+def verify_email(db, code: str):
     """
-    Verify user email using verification token.
+    Verify user email using a 6-digit verification code.
     For students: set email_verified=True and account_status='active'
     For organizers: set email_verified=True and account_status='pending_approval'
     """
-    db_user = db.query(User).filter(User.verification_token == token).first()
+    db_user = db.query(User).filter(User.verification_token == code).first()
     
     if not db_user:
-        raise ValueError("Invalid or expired verification token")
+        raise ValueError("Invalid or expired verification code")
     
     if db_user.email_verified:
         raise ValueError("Email is already verified")

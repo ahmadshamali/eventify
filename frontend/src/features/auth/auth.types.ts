@@ -6,7 +6,7 @@ export interface LoginRequest {
 }
 
 export interface VerifyEmailRequest {
-  token: string
+  code: string
 }
 
 export interface StudentProfilePayload {
