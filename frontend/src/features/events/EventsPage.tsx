@@ -2,12 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
-import { cancelEvent, fetchEvents, registerForEvent } from './eventApi'
+import { cancelEvent, fetchEvents } from './eventApi'
 
 function EventsPage() {
   const queryClient = useQueryClient()
-  const { role } = useAuth()
-  const canCreateEvent = role === 'organizer' || role === 'admin'
+  const { role, userId } = useAuth()
 
   const { data: events = [], isLoading: loading, error } = useQuery({
     queryKey: ['events'],
@@ -21,20 +20,15 @@ function EventsPage() {
     },
   })
 
-  const { mutateAsync: registerAsync, isPending: isRegistering } = useMutation({
-    mutationFn: (eventId: number) => registerForEvent(eventId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['events'] })
-    },
-  })
-
-  const handleCancel = async (eventId: number) => {
-    const confirmed = window.confirm('Are you sure you want to cancel this event?')
+  const handleCancel = async (eventId: number, eventTitle: string) => {
+    const confirmed = window.confirm(`Are sure you to delete ${eventTitle}`)
     if (!confirmed) {
       return
     }
     await cancelEventAsync(eventId)
   }
+
+  const canManageEvent = (eventOrganizerId: number | null) => role === 'organizer' && String(eventOrganizerId) === userId
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-900 text-slate-50">
@@ -47,13 +41,6 @@ function EventsPage() {
             Eventify
           </h1>
           <p className="text-xl font-light text-slate-400">Discover the most anticipated upcoming events</p>
-          {canCreateEvent ? (
-            <div className="mt-5">
-              <Link className="text-sm text-blue-300 transition hover:text-blue-200" to="/events/create">
-                Create a new event
-              </Link>
-            </div>
-          ) : null}
         </header>
 
         {error && (
@@ -87,7 +74,7 @@ function EventsPage() {
                   <p className="grow text-base leading-7 text-slate-400">
                     {event.description || 'No description provided.'}
                   </p>
-                  <div className="mt-8 flex items-center justify-between border-t border-white/5 pt-6">
+                  <div className="mt-8 border-t border-white/5 pt-6">
                     <div className="flex flex-col gap-1 text-xs text-slate-500">
                       <span className="text-sm text-slate-400">Event ID: #{event.id}</span>
                       <span>Created: {new Date(event.created_at).toLocaleDateString()}</span>
@@ -97,8 +84,9 @@ function EventsPage() {
                       <span>Capacity: {event.capacity}</span>
                       <span>Status: {event.status}</span>
                     </div>
-                    <div className="flex gap-3">
-                      {role === 'organizer' ? (
+
+                    <div className="mt-4 flex items-end justify-end gap-3 pr-1 pb-1">
+                      {canManageEvent(event.organizerId) ? (
                         <>
                           <Link
                             to={`/events/${event.id}/edit`}
@@ -122,10 +110,10 @@ function EventsPage() {
                           </Link>
                           <button
                             className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-500/60 bg-red-600/90 text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
-                            onClick={() => handleCancel(event.id)}
-                            disabled={isCanceling || event.status === 'Canceled'}
-                            aria-label={event.status === 'Canceled' ? `Canceled ${event.title}` : `Delete ${event.title}`}
-                            title={event.status === 'Canceled' ? 'Already canceled' : 'Delete event'}
+                            onClick={() => handleCancel(event.id, event.title)}
+                            disabled={isCanceling}
+                            aria-label={`Delete ${event.title}`}
+                            title="Delete event"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -147,15 +135,12 @@ function EventsPage() {
                         </>
                       ) : null}
 
-                      {role === 'student' ? (
-                        <button
-                          className="rounded-lg bg-blue-500 px-4 py-3 font-semibold text-white transition hover:bg-blue-600 disabled:opacity-70"
-                          onClick={() => registerAsync(event.id)}
-                          disabled={isRegistering || event.status !== 'Available'}
-                        >
-                          {event.status === 'Available' ? 'Register' : event.status}
-                        </button>
-                      ) : null}
+                      <Link
+                        className="rounded-lg bg-blue-500 px-4 py-3 font-semibold text-white transition hover:bg-blue-600"
+                        to={`/events/${event.id}/details`}
+                      >
+                        Details
+                      </Link>
                     </div>
                   </div>
                 </div>

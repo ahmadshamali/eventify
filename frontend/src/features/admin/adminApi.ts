@@ -38,3 +38,15 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
 export async function fetchAdminEvents(): Promise<AdminEvent[]> {
   return apiRequest<AdminEvent[]>('/admin/events')
 }
+
+export async function deleteAdminUser(userId: number): Promise<void> {
+  await apiRequest<void>(`/admin/users/${userId}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function deleteAdminEvent(eventId: number): Promise<void> {
+  await apiRequest<void>(`/admin/events/${eventId}`, {
+    method: 'DELETE',
+  })
+}

@@ -10,6 +10,9 @@ import VerifyEmailPage from '../features/auth/VerifyEmailPage'
 // Events
 import EventsPage from '../features/events/EventsPage'
 import CreateEventPage from '../features/events/CreateEventPage'
+import MyEventsPage from '../features/events/MyEventsPage'
+import EventDetailsPage from '../features/events/EventDetailsPage'
+import MyRegistrationsPage from '../features/events/MyRegistrationsPage.tsx'
 import AdminDashboardPage from '../features/admin/AdminDashboardPage'
 
 function ProtectedLayout() {
@@ -79,11 +82,12 @@ export default function AppRouter() {
         <Route element={<ProtectedRoute />}>
           <Route element={<ProtectedLayout />}>
             <Route path="/events" element={<EventsPage />} />
+            <Route path="/events/:eventId/details" element={<EventDetailsPage />} />
 
             <Route element={<ProtectedRoute allowedRoles={['student']} />}>
               <Route
                 path="/my-registrations"
-                element={<PlaceholderPage title="My Registrations" subtitle="Track your event registrations in one place." />}
+                element={<MyRegistrationsPage />}
               />
               <Route
                 path="/certificates"
@@ -94,7 +98,7 @@ export default function AppRouter() {
             <Route element={<ProtectedRoute allowedRoles={['organizer']} />}>
               <Route
                 path="/my-events"
-                element={<PlaceholderPage title="My Events" subtitle="Manage your published and draft events." />}
+                element={<MyEventsPage />}
               />
               <Route
                 path="/dashboard"

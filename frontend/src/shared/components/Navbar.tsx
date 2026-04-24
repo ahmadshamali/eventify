@@ -15,8 +15,8 @@ const navItems: NavItem[] = [
 	{ label: 'Create Event', to: '/events/create', roles: ['organizer', 'admin'] },
 	{ label: 'Dashboard', to: '/dashboard', roles: ['organizer'] },
 	{ label: 'Admin Dashboard', to: '/admin/dashboard', roles: ['admin'] },
-	{ label: 'Users', to: '/admin/users', roles: ['admin'] },
-	{ label: 'Pending', to: '/admin/pending', roles: ['admin'] },
+	//{ label: 'Users', to: '/admin/users', roles: ['admin'] },
+	//{ label: 'Pending', to: '/admin/pending', roles: ['admin'] },
 ]
 
 function NavButton({ to, label }: { to: string; label: string }) {

@@ -4,6 +4,8 @@ import type {
   CreateEventPayload,
   Event,
   Registration,
+  RegistrationStatus,
+  StudentRegistrationEvent,
   UpdateEventPayload,
 } from './event.types'
 
@@ -36,4 +38,18 @@ export const registerForEvent = async (eventId: number): Promise<Registration> =
   return apiRequest<Registration>(`/events/${eventId}/register`, {
     method: 'POST',
   })
+}
+
+export const unregisterFromEvent = async (eventId: number): Promise<void> => {
+  await apiRequest<void>(`/events/${eventId}/register`, {
+    method: 'DELETE',
+  })
+}
+
+export const fetchRegistrationStatus = async (eventId: number): Promise<RegistrationStatus> => {
+  return apiRequest<RegistrationStatus>(`/events/${eventId}/registration-status`)
+}
+
+export const fetchMyRegistrations = async (): Promise<StudentRegistrationEvent[]> => {
+  return apiRequest<StudentRegistrationEvent[]>('/events/my-registrations')
 }

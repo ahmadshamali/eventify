@@ -1,10 +1,13 @@
 from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.models.event import Event
+from app.models.registration import Registration
 from app.models.user import OrganizerProfile, Role, User
+from app.models.user import StudentProfile
 
 
 def get_admin_overview(db: Session) -> dict[str, int]:
@@ -148,3 +151,52 @@ def get_admin_events(db: Session) -> list[dict]:
 		}
 		for event in events
 	]
+
+
+def delete_user_as_admin(db: Session, user_id: int) -> None:
+	target_user = db.query(User).filter(User.user_id == user_id).first()
+	if not target_user:
+		raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+	try:
+		event_ids = [
+			event_id
+			for (event_id,) in db.query(Event.id).filter(Event.organizer_id == user_id).all()
+		]
+
+		if event_ids:
+			db.query(Registration).filter(Registration.event_id.in_(event_ids)).delete(synchronize_session=False)
+			db.query(Event).filter(Event.id.in_(event_ids)).delete(synchronize_session=False)
+
+		db.query(Registration).filter(Registration.student_id == user_id).delete(synchronize_session=False)
+		db.query(OrganizerProfile).filter(OrganizerProfile.approved_by == user_id).update(
+			{OrganizerProfile.approved_by: None}, synchronize_session=False
+		)
+		db.query(OrganizerProfile).filter(OrganizerProfile.organizer_id == user_id).delete(synchronize_session=False)
+		db.query(StudentProfile).filter(StudentProfile.student_id == user_id).delete(synchronize_session=False)
+
+		db.delete(target_user)
+		db.commit()
+	except SQLAlchemyError as exc:
+		db.rollback()
+		raise HTTPException(
+			status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+			detail="Failed to delete user.",
+		) from exc
+
+
+def delete_event_as_admin(db: Session, event_id: int) -> None:
+	target_event = db.query(Event).filter(Event.id == event_id).first()
+	if not target_event:
+		raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+
+	try:
+		db.query(Registration).filter(Registration.event_id == event_id).delete(synchronize_session=False)
+		db.delete(target_event)
+		db.commit()
+	except SQLAlchemyError as exc:
+		db.rollback()
+		raise HTTPException(
+			status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+			detail="Failed to delete event.",
+		) from exc

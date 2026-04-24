@@ -67,3 +67,23 @@ def read_admin_events(
 	_: User = Depends(get_current_admin),
 ):
 	return service.get_admin_events(db)
+
+
+@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_admin_user(
+	user_id: int,
+	db: Session = Depends(get_db),
+	_: User = Depends(get_current_admin),
+):
+	service.delete_user_as_admin(db, user_id)
+	return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.delete("/events/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_admin_event(
+	event_id: int,
+	db: Session = Depends(get_db),
+	_: User = Depends(get_current_admin),
+):
+	service.delete_event_as_admin(db, event_id)
+	return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_events(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Event).offset(skip).limit(limit).all()
+    return db.query(Event).filter(Event.status != "Canceled").offset(skip).limit(limit).all()
 
 
 def get_event_by_id(db: Session, event_id: int) -> Event:
@@ -88,36 +88,46 @@ def update_event(db: Session, event_id: int, payload: EventUpdate, organizer: Us
         raise HTTPException(status_code=500, detail="Internal database error.")
 
 
-def cancel_event(db: Session, event_id: int, organizer: User) -> Event:
+def cancel_event(db: Session, event_id: int, organizer: User):
     db_event = get_event_by_id(db, event_id)
     if db_event.organizer_id != organizer.user_id:
         raise HTTPException(status_code=403, detail="You can only cancel your own events.")
-
-    if db_event.status == "Canceled":
-        return db_event
 
     registered_students = (
         db.query(Registration.student_id).filter(Registration.event_id == db_event.id).all()
     )
 
-    try:
-        db_event.status = "Canceled"
-        db.commit()
-        db.refresh(db_event)
+    deleted_event_snapshot = {
+        "id": db_event.id,
+        "title": db_event.title,
+        "description": db_event.description,
+        "start_datetime": db_event.start_datetime,
+        "location": db_event.location,
+        "category": db_event.category,
+        "status": "Canceled",
+        "capacity": db_event.capacity,
+        "organizer_id": db_event.organizer_id,
+        "created_at": db_event.created_at,
+    }
 
-        logger.info("Organizer %s canceled event %s", organizer.user_id, db_event.id)
+    try:
+        db.query(Registration).filter(Registration.event_id == db_event.id).delete(synchronize_session=False)
+        db.delete(db_event)
+        db.commit()
+
+        logger.info("Organizer %s canceled and deleted event %s", organizer.user_id, deleted_event_snapshot["id"])
         logger.info(
-            "Notify organizer %s: event %s canceled.",
+            "Notify organizer %s: event %s was canceled and removed.",
             organizer.user_id,
-            db_event.id,
+            deleted_event_snapshot["id"],
         )
         logger.info(
             "Notify registered students for event %s: %s",
-            db_event.id,
+            deleted_event_snapshot["id"],
             [student_id for (student_id,) in registered_students],
         )
 
-        return db_event
+        return deleted_event_snapshot
     except SQLAlchemyError as e:
         db.rollback()
         logger.error(f"Database error while canceling event: {e}")

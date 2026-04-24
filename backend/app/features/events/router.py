@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.features.auth.dependencies import require_organizer
+from app.features.auth.dependencies import require_organizer, require_organizer_or_admin
 from app.features.events.schemas import CancelEventRequest, EventCreate, EventRead as EventSchema, EventUpdate
 from app.features.events import service
 from app.models.user import User
@@ -19,7 +19,7 @@ def read_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 def create_event(
     event: EventCreate,
     db: Session = Depends(get_db),
-    organizer: User = Depends(require_organizer),
+    organizer: User = Depends(require_organizer_or_admin),
 ):
     return service.create_event(db, event, organizer)
 

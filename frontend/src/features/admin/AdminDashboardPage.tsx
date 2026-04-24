@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Toaster, toast } from 'sonner'
 import {
   approvePendingOrganizer,
+  deleteAdminEvent,
+  deleteAdminUser,
   fetchAdminEvents,
   fetchAdminOverview,
   fetchAdminUsers,
@@ -72,6 +74,50 @@ export default function AdminDashboardPage() {
       toast.error(error.message)
     },
   })
+
+  const deleteUserMutation = useMutation({
+    mutationFn: deleteAdminUser,
+    onSuccess: () => {
+      toast.success('User deleted successfully')
+      void queryClient.invalidateQueries({ queryKey: ['admin-overview'] })
+      void queryClient.invalidateQueries({ queryKey: ['admin-users'] })
+      void queryClient.invalidateQueries({ queryKey: ['admin-pending-organizers'] })
+      void queryClient.invalidateQueries({ queryKey: ['admin-events'] })
+    },
+    onError: (error: Error) => {
+      toast.error(error.message)
+    },
+  })
+
+  const deleteEventMutation = useMutation({
+    mutationFn: deleteAdminEvent,
+    onSuccess: () => {
+      toast.success('Event deleted successfully')
+      void queryClient.invalidateQueries({ queryKey: ['admin-overview'] })
+      void queryClient.invalidateQueries({ queryKey: ['admin-events'] })
+      void queryClient.invalidateQueries({ queryKey: ['events'] })
+      void queryClient.invalidateQueries({ queryKey: ['my-registrations'] })
+    },
+    onError: (error: Error) => {
+      toast.error(error.message)
+    },
+  })
+
+  const handleDeleteUser = (userId: number, fullName: string) => {
+    const confirmed = window.confirm(`Are you sure you want to delete ${fullName} account?`)
+    if (!confirmed) {
+      return
+    }
+    deleteUserMutation.mutate(userId)
+  }
+
+  const handleDeleteEvent = (eventId: number, title: string) => {
+    const confirmed = window.confirm(`Are you sure you want to delete ${title} event?`)
+    if (!confirmed) {
+      return
+    }
+    deleteEventMutation.mutate(eventId)
+  }
 
   const hasAnyError = overviewError || pendingError || usersError || eventsError
 
@@ -212,6 +258,7 @@ export default function AdminDashboardPage() {
                         <th className="px-3 py-3 font-medium">Role</th>
                         <th className="px-3 py-3 font-medium">Account Status</th>
                         <th className="px-3 py-3 font-medium">Joined</th>
+                        <th className="px-3 py-3 font-medium">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -230,6 +277,16 @@ export default function AdminDashboardPage() {
                             </span>
                           </td>
                           <td className="px-3 py-3 text-slate-300">{new Date(user.created_at).toLocaleDateString()}</td>
+                          <td className="px-3 py-3">
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteUser(user.user_id, user.full_name)}
+                              disabled={deleteUserMutation.isPending}
+                              className="rounded-lg border border-red-400/40 bg-red-500/20 px-3 py-1.5 text-xs font-medium text-red-100 transition hover:bg-red-500/30 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              Delete
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -250,6 +307,7 @@ export default function AdminDashboardPage() {
                         <th className="px-3 py-3 font-medium">Subtitle</th>
                         <th className="px-3 py-3 font-medium">Created</th>
                         <th className="px-3 py-3 font-medium">Capacity</th>
+                        <th className="px-3 py-3 font-medium">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -259,6 +317,16 @@ export default function AdminDashboardPage() {
                           <td className="px-3 py-3 text-slate-300">{event.subtitle}</td>
                           <td className="px-3 py-3 text-slate-300">{new Date(event.created_at).toLocaleDateString()}</td>
                           <td className="px-3 py-3 text-slate-300">{event.capacity ?? 'N/A'}</td>
+                          <td className="px-3 py-3">
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteEvent(event.id, event.title)}
+                              disabled={deleteEventMutation.isPending}
+                              className="rounded-lg border border-red-400/40 bg-red-500/20 px-3 py-1.5 text-xs font-medium text-red-100 transition hover:bg-red-500/30 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              Delete
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>

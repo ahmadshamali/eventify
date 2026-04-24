@@ -48,3 +48,24 @@ export interface Registration {
   student_id: number;
   created_at: string;
 }
+
+export interface RegistrationStatus {
+  event_id: number;
+  is_registered: boolean;
+  registered_count: number;
+  capacity: number;
+  available_seats: number;
+}
+
+export interface StudentRegistrationEvent {
+  registration_id: number;
+  registered_at: string;
+  event_id: number;
+  title: string;
+  description: string | null;
+  start_datetime: string;
+  location: string;
+  category: string;
+  status: string;
+  capacity: number;
+}

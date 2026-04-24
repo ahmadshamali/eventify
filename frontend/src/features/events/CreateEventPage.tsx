@@ -1,33 +1,19 @@
-import {createEvent} from './eventApi';
-import {useMutation} from "@tanstack/react-query";
-import type {CreateEventPayload} from "./event.types.ts";
-import * as z from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { fetchEvents, updateEvent } from './eventApi'
-import type { UpdateEventPayload } from './event.types'
+import { zodResolver } from '@hookform/resolvers/zod'
 
-const schema = z.object({
-        title: z.string().min(1, {message: 'Title is required'}).max(100, {message: 'Title must be at most 100 characters'}),
-        description: z.string().min(1, {message: 'Description is required'}).max(1000, {message: 'Description must be at most 1000 characters'}),
-        date: z.string().min(1, { message: 'Date is required' }),
-        time: z.string().min(1, { message: 'Time is required' }),
-        location: z.string().min(1, { message: 'Location is required' }).max(255, { message: 'Location must be at most 255 characters' }),
-        category: z.enum([
-            'Technology',
-            'Business & Entrepreneurship',
-            'Education & Workshops',
-            'Sports & Fitness',
-            'Arts & Culture',
-        ]),
-        capacity: z.coerce.number().int().positive({message: 'Capacity must be a positive number'}),
-});
-
-type EventFormInput = z.input<typeof schema>
-type EventFormValues = z.output<typeof schema>
+import { createEvent, fetchEvents, updateEvent } from './eventApi'
+import {
+    buildEventPayload,
+    defaultEventFormValues,
+    eventCategories,
+    eventFormSchema,
+    mapEventToFormValues,
+    type EventFormInput,
+    type EventFormValues,
+} from './eventForm'
 
 function CreateEventPage() {
         const { eventId } = useParams<{ eventId: string }>()
@@ -41,7 +27,7 @@ function CreateEventPage() {
             queryFn: fetchEvents,
         })
 
-        const editingEvent = events.find((item) => item.id === editingEventId)
+    const editingEvent = events.find((item) => item.id === editingEventId)
 
     const {
         register,
@@ -49,44 +35,27 @@ function CreateEventPage() {
                 reset,
         formState: { errors },
     } = useForm<EventFormInput, unknown, EventFormValues>({
-        resolver: zodResolver(schema),
-        defaultValues: {
-            title: '',
-            description: '',
-                        date: '',
-                        time: '',
-                        location: '',
-                        category: 'Technology',
-                        capacity: 1,
-        }
-    });
+        resolver: zodResolver(eventFormSchema),
+        defaultValues: defaultEventFormValues,
+    })
 
         useEffect(() => {
             if (!editingEvent) {
                 return
             }
 
-            const eventDate = new Date(editingEvent.startDateTime)
-            const date = `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, '0')}-${String(eventDate.getDate()).padStart(2, '0')}`
-            const time = `${String(eventDate.getHours()).padStart(2, '0')}:${String(eventDate.getMinutes()).padStart(2, '0')}`
-
-            reset({
-                title: editingEvent.title,
-                description: editingEvent.description ?? '',
-                date,
-                time,
-                location: editingEvent.location,
-                category: editingEvent.category,
-                capacity: editingEvent.capacity,
-            })
+            reset(mapEventToFormValues(editingEvent))
         }, [editingEvent, reset])
 
         const {isPending: isLoading, error, mutateAsync: submitMutation} = useMutation({
-             mutationFn: async (payload: CreateEventPayload | UpdateEventPayload) => {
+             mutationFn: async (payload: EventFormValues) => {
+                 const eventPayload = buildEventPayload(payload)
+
                  if (isEditMode && editingEventId) {
-                     return updateEvent(editingEventId, payload)
+                     return updateEvent(editingEventId, eventPayload)
                  }
-                 return createEvent(payload as CreateEventPayload)
+
+                 return createEvent(eventPayload)
              },
             onSuccess: async () => {
                 await queryClient.invalidateQueries({ queryKey: ['events'] })
@@ -94,16 +63,7 @@ function CreateEventPage() {
             },
     });
 
-        const buildPayload = (data: EventFormValues): CreateEventPayload => ({
-        title: data.title.trim(),
-                description: data.description.trim(),
-                startDateTime: new Date(`${data.date}T${data.time}:00`).toISOString(),
-                location: data.location.trim(),
-                category: data.category,
-                capacity: data.capacity,
-    });
-
-        const onSubmit = (data: EventFormValues) => submitMutation(buildPayload(data));
+        const onSubmit = (data: EventFormValues) => submitMutation(data)
 
     return (
         <div className="relative min-h-screen overflow-hidden bg-slate-900 px-5 py-10 text-slate-50">
@@ -175,11 +135,11 @@ function CreateEventPage() {
                                                     className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
                                                     {...register('category')}
                                                 >
-                                                    <option value="Technology">Technology</option>
-                                                    <option value="Business & Entrepreneurship">Business & Entrepreneurship</option>
-                                                    <option value="Education & Workshops">Education & Workshops</option>
-                                                    <option value="Sports & Fitness">Sports & Fitness</option>
-                                                    <option value="Arts & Culture">Arts & Culture</option>
+                                                    {eventCategories.map((category) => (
+                                                        <option key={category} value={category}>
+                                                            {category}
+                                                        </option>
+                                                    ))}
                                                 </select>
 
                                                 {errors.category && (
