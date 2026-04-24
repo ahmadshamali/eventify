@@ -1,8 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchEvents } from './eventApi';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 function EventsPage() {
+  const { canAccess } = useAuth()
+  const canCreateEvent = canAccess(['organizer', 'admin'])
+
   const { data: events = [], isLoading: loading, error } = useQuery({
     queryKey: ['events'],
     queryFn: fetchEvents,
@@ -19,11 +23,13 @@ function EventsPage() {
             Eventify
           </h1>
           <p className="text-xl font-light text-slate-400">Discover the most anticipated upcoming events</p>
-          <div className="mt-5">
-            <Link className="text-sm text-blue-300 transition hover:text-blue-200" to="/events/create">
-              Create a new event
-            </Link>
-          </div>
+          {canCreateEvent ? (
+            <div className="mt-5">
+              <Link className="text-sm text-blue-300 transition hover:text-blue-200" to="/events/create">
+                Create a new event
+              </Link>
+            </div>
+          ) : null}
         </header>
 
         {error && (
