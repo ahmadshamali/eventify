@@ -23,6 +23,7 @@ export default function AppRouter() {
         {/* Events */}
         <Route path="/events" element={<EventsPage />} />
         <Route path="/events/create" element={<CreateEventPage />} />
+        <Route path="/events/:eventId/edit" element={<CreateEventPage />} />
       </Routes>
     </BrowserRouter>
   )

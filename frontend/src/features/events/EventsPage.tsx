@@ -1,12 +1,57 @@
-import { useQuery } from '@tanstack/react-query';
-import { fetchEvents } from './eventApi';
-import { Link } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
+
+import { cancelEvent, fetchEvents, registerForEvent } from './eventApi'
+
+function getRoleFromToken(): string | null {
+  const token = localStorage.getItem('eventify_access_token')
+  if (!token) {
+    return null
+  }
+
+  const payloadPart = token.split('.')[1]
+  if (!payloadPart) {
+    return null
+  }
+
+  try {
+    const payload = JSON.parse(atob(payloadPart)) as { role?: string }
+    return payload.role ?? null
+  } catch {
+    return null
+  }
+}
 
 function EventsPage() {
+  const queryClient = useQueryClient()
+  const role = getRoleFromToken()
+
   const { data: events = [], isLoading: loading, error } = useQuery({
     queryKey: ['events'],
     queryFn: fetchEvents,
   })
+
+  const { mutateAsync: cancelEventAsync, isPending: isCanceling } = useMutation({
+    mutationFn: (eventId: number) => cancelEvent(eventId, { confirm: true }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['events'] })
+    },
+  })
+
+  const { mutateAsync: registerAsync, isPending: isRegistering } = useMutation({
+    mutationFn: (eventId: number) => registerForEvent(eventId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['events'] })
+    },
+  })
+
+  const handleCancel = async (eventId: number) => {
+    const confirmed = window.confirm('Are you sure you want to cancel this event?')
+    if (!confirmed) {
+      return
+    }
+    await cancelEventAsync(eventId)
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-900 text-slate-50">
@@ -52,7 +97,7 @@ function EventsPage() {
                 >
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
                   <h3 className="mb-4 text-2xl font-semibold text-white">
-                    {event.title} ({event.subtitle})
+                    {event.title}
                   </h3>
                   <p className="grow text-base leading-7 text-slate-400">
                     {event.description || 'No description provided.'}
@@ -61,11 +106,72 @@ function EventsPage() {
                     <div className="flex flex-col gap-1 text-xs text-slate-500">
                       <span className="text-sm text-slate-400">Event ID: #{event.id}</span>
                       <span>Created: {new Date(event.created_at).toLocaleDateString()}</span>
-                      <span>Capacity: {event.capacity ? event.capacity : 'Unlimited'}</span>
+                      <span>Starts: {new Date(event.startDateTime).toLocaleString()}</span>
+                      <span>Location: {event.location}</span>
+                      <span>Category: {event.category}</span>
+                      <span>Capacity: {event.capacity}</span>
+                      <span>Status: {event.status}</span>
                     </div>
-                    <button className="rounded-lg bg-blue-500 px-6 py-3 font-semibold text-white transition hover:bg-blue-600 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)]">
-                      Details
-                    </button>
+                    <div className="flex gap-3">
+                      {role === 'organizer' ? (
+                        <>
+                          <Link
+                            to={`/events/${event.id}/edit`}
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/20 text-white transition hover:border-white/40 hover:bg-white/5"
+                            aria-label={`Edit ${event.title}`}
+                            title="Edit event"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="h-5 w-5"
+                            >
+                              <path d="M12 20h9" />
+                              <path d="m16.5 3.5 4 4L7 21l-4 1 1-4Z" />
+                            </svg>
+                          </Link>
+                          <button
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-500/60 bg-red-600/90 text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                            onClick={() => handleCancel(event.id)}
+                            disabled={isCanceling || event.status === 'Canceled'}
+                            aria-label={event.status === 'Canceled' ? `Canceled ${event.title}` : `Delete ${event.title}`}
+                            title={event.status === 'Canceled' ? 'Already canceled' : 'Delete event'}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="h-5 w-5"
+                            >
+                              <path d="M3 6h18" />
+                              <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
+                              <path d="M19 6l-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6" />
+                              <path d="M10 11v6" />
+                              <path d="M14 11v6" />
+                            </svg>
+                          </button>
+                        </>
+                      ) : null}
+
+                      {role === 'student' ? (
+                        <button
+                          className="rounded-lg bg-blue-500 px-4 py-3 font-semibold text-white transition hover:bg-blue-600 disabled:opacity-70"
+                          onClick={() => registerAsync(event.id)}
+                          disabled={isRegistering || event.status !== 'Available'}
+                        >
+                          {event.status === 'Available' ? 'Register' : event.status}
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               ))
