@@ -9,6 +9,16 @@ import type {
   UpdateEventPayload,
 } from './event.types'
 
+type GenerateDescriptionPayload = {
+  title: string
+  category: string
+  additional_details?: string
+}
+
+type GenerateDescriptionResponse = {
+  description: string
+}
+
 export const fetchEvents = async (): Promise<Event[]> => {
   return apiRequest<Event[]>('/events/')
 }
@@ -52,4 +62,13 @@ export const fetchRegistrationStatus = async (eventId: number): Promise<Registra
 
 export const fetchMyRegistrations = async (): Promise<StudentRegistrationEvent[]> => {
   return apiRequest<StudentRegistrationEvent[]>('/events/my-registrations')
+}
+
+export const generateEventDescription = async (
+  payload: GenerateDescriptionPayload,
+): Promise<GenerateDescriptionResponse> => {
+  return apiRequest<GenerateDescriptionResponse>('/ai/generate-event-description', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
 }

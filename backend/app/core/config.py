@@ -23,5 +23,9 @@ class Settings:
     JWT_ALGORITHM: str = os.getenv('JWT_ALGORITHM', 'HS256')
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRE_MINUTES', '60'))
 
+    # AI configuration
+    OPENAI_API_KEY: str = os.getenv('OPENAI_API_KEY', '')
+    OPENAI_MODEL: str = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
+
 
 settings = Settings()

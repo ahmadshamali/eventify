@@ -1,18 +1,27 @@
+import logging
+from datetime import datetime
+
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
-import logging
 
-from app.models.event import Event
 from app.features.events.schemas import EventCreate, EventUpdate
+from app.models.event import Event
 from app.models.registration import Registration
 from app.models.user import User
+from app.shared.event_time import build_end_datetime, is_public_event_visible, normalize_datetime, resolve_event_end_datetime
 
 logger = logging.getLogger(__name__)
 
 
-def get_events(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Event).filter(Event.status != "Canceled").offset(skip).limit(limit).all()
+def get_events(db: Session, skip: int = 0, limit: int = 100, current_user: User | None = None):
+    events = db.query(Event).filter(Event.status != "Canceled").order_by(Event.created_at.desc()).all()
+
+    if current_user and current_user.role and current_user.role.role_name in {"organizer", "admin"}:
+        return events[skip : skip + limit]
+
+    visible_events = [event for event in events if is_public_event_visible(resolve_event_end_datetime(event.start_datetime, event.end_datetime))]
+    return visible_events[skip : skip + limit]
 
 
 def get_event_by_id(db: Session, event_id: int) -> Event:
@@ -33,11 +42,21 @@ def _recompute_event_status(db: Session, db_event: Event) -> None:
     db_event.status = "Full" if registrations_count >= db_event.capacity else "Available"
 
 
+def _resolve_event_end_datetime(start_datetime: datetime, duration_minutes: int) -> datetime:
+    return build_end_datetime(start_datetime, duration_minutes)
+
+
 def create_event(db: Session, event: EventCreate, organizer: User):
+    start_datetime = normalize_datetime(event.start_datetime)
+    end_datetime = _resolve_event_end_datetime(start_datetime, event.duration_minutes)
+
     db_event = Event(
         title=event.title,
         description=event.description,
-        start_datetime=event.start_datetime,
+        start_datetime=start_datetime,
+        end_datetime=end_datetime,
+        image_url=event.image_url,
+        event_link=event.event_link,
         location=event.location,
         category=event.category,
         status="Available",
@@ -69,8 +88,18 @@ def update_event(db: Session, event_id: int, payload: EventUpdate, organizer: Us
         raise HTTPException(status_code=400, detail="Canceled events cannot be updated.")
 
     updates = payload.model_dump(exclude_unset=True)
+    original_start_datetime = normalize_datetime(db_event.start_datetime)
+    original_end_datetime = resolve_event_end_datetime(db_event.start_datetime, db_event.end_datetime)
+    duration_minutes = updates.pop("duration_minutes", None)
+    start_datetime = normalize_datetime(updates.pop("start_datetime", db_event.start_datetime))
+
     for field, value in updates.items():
         setattr(db_event, field, value)
+
+    db_event.start_datetime = start_datetime
+    if duration_minutes is None:
+        duration_minutes = max(int((original_end_datetime - original_start_datetime).total_seconds() // 60), 1)
+    db_event.end_datetime = _resolve_event_end_datetime(db_event.start_datetime, duration_minutes)
 
     try:
         _recompute_event_status(db, db_event)
@@ -93,15 +122,14 @@ def cancel_event(db: Session, event_id: int, organizer: User):
     if db_event.organizer_id != organizer.user_id:
         raise HTTPException(status_code=403, detail="You can only cancel your own events.")
 
-    registered_students = (
-        db.query(Registration.student_id).filter(Registration.event_id == db_event.id).all()
-    )
+    registered_students = db.query(Registration.student_id).filter(Registration.event_id == db_event.id).all()
 
     deleted_event_snapshot = {
         "id": db_event.id,
         "title": db_event.title,
         "description": db_event.description,
         "start_datetime": db_event.start_datetime,
+        "end_datetime": db_event.end_datetime,
         "location": db_event.location,
         "category": db_event.category,
         "status": "Canceled",

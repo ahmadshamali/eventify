@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
 import { fetchEvents, fetchRegistrationStatus, registerForEvent, unregisterFromEvent } from './eventApi'
+import { formatEventEndTime, getEventLifecycleStatus } from './eventTime'
 
 function EventDetailsPage() {
   useAuth()
@@ -108,17 +109,66 @@ function EventDetailsPage() {
           </div>
         ) : (
           <section className="rounded-2xl border border-white/10 bg-slate-800/70 p-8 backdrop-blur-md">
+            {event.imageUrl ? (
+              <div className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70">
+                <img
+                  src={event.imageUrl}
+                  alt={event.title}
+                  className="h-72 w-full object-cover"
+                />
+              </div>
+            ) : null}
+
             <h1 className="mb-4 bg-gradient-to-br from-white to-slate-300 bg-clip-text text-4xl font-bold tracking-tight text-transparent">
               {event.title}
             </h1>
             <p className="mb-8 text-lg text-slate-300">{event.description || 'No description provided.'}</p>
 
+            <div className="mb-6 flex flex-wrap gap-2">
+              <span
+                className={[
+                  'rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide',
+                  event.status === 'Available'
+                    ? 'border-emerald-400/40 bg-emerald-500/20 text-emerald-200'
+                    : event.status === 'Full'
+                      ? 'border-red-400/40 bg-red-500/20 text-red-200'
+                      : 'border-white/20 bg-white/10 text-slate-200',
+                ].join(' ')}
+              >
+                {event.status}
+              </span>
+              <span
+                className={[
+                  'rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide',
+                  getEventLifecycleStatus(event) === 'Completed'
+                    ? 'border-slate-400/40 bg-slate-500/20 text-slate-100'
+                    : 'border-cyan-400/40 bg-cyan-500/20 text-cyan-100',
+                ].join(' ')}
+              >
+                {getEventLifecycleStatus(event)}
+              </span>
+            </div>
+
             <div className="grid grid-cols-1 gap-3 text-sm text-slate-300 md:grid-cols-2">
               <p><span className="text-slate-400">Starts:</span> {new Date(event.startDateTime).toLocaleString()}</p>
+              <p><span className="text-slate-400">Ends:</span> {formatEventEndTime(event.endDateTime)}</p>
               <p><span className="text-slate-400">Location:</span> {event.location}</p>
               <p><span className="text-slate-400">Category:</span> {event.category}</p>
-              <p><span className="text-slate-400">Status:</span> {event.status}</p>
+              <p><span className="text-slate-400">Capacity:</span> {event.capacity}</p>
             </div>
+
+            {event.eventLink ? (
+              <div className="mt-6">
+                <a
+                  href={event.eventLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex rounded-lg border border-cyan-400/40 bg-cyan-500/20 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-500/30"
+                >
+                  Open event link
+                </a>
+              </div>
+            ) : null}
 
             {registrationError ? (
               <div className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-300">
@@ -140,7 +190,8 @@ function EventDetailsPage() {
                     isRegistering ||
                     isUnregistering ||
                     Boolean(registrationStatus?.is_registered) ||
-                    event.status !== 'Available'
+                    event.status !== 'Available' ||
+                    getEventLifecycleStatus(event) === 'Completed'
                   }
                   className="rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
                 >

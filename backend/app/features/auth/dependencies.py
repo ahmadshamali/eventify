@@ -63,6 +63,38 @@ def get_current_user(
 	return db_user
 
 
+def get_optional_current_user(
+	db: Session = Depends(get_db), authorization: str | None = Header(default=None)
+) -> User | None:
+	if not authorization or not authorization.startswith("Bearer "):
+		return None
+
+	token = authorization.split(" ", 1)[1].strip()
+	if not token:
+		return None
+
+	try:
+		payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+	except PyJWTError:
+		return None
+
+	subject = payload.get("sub")
+	if not subject:
+		return None
+
+	try:
+		user_id = int(subject)
+	except (TypeError, ValueError):
+		return None
+
+	return (
+		db.query(User)
+		.options(joinedload(User.role), joinedload(User.organizer_profile), joinedload(User.student_profile))
+		.filter(User.user_id == user_id)
+		.first()
+	)
+
+
 def require_organizer(current_user: User = Depends(get_current_user)) -> User:
 	if not current_user.role or current_user.role.role_name != "organizer":
 		raise HTTPException(

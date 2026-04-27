@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 
 import { fetchMyRegistrations } from './eventApi'
+import { formatEventEndTime, getEventLifecycleStatus } from './eventTime'
 
 function MyRegistrationsPage() {
   const { data: registrations = [], isLoading, error } = useQuery({
@@ -51,13 +52,26 @@ function MyRegistrationsPage() {
                 className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-800/70 p-8 backdrop-blur-md transition duration-300 hover:-translate-y-2 hover:border-white/20 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5),0_0_20px_rgba(59,130,246,0.4)]"
               >
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
-                <h3 className="mb-4 text-2xl font-semibold text-white">{item.title}</h3>
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <h3 className="text-2xl font-semibold text-white">{item.title}</h3>
+                  <span
+                    className={[
+                      'rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide',
+                      getEventLifecycleStatus({ endDateTime: item.end_datetime }) === 'Completed'
+                        ? 'border-slate-400/40 bg-slate-500/20 text-slate-100'
+                        : 'border-cyan-400/40 bg-cyan-500/20 text-cyan-100',
+                    ].join(' ')}
+                  >
+                    {getEventLifecycleStatus({ endDateTime: item.end_datetime })}
+                  </span>
+                </div>
                 <p className="grow text-base leading-7 text-slate-400">{item.description || 'No description provided.'}</p>
 
                 <div className="mt-8 border-t border-white/5 pt-6">
                   <div className="flex flex-col gap-1 text-xs text-slate-500">
                     <span>Registered on: {new Date(item.registered_at).toLocaleDateString()}</span>
                     <span>Starts: {new Date(item.start_datetime).toLocaleString()}</span>
+                    <span>Ends: {formatEventEndTime(item.end_datetime)}</span>
                     <span>Location: {item.location}</span>
                     <span>Category: {item.category}</span>
                     <span>Status: {item.status}</span>

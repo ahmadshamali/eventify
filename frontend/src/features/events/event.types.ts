@@ -3,6 +3,9 @@ export interface Event {
   title: string;
   description: string | null;
   startDateTime: string;
+  endDateTime: string;
+  imageUrl: string | null;
+  eventLink: string | null;
   location: string;
   category: EventCategory;
   status: EventStatus;
@@ -24,6 +27,9 @@ export interface CreateEventPayload{
   title: string;
   description: string;
   startDateTime: string;
+  durationMinutes: number;
+  imageUrl?: string | null;
+  eventLink?: string | null;
   location: string;
   category: EventCategory;
   capacity: number;
@@ -33,6 +39,9 @@ export interface UpdateEventPayload {
   title?: string;
   description?: string;
   startDateTime?: string;
+  durationMinutes?: number;
+  imageUrl?: string | null;
+  eventLink?: string | null;
   location?: string;
   category?: EventCategory;
   capacity?: number;
@@ -64,6 +73,9 @@ export interface StudentRegistrationEvent {
   title: string;
   description: string | null;
   start_datetime: string;
+  end_datetime: string;
+  image_url: string | null;
+  event_link: string | null;
   location: string;
   category: string;
   status: string;

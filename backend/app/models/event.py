@@ -11,6 +11,9 @@ class Event(Base):
     subtitle = Column(String(255), index=True, nullable=True, server_default="")
     description = Column(Text, nullable=True)
     start_datetime = Column(DateTime, nullable=False, server_default=func.now())
+    end_datetime = Column(DateTime, nullable=False, server_default=func.now())
+    image_url = Column(String(500), nullable=True)
+    event_link = Column(String(500), nullable=True)
     location = Column(String(255), nullable=False)
     category = Column(String(100), nullable=False)
     status = Column(

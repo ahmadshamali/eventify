@@ -27,6 +27,7 @@ class StudentRegistrationEventRead(BaseModel):
 	title: str
 	description: str | None
 	start_datetime: datetime
+	end_datetime: datetime
 	location: str
 	category: str
 	status: str
