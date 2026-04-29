@@ -14,10 +14,11 @@ router = APIRouter()
 def read_events(
     skip: int = 0,
     limit: int = 100,
+    include_completed: bool = False,
     db: Session = Depends(get_db),
     current_user: User | None = Depends(get_optional_current_user),
 ):
-    return service.get_events(db, skip=skip, limit=limit, current_user=current_user)
+    return service.get_events(db, skip=skip, limit=limit, current_user=current_user, include_completed=include_completed)
 
 
 @router.post("/", response_model=EventSchema, status_code=status.HTTP_201_CREATED)

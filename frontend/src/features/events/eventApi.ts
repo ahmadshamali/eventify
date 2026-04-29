@@ -19,8 +19,9 @@ type GenerateDescriptionResponse = {
   description: string
 }
 
-export const fetchEvents = async (): Promise<Event[]> => {
-  return apiRequest<Event[]>('/events/')
+export const fetchEvents = async (options?: { includeCompleted?: boolean }): Promise<Event[]> => {
+  const qs = options?.includeCompleted ? '?include_completed=true' : ''
+  return apiRequest<Event[]>(`/events/${qs}`)
 }
 
 export const createEvent = async (payload: CreateEventPayload): Promise<Event> => {

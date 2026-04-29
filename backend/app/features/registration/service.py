@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.models.event import Event
 from app.models.registration import Registration
 from app.models.user import User
-from app.shared.event_time import normalize_datetime, resolve_event_end_datetime
+from app.shared.event_time import is_event_completed, normalize_datetime, resolve_event_end_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ def register_student_for_event(db: Session, event_id: int, student: User) -> Reg
 	if db_event.status == "Canceled":
 		raise HTTPException(status_code=400, detail="Registrations are closed for canceled events.")
 
-	if resolve_event_end_datetime(db_event.start_datetime, db_event.end_datetime) <= datetime.utcnow():
+	if is_event_completed(resolve_event_end_datetime(db_event.start_datetime, db_event.end_datetime)):
 		raise HTTPException(status_code=400, detail="Registrations are closed for completed events.")
 	existing_registration = (
 		db.query(Registration)

@@ -9,6 +9,7 @@ from app.features.ai.router import router as ai_router
 from app.features.dashboard.router import router as dashboard_router
 from app.features.events.router import router as events_router
 from app.features.registration.router import router as registration_router
+from app.features.feedback.router import router as feedback_router
 
 app = FastAPI(title="Eventify API")
 
@@ -39,4 +40,5 @@ app.include_router(auth_router, prefix="/api/v1", tags=["Authentication"])
 app.include_router(ai_router, prefix="/api/v1/ai", tags=["AI"])
 app.include_router(events_router, prefix="/api/v1/events", tags=["Events"])
 app.include_router(registration_router, prefix="/api/v1/events", tags=["Registrations"])
+app.include_router(feedback_router, prefix="/api/v1/events", tags=["Feedbacks"])
 app.include_router(dashboard_router, prefix="/api/v1", tags=["Admin"])

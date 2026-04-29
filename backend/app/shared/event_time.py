@@ -20,5 +20,18 @@ def resolve_event_end_datetime(start_datetime: datetime, end_datetime: datetime 
 def is_public_event_visible(end_datetime: datetime | None, current_time: datetime | None = None) -> bool:
 	if end_datetime is None:
 		return True
-	now = current_time or datetime.utcnow()
-	return now <= end_datetime + timedelta(hours=24)
+	if current_time is None:
+		now = datetime.now(end_datetime.tzinfo) if end_datetime.tzinfo is not None else datetime.now()
+	else:
+		now = current_time
+	return now <= end_datetime
+
+
+def is_event_completed(end_datetime: datetime | None, current_time: datetime | None = None) -> bool:
+	if end_datetime is None:
+		return False
+	if current_time is None:
+		now = datetime.now(end_datetime.tzinfo) if end_datetime.tzinfo is not None else datetime.now()
+	else:
+		now = current_time
+	return now >= end_datetime

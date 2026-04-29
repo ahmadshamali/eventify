@@ -1,8 +1,10 @@
-import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 
 import { fetchMyRegistrations } from './eventApi'
 import { formatEventEndTime, getEventLifecycleStatus } from './eventTime'
+import { getFeedbackForRegistration, submitFeedback } from '../feedback/feedbackApi'
 
 function MyRegistrationsPage() {
   const { data: registrations = [], isLoading, error } = useQuery({
@@ -79,12 +81,16 @@ function MyRegistrationsPage() {
                   </div>
 
                   <div className="mt-4 flex items-end justify-end gap-3 pr-1 pb-1">
-                    <Link
-                      className="rounded-lg bg-blue-500 px-4 py-3 font-semibold text-white transition hover:bg-blue-600"
-                      to={`/events/${item.event_id}/details`}
-                    >
-                      Details
-                    </Link>
+                    {getEventLifecycleStatus({ endDateTime: item.end_datetime }) === 'Completed' ? (
+                      <FeedbackWidget item={item} />
+                    ) : (
+                      <Link
+                        className="rounded-lg bg-blue-500 px-4 py-3 font-semibold text-white transition hover:bg-blue-600"
+                        to={`/events/${item.event_id}/details`}
+                      >
+                        Details
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
@@ -92,6 +98,115 @@ function MyRegistrationsPage() {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function FeedbackWidget({ item }: { item: any }) {
+  const queryClient = useQueryClient()
+  const [open, setOpen] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [rating, setRating] = useState(5)
+  const [comment, setComment] = useState('')
+  const [feedbackError, setFeedbackError] = useState<string | null>(null)
+
+  const feedbackQuery = useQuery({
+    queryKey: ['feedback', item.event_id, item.registration_id],
+    queryFn: () => getFeedbackForRegistration(item.event_id, item.registration_id),
+    enabled: false,
+    retry: false,
+  } as any)
+  const { data: existingFeedback } = feedbackQuery
+  const { refetch } = feedbackQuery
+
+  const mutation = useMutation({
+    mutationFn: ({ rating, comment }: { rating: number; comment?: string }) =>
+      submitFeedback(item.event_id, item.registration_id, { rating, comment }),
+    onSuccess: () => {
+      setSubmitted(true)
+      setOpen(false)
+      queryClient.invalidateQueries({ queryKey: ['my-registrations'] })
+    },
+    onError: (err: unknown) => {
+      setFeedbackError(err instanceof Error ? err.message : 'Failed to submit feedback.')
+    },
+  })
+
+  const startFeedback = async () => {
+    try {
+      const res = await refetch()
+      if (res?.data) {
+        setSubmitted(true)
+      } else {
+        setOpen(true)
+      }
+    } catch (e) {
+      // not found -> allow submit
+      setOpen(true)
+    }
+  }
+
+  if (submitted || existingFeedback) {
+    return (
+      <button className="rounded-lg bg-green-500 px-4 py-3 font-semibold text-white" disabled>
+        Submitted
+      </button>
+    )
+  }
+
+  return (
+    <div className="w-full">
+      {!open ? (
+        <button onClick={startFeedback} className="rounded-lg bg-blue-500 px-4 py-3 font-semibold text-white transition hover:bg-blue-600">
+          Give Feedback
+        </button>
+      ) : (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            setFeedbackError(null)
+            mutation.mutate({ rating, comment: comment.trim() || undefined })
+          }}
+          className="flex w-full flex-col items-end gap-2"
+        >
+          <div className="flex w-full items-center justify-between gap-3">
+            <label className="text-sm text-slate-300">Rating:</label>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setRating(v)}
+                  className={[
+                    'rounded-md px-2 py-1 text-sm transition',
+                    v <= rating ? 'bg-amber-500 text-slate-950' : 'bg-slate-700 text-slate-200 hover:bg-slate-600',
+                  ].join(' ')}
+                  aria-pressed={v === rating}
+                  aria-label={`${v} star${v === 1 ? '' : 's'}`}
+                >
+                  {v}★
+                </button>
+              ))}
+            </div>
+          </div>
+          <textarea
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+            placeholder="How did you find it? (optional)"
+            className="w-full rounded-md bg-slate-700 p-2 text-sm text-slate-200"
+            rows={3}
+          />
+          {feedbackError ? <p className="w-full text-left text-sm text-red-300">{feedbackError}</p> : null}
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setOpen(false)} className="rounded-lg bg-gray-600 px-3 py-2 text-sm text-white">
+              Cancel
+            </button>
+            <button type="submit" disabled={mutation.isPending} className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">
+              {mutation.isPending ? 'Submitting...' : 'Submit'}
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   )
 }

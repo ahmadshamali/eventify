@@ -10,6 +10,7 @@ export interface Event {
   category: EventCategory;
   status: EventStatus;
   capacity: number;
+  registered_count: number;
   organizerId: number | null;
   created_at: string;
 }
@@ -27,7 +28,7 @@ export interface CreateEventPayload{
   title: string;
   description: string;
   startDateTime: string;
-  durationMinutes: number;
+  endDateTime: string;
   imageUrl?: string | null;
   eventLink?: string | null;
   location: string;
@@ -39,7 +40,7 @@ export interface UpdateEventPayload {
   title?: string;
   description?: string;
   startDateTime?: string;
-  durationMinutes?: number;
+  endDateTime?: string;
   imageUrl?: string | null;
   eventLink?: string | null;
   location?: string;

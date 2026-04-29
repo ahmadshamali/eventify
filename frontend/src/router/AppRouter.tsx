@@ -13,6 +13,7 @@ import CreateEventPage from '../features/events/CreateEventPage'
 import MyEventsPage from '../features/events/MyEventsPage'
 import EventDetailsPage from '../features/events/EventDetailsPage'
 import MyRegistrationsPage from '../features/events/MyRegistrationsPage.tsx'
+import EventFeedbacksPage from '../features/feedback/EventFeedbacksPage'
 import AdminDashboardPage from '../features/admin/AdminDashboardPage'
 
 function ProtectedLayout() {
@@ -100,6 +101,7 @@ export default function AppRouter() {
                 path="/my-events"
                 element={<MyEventsPage />}
               />
+              <Route path="/events/:eventId/feedbacks" element={<EventFeedbacksPage />} />
               <Route
                 path="/dashboard"
                 element={<PlaceholderPage title="Organizer Dashboard" subtitle="See attendance, performance, and engagement at a glance." />}

@@ -17,7 +17,8 @@ class EventBaseWrite(BaseModel):
     title: str = Field(..., min_length=1, max_length=100)
     description: str = Field(..., min_length=1, max_length=1000)
     start_datetime: datetime = Field(..., alias="startDateTime")
-    duration_minutes: int = Field(..., alias="durationMinutes", gt=0)
+    end_datetime: datetime = Field(..., alias="endDateTime")
+    duration_minutes: int | None = Field(None, alias="durationMinutes", gt=0)
     image_url: str | None = Field(None, alias="imageUrl", max_length=500)
     event_link: str | None = Field(None, alias="eventLink", max_length=500)
     location: str = Field(..., min_length=1, max_length=255)
@@ -35,6 +36,7 @@ class EventUpdate(BaseModel):
     title: str | None = Field(None, min_length=1, max_length=100)
     description: str | None = Field(None, min_length=1, max_length=1000)
     start_datetime: datetime | None = Field(None, alias="startDateTime")
+    end_datetime: datetime | None = Field(None, alias="endDateTime")
     duration_minutes: int | None = Field(None, alias="durationMinutes", gt=0)
     image_url: str | None = Field(None, alias="imageUrl", max_length=500)
     event_link: str | None = Field(None, alias="eventLink", max_length=500)
@@ -61,6 +63,7 @@ class EventRead(BaseModel):
     category: AllowedCategory
     status: EventStatus
     capacity: int
+    registered_count: int = 0
     organizer_id: int | None = Field(alias="organizerId")
     created_at: datetime
 

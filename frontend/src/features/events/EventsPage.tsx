@@ -3,15 +3,16 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
 import { cancelEvent, fetchEvents } from './eventApi'
-import { formatEventEndTime, getEventLifecycleStatus } from './eventTime'
+import type { Event } from './event.types'
+import { formatEventStartTime, getEventLifecycleStatus } from './eventTime'
 
 function EventsPage() {
   const queryClient = useQueryClient()
   const { role, userId } = useAuth()
 
-  const { data: events = [], isLoading: loading, error } = useQuery({
+  const { data: events = [], isLoading: loading, error } = useQuery<Event[]>({
     queryKey: ['events'],
-    queryFn: fetchEvents,
+    queryFn: () => fetchEvents(),
   })
 
   const { mutateAsync: cancelEventAsync, isPending: isCanceling } = useMutation({
@@ -57,13 +58,15 @@ function EventsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-            {events.length === 0 && !error ? (
+            {events.filter((event) => getEventLifecycleStatus(event) !== 'Completed').length === 0 && !error ? (
               <div className="col-span-full rounded-2xl border border-dashed border-white/10 bg-slate-800/60 px-8 py-20 text-center backdrop-blur-sm">
                 <h3 className="mb-4 text-2xl font-semibold text-white">No events found</h3>
                 <p className="text-slate-300">The backend database is empty or not seeded yet.</p>
               </div>
             ) : (
-              events.map((event) => (
+              events
+                .filter((event) => getEventLifecycleStatus(event) !== 'Completed')
+                .map((event) => (
                 <div
                   key={event.id}
                   className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-800/70 p-8 backdrop-blur-md transition duration-300 hover:-translate-y-2 hover:border-white/20 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5),0_0_20px_rgba(59,130,246,0.4)]"
@@ -84,39 +87,25 @@ function EventsPage() {
                       <span
                         className={[
                           'rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide',
-                          event.status === 'Available'
-                            ? 'border-emerald-400/40 bg-emerald-500/20 text-emerald-200'
-                            : event.status === 'Full'
-                              ? 'border-red-400/40 bg-red-500/20 text-red-200'
-                              : 'border-white/20 bg-white/10 text-slate-200',
+                          event.status === 'Full'
+                            ? 'border-red-400/40 bg-red-500/20 text-red-100'
+                            : 'border-emerald-400/40 bg-emerald-500/20 text-emerald-100',
                         ].join(' ')}
                       >
-                        {event.status}
-                      </span>
-                      <span
-                        className={[
-                          'rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide',
-                          getEventLifecycleStatus(event) === 'Completed'
-                            ? 'border-slate-400/40 bg-slate-500/20 text-slate-100'
-                            : 'border-cyan-400/40 bg-cyan-500/20 text-cyan-100',
-                        ].join(' ')}
-                      >
-                        {getEventLifecycleStatus(event)}
+                        {event.status === 'Full' ? 'Full' : 'Available'}
                       </span>
                     </div>
                   </div>
-                  <p className="grow text-base leading-7 text-slate-400">
+                  <p className="grow text-sm leading-6 text-slate-400">
                     {event.description || 'No description provided.'}
                   </p>
                   <div className="mt-8 border-t border-white/5 pt-6">
-                    <div className="flex flex-col gap-1 text-xs text-slate-500">
-                      <span className="text-sm text-slate-400">Event ID: #{event.id}</span>
-                      <span>Created: {new Date(event.created_at).toLocaleDateString()}</span>
-                      <span>Starts: {new Date(event.startDateTime).toLocaleString()}</span>
-                      <span>Ends: {formatEventEndTime(event.endDateTime)}</span>
+                    <div className="flex flex-col gap-1 text-sm text-slate-500">
+                      <span>Starts: {formatEventStartTime(event.startDateTime)}</span>
                       <span>Location: {event.location}</span>
-                      <span>Category: {event.category}</span>
-                      <span>Capacity: {event.capacity}</span>
+                      <span>
+                        Capacity: {event.registered_count}/{event.capacity}
+                      </span>
                     </div>
 
                     <div className="mt-4 flex items-end justify-end gap-3 pr-1 pb-1">
@@ -130,7 +119,7 @@ function EventsPage() {
                           Link
                         </a>
                       ) : null}
-                      {canManageEvent(event.organizerId) ? (
+                      {canManageEvent(event.organizerId) && getEventLifecycleStatus(event) === 'Upcoming' ? (
                         <>
                           <Link
                             to={`/events/${event.id}/edit`}

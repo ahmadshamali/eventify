@@ -9,3 +9,14 @@ export function getEventLifecycleStatus(event: Pick<Event, 'endDateTime'>): Even
 export function formatEventEndTime(endDateTime: string): string {
   return new Date(endDateTime).toLocaleString()
 }
+
+export function formatEventStartTime(startDateTime: string): string {
+  return new Date(startDateTime).toLocaleString([], {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  })
+}

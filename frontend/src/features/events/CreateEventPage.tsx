@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { createEvent, fetchEvents, generateEventDescription, updateEvent } from './eventApi'
+import type { Event } from './event.types'
 import {
     buildEventPayload,
     defaultEventFormValues,
@@ -22,9 +23,9 @@ function CreateEventPage() {
         const editingEventId = eventId ? Number(eventId) : null
         const isEditMode = Number.isInteger(editingEventId)
 
-        const { data: events = [] } = useQuery({
+        const { data: events = [] } = useQuery<Event[]>({
             queryKey: ['events'],
-            queryFn: fetchEvents,
+            queryFn: () => fetchEvents(),
         })
 
     const editingEvent = events.find((item) => item.id === editingEventId)
@@ -35,6 +36,7 @@ function CreateEventPage() {
         reset,
         getValues,
         setValue,
+        watch,
         formState: { errors },
     } = useForm<EventFormInput, unknown, EventFormValues>({
         resolver: zodResolver(eventFormSchema),
@@ -42,6 +44,8 @@ function CreateEventPage() {
     })
 
     const [additionalDetails, setAdditionalDetails] = useState('')
+    const watchedStartDate = watch('date')
+    const watchedEndDate = watch('endDate')
 
         useEffect(() => {
             if (!editingEvent) {
@@ -50,6 +54,14 @@ function CreateEventPage() {
 
             reset(mapEventToFormValues(editingEvent))
         }, [editingEvent, reset])
+
+    useEffect(() => {
+        if (!watchedStartDate || watchedEndDate) {
+            return
+        }
+
+        setValue('endDate', watchedStartDate, { shouldValidate: true, shouldDirty: true })
+    }, [setValue, watchedEndDate, watchedStartDate])
 
         const {isPending: isLoading, error, mutateAsync: submitMutation} = useMutation({
              mutationFn: async (payload: EventFormValues) => {
@@ -166,16 +178,16 @@ function CreateEventPage() {
                                 </div>
 
                                 <div>
-                                    <input
-                                      type="url"
-                                      className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
-                                      placeholder={'image URL (optional)'}
-                                      {...register('imageUrl')}
-                                    />
-                                    {errors.imageUrl && <p className="mt-1 text-sm text-red-400">{errors.imageUrl.message}</p>}
-                                </div>
+                                                                        <input
+                                                                            type="url"
+                                                                            className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                                                            placeholder={'image URL (optional)'}
+                                                                            {...register('imageUrl')}
+                                                                        />
+                                                                        {errors.imageUrl && <p className="mt-1 text-sm text-red-400">{errors.imageUrl.message}</p>}
+                                                                </div>
 
-                                <div>
+                                                                <div>
                                     <input
                                       type="url"
                                       className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
@@ -193,6 +205,8 @@ function CreateEventPage() {
                                 <div>
                                     <input
                                         type="date"
+                                        lang="en-GB"
+                                        style={{ colorScheme: 'dark' }}
                                         className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
                                         {...register('date')}
                                     />
@@ -202,10 +216,32 @@ function CreateEventPage() {
                                 <div>
                                     <input
                                         type="time"
+                                        style={{ colorScheme: 'dark' }}
                                         className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
                                         {...register('time')}
                                     />
                                     {errors.time && <p className="mt-1 text-sm text-red-400">{errors.time.message}</p>}
+                                </div>
+
+                                <div>
+                                    <input
+                                        type="date"
+                                        lang="en-GB"
+                                        style={{ colorScheme: 'dark' }}
+                                        className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                        {...register('endDate')}
+                                    />
+                                    {errors.endDate && <p className="mt-1 text-sm text-red-400">{errors.endDate.message}</p>}
+                                </div>
+
+                                <div>
+                                    <input
+                                        type="time"
+                                        style={{ colorScheme: 'dark' }}
+                                        className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                        {...register('endTime')}
+                                    />
+                                    {errors.endTime && <p className="mt-1 text-sm text-red-400">{errors.endTime.message}</p>}
                                 </div>
 
                                 <div className="md:col-span-2">
@@ -231,19 +267,7 @@ function CreateEventPage() {
                         </section>
 
                         <section className="rounded-2xl border border-white/10 bg-slate-900/40 p-5">
-                            <h2 className="mb-4 text-lg font-semibold text-white">Duration</h2>
                             <div className="flex flex-col gap-4">
-                                <div>
-                                    <input
-                                        type="number"
-                                        min={1}
-                                        className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
-                                        placeholder={'duration in minutes'}
-                                        {...register('durationMinutes')}
-                                    />
-                                    {errors.durationMinutes && <p className="mt-1 text-sm text-red-400">{errors.durationMinutes.message}</p>}
-                                </div>
-
                                 <button
                                     className="rounded-lg bg-blue-500 px-6 py-3 font-semibold text-white transition hover:bg-blue-600 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] disabled:cursor-wait disabled:opacity-70"
                                     type="submit"

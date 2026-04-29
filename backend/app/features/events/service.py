@@ -14,12 +14,17 @@ from app.shared.event_time import build_end_datetime, is_public_event_visible, n
 logger = logging.getLogger(__name__)
 
 
-def get_events(db: Session, skip: int = 0, limit: int = 100, current_user: User | None = None):
+def get_events(db: Session, skip: int = 0, limit: int = 100, current_user: User | None = None, include_completed: bool = False):
     events = db.query(Event).filter(Event.status != "Canceled").order_by(Event.created_at.desc()).all()
 
-    if current_user and current_user.role and current_user.role.role_name in {"organizer", "admin"}:
+    for event in events:
+        event.registered_count = _count_registrations(db, event.id)
+
+    # If caller requested completed events and is organizer/admin, return all events (including completed)
+    if include_completed and current_user and current_user.role and current_user.role.role_name in {"organizer", "admin"}:
         return events[skip : skip + limit]
 
+    # Otherwise, only return events that are visible to the public (not completed)
     visible_events = [event for event in events if is_public_event_visible(resolve_event_end_datetime(event.start_datetime, event.end_datetime))]
     return visible_events[skip : skip + limit]
 
@@ -48,7 +53,15 @@ def _resolve_event_end_datetime(start_datetime: datetime, duration_minutes: int)
 
 def create_event(db: Session, event: EventCreate, organizer: User):
     start_datetime = normalize_datetime(event.start_datetime)
-    end_datetime = _resolve_event_end_datetime(start_datetime, event.duration_minutes)
+    if event.end_datetime is not None:
+        end_datetime = normalize_datetime(event.end_datetime)
+    elif event.duration_minutes is not None:
+        end_datetime = _resolve_event_end_datetime(start_datetime, event.duration_minutes)
+    else:
+        raise HTTPException(status_code=400, detail="End date and time is required.")
+
+    if end_datetime <= start_datetime:
+        raise HTTPException(status_code=400, detail="End date and time must be after the start date and time.")
 
     db_event = Event(
         title=event.title,
@@ -91,15 +104,22 @@ def update_event(db: Session, event_id: int, payload: EventUpdate, organizer: Us
     original_start_datetime = normalize_datetime(db_event.start_datetime)
     original_end_datetime = resolve_event_end_datetime(db_event.start_datetime, db_event.end_datetime)
     duration_minutes = updates.pop("duration_minutes", None)
+    end_datetime = updates.pop("end_datetime", None)
     start_datetime = normalize_datetime(updates.pop("start_datetime", db_event.start_datetime))
 
     for field, value in updates.items():
         setattr(db_event, field, value)
 
     db_event.start_datetime = start_datetime
-    if duration_minutes is None:
-        duration_minutes = max(int((original_end_datetime - original_start_datetime).total_seconds() // 60), 1)
-    db_event.end_datetime = _resolve_event_end_datetime(db_event.start_datetime, duration_minutes)
+    if end_datetime is not None:
+        db_event.end_datetime = normalize_datetime(end_datetime)
+    else:
+        if duration_minutes is None:
+            duration_minutes = max(int((original_end_datetime - original_start_datetime).total_seconds() // 60), 1)
+        db_event.end_datetime = _resolve_event_end_datetime(db_event.start_datetime, duration_minutes)
+
+    if db_event.end_datetime <= db_event.start_datetime:
+        raise HTTPException(status_code=400, detail="End date and time must be after the start date and time.")
 
     try:
         _recompute_event_status(db, db_event)
