@@ -19,11 +19,11 @@ def _build_prompt(title: str, category: str, additional_details: str | None) -> 
 
 
 def generate_event_description(title: str, category: str, additional_details: str | None) -> str:
-	if not settings.OPENAI_API_KEY:
-		raise HTTPException(status_code=500, detail='OPENAI_API_KEY is not configured on the server.')
+	if not settings.DEEPSEEK_API_KEY:
+		raise HTTPException(status_code=500, detail='DEEPSEEK_API_KEY is not configured on the server.')
 
 	payload = {
-		'model': settings.OPENAI_MODEL,
+		'model': settings.DEEPSEEK_MODEL,
 		'messages': [
 			{
 				'role': 'system',
@@ -41,11 +41,11 @@ def generate_event_description(title: str, category: str, additional_details: st
 	}
 
 	req = request.Request(
-		url='https://api.openai.com/v1/chat/completions',
+		url=f"{settings.DEEPSEEK_BASE_URL.rstrip('/')}/chat/completions",
 		data=json.dumps(payload).encode('utf-8'),
 		headers={
 			'Content-Type': 'application/json',
-			'Authorization': f'Bearer {settings.OPENAI_API_KEY}',
+			'Authorization': f'Bearer {settings.DEEPSEEK_API_KEY}',
 		},
 		method='POST',
 	)
@@ -55,6 +55,17 @@ def generate_event_description(title: str, category: str, additional_details: st
 			response_data = json.loads(response.read().decode('utf-8'))
 	except error.HTTPError as exc:
 		body = exc.read().decode('utf-8', errors='ignore')
+		lowered_body = body.lower()
+		if 'insufficient balance' in lowered_body or 'insufficient_balance' in lowered_body:
+			raise HTTPException(
+				status_code=402,
+				detail='DeepSeek account balance is insufficient. Add credits to your DeepSeek account, then try again.',
+			) from exc
+		if 'invalid_request_error' in lowered_body and 'balance' in lowered_body:
+			raise HTTPException(
+				status_code=402,
+				detail='DeepSeek account balance is insufficient. Add credits to your DeepSeek account, then try again.',
+			) from exc
 		raise HTTPException(status_code=502, detail=f'AI provider error: {body[:300]}') from exc
 	except error.URLError as exc:
 		raise HTTPException(status_code=502, detail='Unable to reach AI provider.') from exc

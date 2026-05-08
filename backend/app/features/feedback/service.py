@@ -12,6 +12,18 @@ from app.models.user import User
 from app.shared.event_time import resolve_event_end_datetime
 
 
+def _to_feedback_read(feedback: Feedback, full_name: str):
+    from app.features.feedback.schemas import FeedbackRead
+
+    return FeedbackRead(
+        id=feedback.id,
+        rating=feedback.rating,
+        comment=feedback.comment,
+        created_at=feedback.created_at,
+        full_name=full_name,
+    )
+
+
 def create_feedback(db: Session, event_id: int, registration_id: int, payload: FeedbackCreate, student: User) -> Feedback:
     registration = db.query(Registration).filter(Registration.id == registration_id, Registration.event_id == event_id).first()
     if not registration:
@@ -34,7 +46,7 @@ def create_feedback(db: Session, event_id: int, registration_id: int, payload: F
         db.add(feedback)
         db.commit()
         db.refresh(feedback)
-        return feedback
+        return _to_feedback_read(feedback, student.full_name)
     except IntegrityError:
         db.rollback()
         raise HTTPException(status_code=400, detail="Feedback already submitted.")
@@ -44,15 +56,19 @@ def create_feedback(db: Session, event_id: int, registration_id: int, payload: F
 
 
 def get_feedback_by_registration(db: Session, event_id: int, registration_id: int):
-    feedback = (
+    feedback_row = (
         db.query(Feedback)
         .join(Registration, Registration.id == Feedback.registration_id)
+        .join(User, User.user_id == Registration.student_id)
         .filter(Registration.id == registration_id, Registration.event_id == event_id)
+        .with_entities(Feedback, User.full_name)
         .first()
     )
-    if not feedback:
+    if not feedback_row:
         raise HTTPException(status_code=404, detail="Feedback not found.")
-    return feedback
+
+    feedback, full_name = feedback_row
+    return _to_feedback_read(feedback, full_name)
 
 
 def list_feedbacks_for_event(db: Session, event_id: int, organizer: User):
@@ -62,12 +78,14 @@ def list_feedbacks_for_event(db: Session, event_id: int, organizer: User):
     if event.organizer_id != organizer.user_id:
         raise HTTPException(status_code=403, detail="You can only view feedbacks for your own events.")
 
-    feedbacks = (
+    feedback_rows = (
         db.query(Feedback)
         .join(Registration, Registration.id == Feedback.registration_id)
+        .join(User, User.user_id == Registration.student_id)
         .filter(Registration.event_id == event_id)
+        .with_entities(Feedback, User.full_name)
         .order_by(Feedback.created_at.desc())
         .all()
     )
 
-    return feedbacks
+    return [_to_feedback_read(feedback, full_name) for feedback, full_name in feedback_rows]

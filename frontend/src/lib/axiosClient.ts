@@ -8,11 +8,12 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   const { token, headers, ...rest } = options
   const storedToken = typeof window !== 'undefined' ? localStorage.getItem('eventify_access_token') : null
   const authToken = token ?? storedToken ?? undefined
+  const isFormDataBody = typeof FormData !== 'undefined' && rest.body instanceof FormData
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...rest,
     headers: {
-      'Content-Type': 'application/json',
+      ...(isFormDataBody ? {} : { 'Content-Type': 'application/json' }),
       ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       ...headers,
     },

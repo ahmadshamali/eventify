@@ -9,6 +9,7 @@ from app.features.events.schemas import EventCreate, EventUpdate
 from app.models.event import Event
 from app.models.registration import Registration
 from app.models.user import User
+from app.shared.storage import save_image_upload
 from app.shared.event_time import build_end_datetime, is_public_event_visible, normalize_datetime, resolve_event_end_datetime
 
 logger = logging.getLogger(__name__)
@@ -180,3 +181,11 @@ def cancel_event(db: Session, event_id: int, organizer: User):
         db.rollback()
         logger.error(f"Database error while canceling event: {e}")
         raise HTTPException(status_code=500, detail="Internal database error.")
+
+
+async def upload_event_image(file):
+    try:
+        image_url = await save_image_upload(file)
+        return {"imageUrl": image_url}
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error))

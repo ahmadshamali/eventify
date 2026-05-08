@@ -73,3 +73,13 @@ export const generateEventDescription = async (
     body: JSON.stringify(payload),
   })
 }
+
+export const uploadEventImage = async (file: File): Promise<{ imageUrl: string }> => {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  return apiRequest<{ imageUrl: string }>('/events/upload-image', {
+    method: 'POST',
+    body: formData,
+  })
+}

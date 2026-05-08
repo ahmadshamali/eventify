@@ -13,6 +13,7 @@ class FeedbackRead(BaseModel):
     rating: int
     comment: str | None
     created_at: datetime
+    full_name: str
 
     class Config:
         orm_mode = True

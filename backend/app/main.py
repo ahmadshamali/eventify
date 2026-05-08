@@ -1,8 +1,10 @@
 import logging
+from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import ResponseValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.features.auth.router import router as auth_router
 from app.features.ai.router import router as ai_router
@@ -42,3 +44,7 @@ app.include_router(events_router, prefix="/api/v1/events", tags=["Events"])
 app.include_router(registration_router, prefix="/api/v1/events", tags=["Registrations"])
 app.include_router(feedback_router, prefix="/api/v1/events", tags=["Feedbacks"])
 app.include_router(dashboard_router, prefix="/api/v1", tags=["Admin"])
+
+uploads_dir = Path(__file__).resolve().parents[1] / "uploads"
+uploads_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")

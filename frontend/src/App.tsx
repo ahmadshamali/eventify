@@ -1,11 +1,25 @@
 import AppRouter from './router/AppRouter'
 import { AuthProvider } from './context/AuthContext'
+import { ToastProvider, useToast } from './context/ToastContext'
+import { ToastContainer } from './shared/components/Toast'
 
-export default function App() {
+function AppContent() {
+  const { toasts, removeToast } = useToast()
 
   return (
-    <AuthProvider>
+    <>
       <AppRouter />
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+    </>
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </AuthProvider>
   )
 }

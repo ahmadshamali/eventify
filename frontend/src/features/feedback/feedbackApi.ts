@@ -5,6 +5,7 @@ export type FeedbackRead = {
   rating: number
   comment: string | null
   created_at: string
+  full_name: string
 }
 
 type FeedbackCreate = {

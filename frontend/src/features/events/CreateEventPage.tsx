@@ -4,7 +4,8 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { createEvent, fetchEvents, generateEventDescription, updateEvent } from './eventApi'
+import { useToast } from '../../context/ToastContext'
+import { createEvent, fetchEvents, generateEventDescription, updateEvent, uploadEventImage } from './eventApi'
 import type { Event } from './event.types'
 import {
     buildEventPayload,
@@ -20,6 +21,7 @@ function CreateEventPage() {
         const { eventId } = useParams<{ eventId: string }>()
         const navigate = useNavigate()
         const queryClient = useQueryClient()
+        const { addToast } = useToast()
         const editingEventId = eventId ? Number(eventId) : null
         const isEditMode = Number.isInteger(editingEventId)
 
@@ -44,6 +46,8 @@ function CreateEventPage() {
     })
 
     const [additionalDetails, setAdditionalDetails] = useState('')
+    const [isUploadingImage, setIsUploadingImage] = useState(false)
+    const [imageUploadError, setImageUploadError] = useState('')
     const watchedStartDate = watch('date')
     const watchedEndDate = watch('endDate')
 
@@ -73,8 +77,13 @@ function CreateEventPage() {
 
                  return createEvent(eventPayload)
              },
-            onSuccess: async () => {
+            onSuccess: async (data) => {
                 await queryClient.invalidateQueries({ queryKey: ['events'] })
+                if (isEditMode) {
+                    addToast(`Event "${data.title}" updated successfully!`, 'success')
+                } else {
+                    addToast(`Event "${data.title}" created successfully!`, 'success')
+                }
                 navigate('/events')
             },
     });
@@ -96,11 +105,34 @@ function CreateEventPage() {
             },
             onSuccess: (data) => {
                 setValue('description', data.description, { shouldValidate: true, shouldDirty: true })
+                addToast('Description generated successfully!', 'success')
             },
         })
 
         const handleGenerateDescription = async () => {
             await generateDescriptionAsync()
+        }
+
+        const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+            const file = event.target.files?.[0]
+            if (!file) {
+                return
+            }
+
+            setImageUploadError('')
+            setIsUploadingImage(true)
+
+            try {
+                const result = await uploadEventImage(file)
+                setValue('imageUrl', result.imageUrl, { shouldValidate: true, shouldDirty: true })
+                addToast('Image uploaded successfully', 'success')
+            } catch (uploadError) {
+                const message = uploadError instanceof Error ? uploadError.message : 'Failed to upload image'
+                setImageUploadError(message)
+            } finally {
+                setIsUploadingImage(false)
+                event.target.value = ''
+            }
         }
 
     return (
@@ -177,15 +209,26 @@ function CreateEventPage() {
                                     {errors.category && <p className="mt-1 text-sm text-red-400">{errors.category.message}</p>}
                                 </div>
 
-                                <div>
-                                                                        <input
-                                                                            type="url"
-                                                                            className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
-                                                                            placeholder={'image URL (optional)'}
-                                                                            {...register('imageUrl')}
-                                                                        />
-                                                                        {errors.imageUrl && <p className="mt-1 text-sm text-red-400">{errors.imageUrl.message}</p>}
-                                                                </div>
+                                <div className="rounded-2xl border border-white/10 bg-slate-900/30 p-4">
+                                    <div className="mb-3 flex items-center justify-between gap-3">
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-200">Event Image</p>
+                                            <p className="text-xs text-slate-400">Upload from device or paste an image URL</p>
+                                        </div>
+                                        <label className="cursor-pointer rounded-lg border border-cyan-400/40 bg-cyan-500/20 px-3 py-1.5 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-500/30">
+                                            {isUploadingImage ? 'Uploading...' : 'Upload Image'}
+                                            <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploadingImage} />
+                                        </label>
+                                    </div>
+                                    <input
+                                        type="url"
+                                        className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                        placeholder={'image URL (optional)'}
+                                        {...register('imageUrl')}
+                                    />
+                                    {imageUploadError ? <p className="mt-1 text-sm text-red-400">{imageUploadError}</p> : null}
+                                    {errors.imageUrl && <p className="mt-1 text-sm text-red-400">{errors.imageUrl.message}</p>}
+                                </div>
 
                                                                 <div>
                                     <input

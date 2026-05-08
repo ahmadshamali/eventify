@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 
+import { useToast } from '../../context/ToastContext'
 import { fetchMyRegistrations } from './eventApi'
 import { formatEventEndTime, getEventLifecycleStatus } from './eventTime'
 import { getFeedbackForRegistration, submitFeedback } from '../feedback/feedbackApi'
@@ -104,6 +105,7 @@ function MyRegistrationsPage() {
 
 function FeedbackWidget({ item }: { item: any }) {
   const queryClient = useQueryClient()
+  const { addToast } = useToast()
   const [open, setOpen] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [rating, setRating] = useState(5)
@@ -126,6 +128,7 @@ function FeedbackWidget({ item }: { item: any }) {
       setSubmitted(true)
       setOpen(false)
       queryClient.invalidateQueries({ queryKey: ['my-registrations'] })
+      addToast(`Thank you! Feedback submitted for "${item.title}"`, 'success')
     },
     onError: (err: unknown) => {
       setFeedbackError(err instanceof Error ? err.message : 'Failed to submit feedback.')
@@ -148,16 +151,19 @@ function FeedbackWidget({ item }: { item: any }) {
 
   if (submitted || existingFeedback) {
     return (
-      <button className="rounded-lg bg-green-500 px-4 py-3 font-semibold text-white" disabled>
+      <span className="inline-flex items-center rounded-full border border-emerald-400/30 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-100">
         Submitted
-      </button>
+      </span>
     )
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full rounded-2xl border border-white/10 bg-slate-900/40 p-4 backdrop-blur-sm">
       {!open ? (
-        <button onClick={startFeedback} className="rounded-lg bg-blue-500 px-4 py-3 font-semibold text-white transition hover:bg-blue-600">
+        <button
+          onClick={startFeedback}
+          className="inline-flex w-full items-center justify-center rounded-lg border border-cyan-400/30 bg-cyan-500/10 px-4 py-3 font-semibold text-cyan-100 transition hover:bg-cyan-500/15"
+        >
           Give Feedback
         </button>
       ) : (
@@ -167,24 +173,29 @@ function FeedbackWidget({ item }: { item: any }) {
             setFeedbackError(null)
             mutation.mutate({ rating, comment: comment.trim() || undefined })
           }}
-          className="flex w-full flex-col items-end gap-2"
+          className="flex w-full flex-col gap-4"
         >
-          <div className="flex w-full items-center justify-between gap-3">
-            <label className="text-sm text-slate-300">Rating:</label>
-            <div className="flex gap-1">
+          <div className="flex flex-col gap-3">
+            <div>
+              <p className="text-sm font-medium text-slate-200">Rating</p>
+              <p className="text-xs text-slate-400">Choose how you felt about this event</p>
+            </div>
+            <div className="flex flex-nowrap items-center gap-2 self-start overflow-hidden">
               {[1, 2, 3, 4, 5].map((v) => (
                 <button
                   key={v}
                   type="button"
                   onClick={() => setRating(v)}
                   className={[
-                    'rounded-md px-2 py-1 text-sm transition',
-                    v <= rating ? 'bg-amber-500 text-slate-950' : 'bg-slate-700 text-slate-200 hover:bg-slate-600',
+                    'inline-flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold transition',
+                    v <= rating
+                      ? 'border-cyan-300/40 bg-cyan-500/20 text-cyan-100 shadow-[0_0_0_1px_rgba(103,232,249,0.15)]'
+                      : 'border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:bg-white/10 hover:text-slate-200',
                   ].join(' ')}
                   aria-pressed={v === rating}
                   aria-label={`${v} star${v === 1 ? '' : 's'}`}
                 >
-                  {v}★
+                  ★
                 </button>
               ))}
             </div>
@@ -193,15 +204,23 @@ function FeedbackWidget({ item }: { item: any }) {
             value={comment}
             onChange={(event) => setComment(event.target.value)}
             placeholder="How did you find it? (optional)"
-            className="w-full rounded-md bg-slate-700 p-2 text-sm text-slate-200"
+            className="min-h-[96px] w-full rounded-xl border border-white/10 bg-slate-800/70 p-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-400/40 focus:ring-2 focus:ring-cyan-400/20"
             rows={3}
           />
           {feedbackError ? <p className="w-full text-left text-sm text-red-300">{feedbackError}</p> : null}
-          <div className="flex gap-2">
-            <button type="button" onClick={() => setOpen(false)} className="rounded-lg bg-gray-600 px-3 py-2 text-sm text-white">
+          <div className="flex flex-wrap gap-2 self-end">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10"
+            >
               Cancel
             </button>
-            <button type="submit" disabled={mutation.isPending} className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">
+            <button
+              type="submit"
+              disabled={mutation.isPending}
+              className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+            >
               {mutation.isPending ? 'Submitting...' : 'Submit'}
             </button>
           </div>

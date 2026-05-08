@@ -51,6 +51,12 @@ class CancelEventRequest(BaseModel):
     confirm: bool = Field(...)
 
 
+class ImageUploadRead(BaseModel):
+    image_url: str = Field(alias="imageUrl")
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
 class EventRead(BaseModel):
     id: int
     title: str

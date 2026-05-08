@@ -24,8 +24,9 @@ class Settings:
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRE_MINUTES', '60'))
 
     # AI configuration
-    OPENAI_API_KEY: str = os.getenv('OPENAI_API_KEY', '')
-    OPENAI_MODEL: str = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
+    DEEPSEEK_API_KEY: str = os.getenv('DEEPSEEK_API_KEY', os.getenv('OPENAI_API_KEY', ''))
+    DEEPSEEK_BASE_URL: str = os.getenv('DEEPSEEK_BASE_URL', 'https://api.deepseek.com/v1')
+    DEEPSEEK_MODEL: str = os.getenv('DEEPSEEK_MODEL', 'deepseek-chat')
 
 
 settings = Settings()

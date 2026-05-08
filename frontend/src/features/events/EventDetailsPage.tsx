@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 
 import { fetchEvents, fetchRegistrationStatus, registerForEvent, unregisterFromEvent } from './eventApi'
 import { formatEventEndTime, getEventLifecycleStatus } from './eventTime'
@@ -11,12 +12,13 @@ function EventDetailsPage() {
   const { eventId } = useParams<{ eventId: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { addToast } = useToast()
 
   const numericEventId = Number(eventId)
 
   const { data: events = [], isLoading: isEventsLoading, error: eventsError } = useQuery({
     queryKey: ['events'],
-    queryFn: fetchEvents,
+    queryFn: () => fetchEvents(),
   })
 
   const event = events.find((item) => item.id === numericEventId)
@@ -37,6 +39,9 @@ function EventDetailsPage() {
       await queryClient.invalidateQueries({ queryKey: ['events'] })
       await queryClient.invalidateQueries({ queryKey: ['registration-status', numericEventId] })
       await queryClient.invalidateQueries({ queryKey: ['my-registrations'] })
+      if (event) {
+        addToast(`You registered for "${event.title}"`, 'success')
+      }
     },
   })
 
@@ -46,6 +51,9 @@ function EventDetailsPage() {
       await queryClient.invalidateQueries({ queryKey: ['events'] })
       await queryClient.invalidateQueries({ queryKey: ['registration-status', numericEventId] })
       await queryClient.invalidateQueries({ queryKey: ['my-registrations'] })
+      if (event) {
+        addToast(`You unregistered from "${event.title}"`, 'success')
+      }
     },
   })
 

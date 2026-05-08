@@ -10,7 +10,7 @@ import VerifyEmailPage from '../features/auth/VerifyEmailPage'
 // Events
 import EventsPage from '../features/events/EventsPage'
 import CreateEventPage from '../features/events/CreateEventPage'
-import MyEventsPage from '../features/events/MyEventsPage'
+import OrganizerDashboardPage from '../features/organizer/OrganizerDashboardPage'
 import EventDetailsPage from '../features/events/EventDetailsPage'
 import MyRegistrationsPage from '../features/events/MyRegistrationsPage.tsx'
 import EventFeedbacksPage from '../features/feedback/EventFeedbacksPage'
@@ -99,12 +99,12 @@ export default function AppRouter() {
             <Route element={<ProtectedRoute allowedRoles={['organizer']} />}>
               <Route
                 path="/my-events"
-                element={<MyEventsPage />}
+                element={<Navigate to="/dashboard" replace />}
               />
               <Route path="/events/:eventId/feedbacks" element={<EventFeedbacksPage />} />
               <Route
                 path="/dashboard"
-                element={<PlaceholderPage title="Organizer Dashboard" subtitle="See attendance, performance, and engagement at a glance." />}
+                element={<OrganizerDashboardPage />}
               />
             </Route>
 

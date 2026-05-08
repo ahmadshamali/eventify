@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, File, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.features.auth.dependencies import get_optional_current_user, require_organizer, require_organizer_or_admin
-from app.features.events.schemas import CancelEventRequest, EventCreate, EventRead as EventSchema, EventUpdate
+from app.features.events.schemas import CancelEventRequest, EventCreate, EventRead as EventSchema, EventUpdate, ImageUploadRead
 from app.features.events import service
 from app.models.user import User
 
@@ -52,3 +52,11 @@ def cancel_event(
 
         raise HTTPException(status_code=400, detail="Cancellation confirmation is required.")
     return service.cancel_event(db, event_id, organizer)
+
+
+@router.post("/upload-image", response_model=ImageUploadRead, status_code=status.HTTP_201_CREATED)
+async def upload_image(
+	file: UploadFile = File(...),
+	organizer: User = Depends(require_organizer_or_admin),
+):
+	return await service.upload_event_image(file)

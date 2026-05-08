@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Toaster, toast } from 'sonner'
+import { useToast } from '../../context/ToastContext'
 import {
   approvePendingOrganizer,
   deleteAdminEvent,
@@ -27,6 +27,7 @@ function MetricCard({ label, value, helper }: { label: string; value: number; he
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>('pending')
   const queryClient = useQueryClient()
+  const { addToast } = useToast()
 
   const { data: overview, isLoading: overviewLoading, error: overviewError } = useQuery({
     queryKey: ['admin-overview'],
@@ -51,13 +52,13 @@ export default function AdminDashboardPage() {
   const approveMutation = useMutation({
     mutationFn: approvePendingOrganizer,
     onSuccess: () => {
-      toast.success('Organizer approved successfully')
+      addToast('Organizer approved successfully', 'success')
       void queryClient.invalidateQueries({ queryKey: ['admin-pending-organizers'] })
       void queryClient.invalidateQueries({ queryKey: ['admin-overview'] })
       void queryClient.invalidateQueries({ queryKey: ['admin-users'] })
     },
     onError: (error: Error) => {
-      toast.error(error.message)
+      addToast(error.message || 'Unable to approve organizer', 'error')
     },
   })
 
@@ -65,41 +66,41 @@ export default function AdminDashboardPage() {
     mutationFn: ({ organizerUserId, rejectionReason }: { organizerUserId: number; rejectionReason?: string }) =>
       rejectPendingOrganizer(organizerUserId, { rejection_reason: rejectionReason }),
     onSuccess: () => {
-      toast.success('Organizer application rejected')
+      addToast('Organizer application rejected', 'success')
       void queryClient.invalidateQueries({ queryKey: ['admin-pending-organizers'] })
       void queryClient.invalidateQueries({ queryKey: ['admin-overview'] })
       void queryClient.invalidateQueries({ queryKey: ['admin-users'] })
     },
     onError: (error: Error) => {
-      toast.error(error.message)
+      addToast(error.message || 'Unable to reject organizer application', 'error')
     },
   })
 
   const deleteUserMutation = useMutation({
     mutationFn: deleteAdminUser,
     onSuccess: () => {
-      toast.success('User deleted successfully')
+      addToast('User deleted successfully', 'success')
       void queryClient.invalidateQueries({ queryKey: ['admin-overview'] })
       void queryClient.invalidateQueries({ queryKey: ['admin-users'] })
       void queryClient.invalidateQueries({ queryKey: ['admin-pending-organizers'] })
       void queryClient.invalidateQueries({ queryKey: ['admin-events'] })
     },
     onError: (error: Error) => {
-      toast.error(error.message)
+      addToast(error.message || 'Unable to delete user', 'error')
     },
   })
 
   const deleteEventMutation = useMutation({
     mutationFn: deleteAdminEvent,
     onSuccess: () => {
-      toast.success('Event deleted successfully')
+      addToast('Event deleted successfully', 'success')
       void queryClient.invalidateQueries({ queryKey: ['admin-overview'] })
       void queryClient.invalidateQueries({ queryKey: ['admin-events'] })
       void queryClient.invalidateQueries({ queryKey: ['events'] })
       void queryClient.invalidateQueries({ queryKey: ['my-registrations'] })
     },
     onError: (error: Error) => {
-      toast.error(error.message)
+      addToast(error.message || 'Unable to delete event', 'error')
     },
   })
 
@@ -130,7 +131,6 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-900 px-4 py-10 text-slate-50">
-      <Toaster position="top-right" richColors />
       <div className="pointer-events-none fixed -left-52 -top-52 h-[600px] w-[600px] rounded-full bg-blue-500/30 blur-[100px]" />
       <div className="pointer-events-none fixed -bottom-52 -right-52 h-[600px] w-[600px] rounded-full bg-cyan-500/20 blur-[100px]" />
 
