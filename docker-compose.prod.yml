@@ -51,8 +51,6 @@ services:
     restart: always
     environment:
       PMA_HOST: db
-      PMA_USER: eventify
-      PMA_PASSWORD: ${MYSQL_PASSWORD}
       UPLOAD_LIMIT: 50M
     networks:
       - app_network
