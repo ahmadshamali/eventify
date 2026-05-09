@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: eventify
+      MYSQL_USER: eventify
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app_network
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=mysql+pymysql://eventify:${MYSQL_PASSWORD}@db:3306/eventify
+      - CORS_ORIGINS=https://eventify.comp4300.com,http://localhost:5173
+    depends_on:
+      - db
+    # In production, use standard uvicorn without --reload, possibly with workers
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+    networks:
+      - app_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=https://api.eventify.comp4300.com/api/v1
+    restart: always
+    networks:
+      - app_network
+
+  smtp:
+    image: bytemark/smtp
+    restart: always
+    networks:
+      - app_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: db
+      PMA_USER: eventify
+      PMA_PASSWORD: ${MYSQL_PASSWORD}
+      UPLOAD_LIMIT: 50M
+    networks:
+      - app_network
+
+  caddy:
+    image: caddy:2-alpine
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - app_network
+
+volumes:
+  db_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  app_network:

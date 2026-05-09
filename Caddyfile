@@ -1,0 +1,15 @@
+eventify.comp4300.com {
+    reverse_proxy frontend:80
+}
+
+api.eventify.comp4300.com {
+    reverse_proxy api:8000
+}
+
+phadmin.eventify.comp4300.com {
+    basicauth / {
+        # Username: admin
+        admin {$DB_VIEWER_HASHED_PASSWORD}
+    }
+    reverse_proxy phpmyadmin:80
+}
