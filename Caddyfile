@@ -7,7 +7,7 @@ api.eventify.comp4300.com {
 }
 
 phadmin.eventify.comp4300.com {
-    basicauth / {
+    basic_auth / {
         # Username: admin
         admin {$DB_VIEWER_HASHED_PASSWORD}
     }
