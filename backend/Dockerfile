@@ -10,4 +10,7 @@ RUN apt-get update \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# The rest of the code is injected via volumes in docker-compose.yml for live reload.
+COPY . .
+
+# The rest of the code is injected via volumes in docker-compose.yml for live reload (dev).
+# In production, the COPY above ensures the code is baked into the image.
