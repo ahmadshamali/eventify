@@ -28,10 +28,10 @@ def send_verification_email(email: str, verification_code: str, frontend_url: Op
         logger.warning("SMTP is disabled. Email not sent to %s", email)
         return False
     
-    if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
-        logger.error("SMTP credentials not configured. Cannot send email.")
-        raise ValueError("Email service not configured. Please contact support.")
-    
+    # Auth is optional if using internal relay
+    # if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
+    #     logger.error("SMTP credentials not configured. Cannot send email.")
+    #     raise ValueError("Email service not configured. Please contact support.")
     frontend_url = frontend_url or settings.FRONTEND_URL
     verification_page = f"{frontend_url}/verify-email"
     
@@ -83,8 +83,9 @@ def send_verification_email(email: str, verification_code: str, frontend_url: Op
         msg.attach(MIMEText(html_body, 'html'))
         
         with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as server:
-            server.starttls()
-            server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+            if settings.SMTP_USER and settings.SMTP_PASSWORD:
+                server.starttls()
+                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
             server.send_message(msg)
         
         logger.info("Verification email sent successfully to %s", email)
@@ -121,10 +122,10 @@ def send_organizer_approval_email(email: str, organizer_name: str, status: str, 
         logger.warning("SMTP is disabled. Email not sent to %s", email)
         return False
     
-    if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
-        logger.error("SMTP credentials not configured. Cannot send email.")
-        raise ValueError("Email service not configured. Please contact support.")
-    
+    # Auth is optional if using internal relay
+    # if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
+    #     logger.error("SMTP credentials not configured. Cannot send email.")
+    #     raise ValueError("Email service not configured. Please contact support.")
     if status == "approved":
         subject = "Organizer Account Approved"
         html_body = f"""
@@ -189,8 +190,9 @@ def send_organizer_approval_email(email: str, organizer_name: str, status: str, 
         msg.attach(MIMEText(html_body, 'html'))
         
         with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as server:
-            server.starttls()
-            server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+            if settings.SMTP_USER and settings.SMTP_PASSWORD:
+                server.starttls()
+                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
             server.send_message(msg)
         
         logger.info("Organizer approval email sent to %s - Status: %s", email, status)

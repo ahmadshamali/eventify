@@ -14,6 +14,7 @@ class Settings:
     
     # Frontend URL for email links
     FRONTEND_URL: str = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+    CORS_ORIGINS: str = os.getenv('CORS_ORIGINS', 'http://localhost:5173,http://localhost:3000,*')
     
     # Feature flags
     SMTP_ENABLED: bool = os.getenv('SMTP_ENABLED', 'true').lower() == 'true'

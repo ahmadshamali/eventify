@@ -30,9 +30,13 @@ async def response_validation_exception_handler(request: Request, exc: ResponseV
         content=exc.errors()
     )
 
+from app.core.config import settings
+
+origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
