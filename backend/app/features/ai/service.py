@@ -19,11 +19,13 @@ def _build_prompt(title: str, category: str, additional_details: str | None) -> 
 
 
 def generate_event_description(title: str, category: str, additional_details: str | None) -> str:
-	if not settings.DEEPSEEK_API_KEY:
-		raise HTTPException(status_code=500, detail='DEEPSEEK_API_KEY is not configured on the server.')
+	if not settings.GEMINI_API_KEY:
+		raise HTTPException(status_code=500, detail='GEMINI_API_KEY is not configured on the server.')
+	if not settings.GEMINI_BASE_URL:
+		raise HTTPException(status_code=500, detail='GEMINI_BASE_URL is not configured on the server.')
 
 	payload = {
-		'model': settings.DEEPSEEK_MODEL,
+		'model': settings.GEMINI_MODEL,
 		'messages': [
 			{
 				'role': 'system',
@@ -41,11 +43,11 @@ def generate_event_description(title: str, category: str, additional_details: st
 	}
 
 	req = request.Request(
-		url=f"{settings.DEEPSEEK_BASE_URL.rstrip('/')}/chat/completions",
+		url=f"{settings.GEMINI_BASE_URL.rstrip('/')}/chat/completions",
 		data=json.dumps(payload).encode('utf-8'),
 		headers={
 			'Content-Type': 'application/json',
-			'Authorization': f'Bearer {settings.DEEPSEEK_API_KEY}',
+			'Authorization': f'Bearer {settings.GEMINI_API_KEY}',
 		},
 		method='POST',
 	)
@@ -59,12 +61,12 @@ def generate_event_description(title: str, category: str, additional_details: st
 		if 'insufficient balance' in lowered_body or 'insufficient_balance' in lowered_body:
 			raise HTTPException(
 				status_code=402,
-				detail='DeepSeek account balance is insufficient. Add credits to your DeepSeek account, then try again.',
+				detail='AI provider account balance is insufficient. Add credits to your AI provider account, then try again.',
 			) from exc
 		if 'invalid_request_error' in lowered_body and 'balance' in lowered_body:
 			raise HTTPException(
 				status_code=402,
-				detail='DeepSeek account balance is insufficient. Add credits to your DeepSeek account, then try again.',
+				detail='AI provider account balance is insufficient. Add credits to your AI provider account, then try again.',
 			) from exc
 		raise HTTPException(status_code=502, detail=f'AI provider error: {body[:300]}') from exc
 	except error.URLError as exc:

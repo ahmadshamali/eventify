@@ -24,9 +24,10 @@ class Settings:
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv('JWT_ACCESS_TOKEN_EXPIRE_MINUTES', '60'))
 
     # AI configuration
-    DEEPSEEK_API_KEY: str = os.getenv('DEEPSEEK_API_KEY', os.getenv('OPENAI_API_KEY', ''))
-    DEEPSEEK_BASE_URL: str = os.getenv('DEEPSEEK_BASE_URL', 'https://api.deepseek.com/v1')
-    DEEPSEEK_MODEL: str = os.getenv('DEEPSEEK_MODEL', 'deepseek-chat')
+    # AI configuration (Gemini)
+    GEMINI_API_KEY: str = os.getenv('GEMINI_API_KEY', os.getenv('OPENAI_API_KEY', ''))
+    GEMINI_BASE_URL: str = os.getenv('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta/openai/')
+    GEMINI_MODEL: str = os.getenv('GEMINI_MODEL', 'gemini-2.5-flash')
 
 
 settings = Settings()

@@ -90,17 +90,17 @@ The project uses **Mailtrap** for email testing in development. When users regis
    JWT_ALGORITHM=HS256
    JWT_ACCESS_TOKEN_EXPIRE_MINUTES=60
 
-   # DeepSeek AI configuration
-   DEEPSEEK_API_KEY=YOUR_DEEPSEEK_API_KEY
-   DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
-   DEEPSEEK_MODEL=deepseek-chat
+   # Gemini AI configuration
+   GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+   GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+   GEMINI_MODEL=gemini-2.5-flash
    ```
    
    **Important**: 
    - Create this file locally only (it's in `.gitignore`)
    - Each developer needs their own `.env.local`
    - `JWT_SECRET_KEY` should be a long random string in production
-   - `DEEPSEEK_API_KEY` must be set for the AI description generator to work
+   - `GEMINI_API_KEY` must be set for the AI description generator to work
    - If you keep using Docker, the API container reads these values from `.env.local` via `docker compose`
 
 
