@@ -71,7 +71,7 @@ function LoginPage() {
           <span className="inline-flex w-fit rounded-full border border-white/10 bg-white/10 px-3.5 py-2 text-[0.85rem] uppercase tracking-[0.14em] text-blue-200">
             Eventify
           </span>
-          <h1 className="text-4xl leading-none tracking-tight text-white md:text-5xl">Welcome back</h1>
+          <h1 className="text-4xl leading-none tracking-tight text-white md:text-5xl">Welcome back11</h1>
           <p className="text-slate-300">Sign in to manage your events and registrations.</p>
         </div>
 
