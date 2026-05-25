@@ -4,11 +4,11 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 
-import { fetchEvents, fetchRegistrationStatus, registerForEvent, unregisterFromEvent } from './eventApi'
+import { fetchEvents, fetchRegistrationStatus, registerForEvent, unregisterFromEvent, joinWaitlist, leaveWaitlist } from './eventApi'
 import { formatEventEndTime, getEventLifecycleStatus } from './eventTime'
 
 function EventDetailsPage() {
-  useAuth()
+  const auth = useAuth()
   const { eventId } = useParams<{ eventId: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -53,6 +53,28 @@ function EventDetailsPage() {
       await queryClient.invalidateQueries({ queryKey: ['my-registrations'] })
       if (event) {
         addToast(`You unregistered from "${event.title}"`, 'success')
+      }
+    },
+  })
+
+  const { mutateAsync: joinWaitlistAsync, isPending: isJoiningWaitlist } = useMutation({
+    mutationFn: () => joinWaitlist(numericEventId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['events'] })
+      await queryClient.invalidateQueries({ queryKey: ['registration-status', numericEventId] })
+      if (event) {
+        addToast(`You joined the waitlist for "${event.title}"`, 'success')
+      }
+    },
+  })
+
+  const { mutateAsync: leaveWaitlistAsync, isPending: isLeavingWaitlist } = useMutation({
+    mutationFn: () => leaveWaitlist(numericEventId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['events'] })
+      await queryClient.invalidateQueries({ queryKey: ['registration-status', numericEventId] })
+      if (event) {
+        addToast(`You left the waitlist for "${event.title}"`, 'success')
       }
     },
   })
@@ -185,26 +207,37 @@ function EventDetailsPage() {
             ) : null}
 
             <div className="mt-8 border-t border-white/10 pt-6">
-              <p className="mb-4 text-sm text-slate-300">
-                Registered: {registrationStatus?.registered_count ?? 0} / {registrationStatus?.capacity ?? event.capacity}
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="mb-4 text-sm text-slate-300">
+                  Registered: {registrationStatus?.registered_count ?? 0} / {registrationStatus?.capacity ?? event.capacity}
+                </p>
+
+                {(auth.canAccess && (auth.canAccess(['organizer', 'admin']) || Number(auth.userId) === event.organizerId)) && (
+                  <p className="mb-4 text-sm text-slate-300">
+                    <span className="mr-2">👤🕒</span>
+                    {registrationStatus?.waitlist_count ?? 0}
+                  </p>
+                )}
+              </div>
 
               <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => registerAsync()}
-                  disabled={
-                    isStatusLoading ||
-                    isRegistering ||
-                    isUnregistering ||
-                    Boolean(registrationStatus?.is_registered) ||
-                    event.status !== 'Available' ||
-                    getEventLifecycleStatus(event) === 'Completed'
-                  }
-                  className="rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {registrationStatus?.is_registered ? 'Registered' : 'Register'}
-                </button>
+                {event.status === 'Full' && !registrationStatus?.is_registered ? null : (
+                  <button
+                    type="button"
+                    onClick={() => registerAsync()}
+                    disabled={
+                      isStatusLoading ||
+                      isRegistering ||
+                      isUnregistering ||
+                      Boolean(registrationStatus?.is_registered) ||
+                      event.status !== 'Available' ||
+                      getEventLifecycleStatus(event) === 'Completed'
+                    }
+                    className="rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {registrationStatus?.is_registered ? 'Registered' : 'Register'}
+                  </button>
+                )}
 
                 {registrationStatus?.is_registered ? (
                   <button
@@ -215,6 +248,29 @@ function EventDetailsPage() {
                   >
                     Unregister
                   </button>
+                ) : null}
+
+                {/* When event is full, show waitlist actions */}
+                {event.status === 'Full' && !registrationStatus?.is_registered ? (
+                  registrationStatus?.is_in_waitlist ? (
+                    <button
+                      type="button"
+                      onClick={() => leaveWaitlistAsync()}
+                      disabled={isLeavingWaitlist || isJoiningWaitlist}
+                      className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Leave waitlist
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => joinWaitlistAsync()}
+                      disabled={isJoiningWaitlist || isRegistering || isUnregistering || isStatusLoading || getEventLifecycleStatus(event) === 'Completed'}
+                      className="rounded-lg bg-yellow-500 px-5 py-2.5 font-semibold text-slate-900 transition hover:bg-yellow-600 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Join waitlist
+                    </button>
+                  )
                 ) : null}
               </div>
             </div>
