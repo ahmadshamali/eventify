@@ -126,7 +126,7 @@ function RegisterPage() {
                     </span>
                     <h1 className="text-4xl leading-none tracking-tight text-white md:text-5xl">Create your account</h1>
                     <p className="text-slate-300">
-                        Join the platform as a student or organizer. The form adapts to the role required by the backend.
+                        Join the platform as a student or organizer to create and manage events, and connect with your campus community.
                     </p>
                 </div>
 
@@ -135,7 +135,6 @@ function RegisterPage() {
                         <span className="text-[0.95rem] text-slate-300">Full name</span>
                         <input
                             className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
-                            placeholder="Ahmad Shamali"
                             {...register('full_name')}
                         />
                     </label>
@@ -146,7 +145,7 @@ function RegisterPage() {
                         <span className="text-[0.95rem] text-slate-300">Email</span>
                         <input
                             className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
-                            placeholder="student@university.edu"
+                            placeholder="1210000@student.birzeit.edu"
                             {...register('email')}
                         />
                     </label>

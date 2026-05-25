@@ -71,7 +71,7 @@ function LoginPage() {
           <span className="inline-flex w-fit rounded-full border border-white/10 bg-white/10 px-3.5 py-2 text-[0.85rem] uppercase tracking-[0.14em] text-blue-200">
             Eventify
           </span>
-          <h1 className="text-4xl leading-none tracking-tight text-white md:text-5xl">Welcome back11</h1>
+          <h1 className="text-4xl leading-none tracking-tight text-white md:text-5xl">Welcome back</h1>
           <p className="text-slate-300">Sign in to manage your events and registrations.</p>
         </div>
 
@@ -81,7 +81,7 @@ function LoginPage() {
             <input
               id="email"
               type="email"
-              placeholder="student@birzeit.edu"
+              placeholder="1210000@student.birzeit.edu"
               {...register('email')}
               className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
               required
