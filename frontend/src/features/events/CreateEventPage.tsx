@@ -125,7 +125,27 @@ function CreateEventPage() {
 
             try {
                 const result = await uploadEventImage(file)
-                setValue('imageUrl', result.imageUrl, { shouldValidate: true, shouldDirty: true })
+                // Some servers return a relative path (e.g. "/uploads/..png" or "uploads/..png").
+                // The form schema expects an absolute URL, so normalize here.
+                const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api/v1'
+                let apiOrigin = window.location.origin
+                try {
+                    apiOrigin = new URL(apiBase).origin
+                } catch {
+                    apiOrigin = window.location.origin
+                }
+
+                let imageUrl = result.imageUrl || ''
+                const isAbsolute = /^(https?:)?\/\//i.test(imageUrl)
+                if (!isAbsolute) {
+                    // Ensure leading slash
+                    if (!imageUrl.startsWith('/')) {
+                        imageUrl = `/${imageUrl}`
+                    }
+                    imageUrl = `${apiOrigin}${imageUrl}`
+                }
+
+                setValue('imageUrl', imageUrl, { shouldValidate: true, shouldDirty: true })
                 addToast('Image uploaded successfully', 'success')
             } catch (uploadError) {
                 const message = uploadError instanceof Error ? uploadError.message : 'Failed to upload image'
