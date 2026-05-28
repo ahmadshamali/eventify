@@ -4,6 +4,12 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 
+import EventEmptyState from '../../shared/components/events/EventEmptyState'
+import EventErrorState from '../../shared/components/events/EventErrorState'
+import EventLoadingState from '../../shared/components/events/EventLoadingState'
+import EventPageBackdrop from '../../shared/components/events/EventPageBackdrop'
+import EventStatusBadge from '../../shared/components/events/EventStatusBadge'
+
 import { fetchEvents, fetchRegistrationStatus, registerForEvent, unregisterFromEvent, joinWaitlist, leaveWaitlist } from './eventApi'
 import { formatEventEndTime, getEventLifecycleStatus } from './eventTime'
 
@@ -111,8 +117,7 @@ function EventDetailsPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-900 px-5 py-10 text-slate-50">
-      <div className="pointer-events-none fixed -left-52 -top-52 h-[600px] w-[600px] rounded-full bg-blue-500/35 blur-[100px]" />
-      <div className="pointer-events-none fixed -bottom-52 -right-52 h-[600px] w-[600px] rounded-full bg-cyan-500/25 blur-[100px]" />
+      <EventPageBackdrop />
 
       <div className="relative mx-auto w-full max-w-[900px]">
         <div className="mb-6">
@@ -122,21 +127,15 @@ function EventDetailsPage() {
         </div>
 
         {eventsError ? (
-          <div className="mb-8 rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-center text-red-300">
+          <EventErrorState>
             <p>{eventsError instanceof Error ? eventsError.message : 'An error occurred while loading event details.'}</p>
-          </div>
+          </EventErrorState>
         ) : null}
 
         {isEventsLoading ? (
-          <div className="flex h-[240px] items-center justify-center text-2xl text-slate-400">
-            <div className="mr-4 h-10 w-10 animate-spin rounded-full border-3 border-white/10 border-t-blue-500" />
-            <span>Loading event details...</span>
-          </div>
+          <EventLoadingState className="h-[240px]" message="Loading event details..." />
         ) : !event ? (
-          <div className="rounded-2xl border border-dashed border-white/10 bg-slate-800/60 px-8 py-16 text-center backdrop-blur-sm">
-            <h3 className="mb-4 text-2xl font-semibold text-white">Event not found</h3>
-            <p className="text-slate-300">This event may have been removed.</p>
-          </div>
+          <EventEmptyState className="py-16" title="Event not found" description="This event may have been removed." />
         ) : (
           <section className="rounded-2xl border border-white/10 bg-slate-800/70 p-8 backdrop-blur-md">
             {event.imageUrl ? (
@@ -155,28 +154,14 @@ function EventDetailsPage() {
             <p className="mb-8 text-lg text-slate-300">{event.description || 'No description provided.'}</p>
 
             <div className="mb-6 flex flex-wrap gap-2">
-              <span
-                className={[
-                  'rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide',
-                  event.status === 'Available'
-                    ? 'border-emerald-400/40 bg-emerald-500/20 text-emerald-200'
-                    : event.status === 'Full'
-                      ? 'border-red-400/40 bg-red-500/20 text-red-200'
-                      : 'border-white/20 bg-white/10 text-slate-200',
-                ].join(' ')}
+              <EventStatusBadge
+                tone={event.status === 'Available' ? 'available' : event.status === 'Full' ? 'full' : 'neutral'}
               >
                 {event.status}
-              </span>
-              <span
-                className={[
-                  'rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide',
-                  getEventLifecycleStatus(event) === 'Completed'
-                    ? 'border-slate-400/40 bg-slate-500/20 text-slate-100'
-                    : 'border-cyan-400/40 bg-cyan-500/20 text-cyan-100',
-                ].join(' ')}
-              >
+              </EventStatusBadge>
+              <EventStatusBadge tone={getEventLifecycleStatus(event) === 'Completed' ? 'completed' : 'active'}>
                 {getEventLifecycleStatus(event)}
-              </span>
+              </EventStatusBadge>
             </div>
 
             <div className="grid grid-cols-1 gap-3 text-sm text-slate-300 md:grid-cols-2">

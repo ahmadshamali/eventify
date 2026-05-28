@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { useToast } from '../../context/ToastContext'
+import EventPageBackdrop from '../../shared/components/events/EventPageBackdrop'
 import { createEvent, fetchEvents, generateEventDescription, updateEvent, uploadEventImage } from './eventApi'
 import type { Event } from './event.types'
 import {
@@ -124,7 +125,27 @@ function CreateEventPage() {
 
             try {
                 const result = await uploadEventImage(file)
-                setValue('imageUrl', result.imageUrl, { shouldValidate: true, shouldDirty: true })
+                // Some servers return a relative path (e.g. "/uploads/..png" or "uploads/..png").
+                // The form schema expects an absolute URL, so normalize here.
+                const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api/v1'
+                let apiOrigin = window.location.origin
+                try {
+                    apiOrigin = new URL(apiBase).origin
+                } catch {
+                    apiOrigin = window.location.origin
+                }
+
+                let imageUrl = result.imageUrl || ''
+                const isAbsolute = /^(https?:)?\/\//i.test(imageUrl)
+                if (!isAbsolute) {
+                    // Ensure leading slash
+                    if (!imageUrl.startsWith('/')) {
+                        imageUrl = `/${imageUrl}`
+                    }
+                    imageUrl = `${apiOrigin}${imageUrl}`
+                }
+
+                setValue('imageUrl', imageUrl, { shouldValidate: true, shouldDirty: true })
                 addToast('Image uploaded successfully', 'success')
             } catch (uploadError) {
                 const message = uploadError instanceof Error ? uploadError.message : 'Failed to upload image'
@@ -137,8 +158,7 @@ function CreateEventPage() {
 
     return (
         <div className="relative min-h-screen overflow-hidden bg-slate-900 px-5 py-10 text-slate-50">
-            <div className="pointer-events-none fixed -left-52 -top-52 h-[600px] w-[600px] rounded-full bg-blue-500/35 blur-[100px]" />
-            <div className="pointer-events-none fixed -bottom-52 -right-52 h-[600px] w-[600px] rounded-full bg-cyan-500/25 blur-[100px]" />
+            <EventPageBackdrop />
 
             <div className="relative mx-auto w-full max-w-[600px]">
                 <header className="mb-14 text-center">

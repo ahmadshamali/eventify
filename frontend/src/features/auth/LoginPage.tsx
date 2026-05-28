@@ -7,6 +7,10 @@ import * as z from 'zod'
 import { login } from './authApi'
 import type { LoginRequest } from './auth.types'
 import { useAuth } from '../../context/AuthContext'
+import Button from '../../shared/components/Button'
+import Input from '../../shared/components/Input'
+import PasswordInput from '../../shared/components/PasswordInput'
+import StatusMessage from '../../shared/components/StatusMessage'
 
 const allowedEmailDomain = /@(student|staff)\.birzeit\.edu$/i
 
@@ -78,13 +82,12 @@ function LoginPage() {
         <form className="grid gap-4 p-8 md:p-12" onSubmit={handleSubmit(onSubmit)} autoComplete="on">
           <label className="grid gap-2" htmlFor="email">
             <span className="text-[0.95rem] text-slate-300">Email</span>
-              <input
+            <Input
               id="email"
               type="email"
               placeholder="1210000@student.birzeit.edu"
               {...register('email')}
               autoComplete="email"
-              className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
               required
             />
           </label>
@@ -93,56 +96,29 @@ function LoginPage() {
 
           <label className="grid gap-2" htmlFor="password">
             <span className="text-[0.95rem] text-slate-300">Password</span>
-            <div className="relative">
-              <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
-                {...register('password')}
-                autoComplete="current-password"
-                className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 pr-20 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
-                required
-              />
-              <button
-                className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-white/10"
-                type="button"
-                onClick={() => setShowPassword((value) => !value)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-                aria-pressed={showPassword}
-              >
-                {showPassword ? (
-                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <path d="M3 3l18 18" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M10.5 10.6a3 3 0 004 4" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M7.5 7.8A10.5 10.5 0 003 12c1.8 3.4 5.1 6 9 6 1.2 0 2.4-.2 3.5-.6" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M14.7 5.2A10.5 10.5 0 0121 12c-1.1 2.1-2.8 4-4.9 5.3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                ) : (
-                  <svg aria-hidden="true" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12Z" strokeLinecap="round" strokeLinejoin="round" />
-                    <circle cx="12" cy="12" r="3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                )}
-                <span>{showPassword ? 'Hide' : 'Show'}</span>
-              </button>
-            </div>
+            <PasswordInput
+              id="password"
+              placeholder="Enter your password"
+              {...register('password')}
+              autoComplete="current-password"
+              showPassword={showPassword}
+              onToggle={() => setShowPassword((value) => !value)}
+              required
+            />
           </label>
 
           {errors.password && <p className="text-sm text-red-400">{errors.password.message}</p>}
 
           {error ? (
-            <div className="rounded-[14px] border border-red-400/35 bg-red-900/45 px-4 py-3 text-[0.95rem] text-red-200">
-              {error.message}
-            </div>
+            <StatusMessage tone="error">{error.message}</StatusMessage>
           ) : null}
 
-          <button
-            className="cursor-pointer rounded-[14px] bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-4 font-semibold text-white transition duration-200 hover:-translate-y-px hover:shadow-[0_18px_30px_rgba(14,165,233,0.2)] disabled:cursor-wait disabled:opacity-70"
+          <Button
             type="submit"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Signing in...' : 'Sign in'}
-          </button>
+          </Button>
 
           <p className="text-center text-slate-400">
             Don&apos;t have an account?{' '}

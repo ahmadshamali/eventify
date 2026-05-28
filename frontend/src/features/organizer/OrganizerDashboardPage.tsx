@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
+import EventPageBackdrop from '../../shared/components/events/EventPageBackdrop'
 
 import { cancelEvent, fetchEvents } from '../events/eventApi'
 import type { Event } from '../events/event.types'
@@ -200,8 +201,7 @@ export default function OrganizerDashboardPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-50">
-      <div className="pointer-events-none fixed -left-52 -top-52 h-[600px] w-[600px] rounded-full bg-blue-500/30 blur-[100px]" />
-      <div className="pointer-events-none fixed -bottom-52 -right-52 h-[600px] w-[600px] rounded-full bg-cyan-500/20 blur-[100px]" />
+      <EventPageBackdrop />
 
       <div className="relative mx-auto w-full max-w-[1280px] px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(320px,0.85fr)]">
