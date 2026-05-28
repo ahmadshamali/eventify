@@ -130,12 +130,13 @@ function RegisterPage() {
                     </p>
                 </div>
 
-                <form className="grid gap-4 p-8 md:p-12" onSubmit={handleSubmit(onSubmit)}>
+                <form className="grid gap-4 p-8 md:p-12" onSubmit={handleSubmit(onSubmit)} autoComplete="on">
                     <label className="grid gap-2">
                         <span className="text-[0.95rem] text-slate-300">Full name</span>
                         <input
                             className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
                             {...register('full_name')}
+                            autoComplete="name"
                         />
                     </label>
 
@@ -147,6 +148,7 @@ function RegisterPage() {
                             className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
                             placeholder="1210000@student.birzeit.edu"
                             {...register('email')}
+                            autoComplete="email"
                         />
                     </label>
 
@@ -160,6 +162,7 @@ function RegisterPage() {
                                 placeholder="At least 8 characters"
                                 {...register('password')}
                                 type={showPassword ? 'text' : 'password'}
+                                autoComplete="new-password"
                             />
                             <button
                                 className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-white/10"
@@ -209,6 +212,7 @@ function RegisterPage() {
                                     className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
                                     placeholder="Computer Science"
                                     {...register('major')}
+                                    autoComplete="off"
                                 />
                             </label>
 
@@ -222,6 +226,7 @@ function RegisterPage() {
                                     className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
                                     placeholder="IEEE Student Branch"
                                     {...register('club_name')}
+                                    autoComplete="organization"
                                 />
                             </label>
 

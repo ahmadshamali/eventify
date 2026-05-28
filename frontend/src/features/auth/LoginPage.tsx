@@ -75,14 +75,15 @@ function LoginPage() {
           <p className="text-slate-300">Sign in to manage your events and registrations.</p>
         </div>
 
-        <form className="grid gap-4 p-8 md:p-12" onSubmit={handleSubmit(onSubmit)}>
+        <form className="grid gap-4 p-8 md:p-12" onSubmit={handleSubmit(onSubmit)} autoComplete="on">
           <label className="grid gap-2" htmlFor="email">
             <span className="text-[0.95rem] text-slate-300">Email</span>
-            <input
+              <input
               id="email"
               type="email"
               placeholder="1210000@student.birzeit.edu"
               {...register('email')}
+              autoComplete="email"
               className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
               required
             />
@@ -98,6 +99,7 @@ function LoginPage() {
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your password"
                 {...register('password')}
+                autoComplete="current-password"
                 className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 pr-20 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
                 required
               />

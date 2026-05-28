@@ -49,25 +49,25 @@ export default function Navbar() {
 
 	return (
 		<nav className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
-			<div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3">
-				<NavLink className="text-lg font-semibold tracking-wide text-white" to="/events">
+			<div className="flex w-full flex-col gap-3 px-4 py-3 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+				<NavLink className="text-lg font-semibold tracking-wide text-white lg:justify-self-start" to="/events">
 					Eventify
 				</NavLink>
 
-				<div className="flex flex-wrap items-center justify-center gap-2 justify-self-center">
+				<div className="flex gap-2 overflow-x-auto pb-1 lg:justify-self-center lg:flex-wrap lg:justify-center lg:overflow-visible lg:pb-0">
 					{visibleItems.map((item) => (
 						<NavButton key={item.to} to={item.to} label={item.label} />
 					))}
 				</div>
 
-				<div className="flex items-center gap-2 justify-self-end">
-					<span className="max-w-[200px] truncate rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200">
+				<div className="flex flex-wrap items-center gap-2 lg:justify-self-end lg:justify-end">
+					<span className="max-w-[200px] truncate rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200 sm:max-w-[240px]">
 						{fullName || 'User'}
 					</span>
 					<button
 						type="button"
 						onClick={handleSignOut}
-						className="rounded-full border border-red-300/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-200 transition hover:bg-red-500/20"
+						className="rounded-full border border-red-300/30 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-200 transition hover:bg-red-500/20"
 					>
 						Logout
 					</button>

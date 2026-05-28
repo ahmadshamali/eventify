@@ -1,5 +1,5 @@
 const CACHE_NAME = 'eventify-cache-v1'
-const ASSETS = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/icons/pwa-192x192.svg', '/icons/pwa-512x512.svg']
+const ASSETS = ['/', '/index.html', '/manifest.webmanifest', '/favicon1.svg', '/icons/pwa-192x192.svg', '/icons/pwa-512x512.svg']
 
 self.addEventListener('install', (event) => {
   self.skipWaiting()
