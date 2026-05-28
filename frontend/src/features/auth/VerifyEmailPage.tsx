@@ -7,6 +7,9 @@ import * as z from 'zod'
 
 import { verifyEmail } from './authApi'
 import type { VerifyEmailRequest } from './auth.types'
+import Button from '../../shared/components/Button'
+import Input from '../../shared/components/Input'
+import StatusMessage from '../../shared/components/StatusMessage'
 
 const verifyEmailSchema = z.object({
   code: z.string().trim().regex(/^\d{6}$/, { message: 'Verification code must be a 6-digit number' }),
@@ -87,41 +90,37 @@ function VerifyEmailPage() {
         <form className="grid gap-4 p-8 md:p-12" onSubmit={handleSubmit(onSubmit)}>
           <label className="grid gap-2" htmlFor="code">
             <span className="text-[0.95rem] text-slate-300">Verification code</span>
-            <input
+            <Input
               id="code"
               type="text"
               placeholder="Enter 6-digit code"
               {...register('code')}
               inputMode="numeric"
               autoComplete="one-time-code"
-              className="w-full rounded-[14px] border border-slate-400/25 bg-slate-900/70 px-4 py-4 text-slate-50 outline-none transition duration-200 focus:-translate-y-px focus:border-blue-400/90 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.16)]"
             />
           </label>
 
           {errors.code && <p className="text-sm text-red-400">{errors.code.message}</p>}
 
           {isSuccess ? (
-            <div className="rounded-[14px] border border-emerald-400/35 bg-emerald-900/45 px-4 py-3 text-[0.95rem] text-emerald-200">
+            <StatusMessage tone="success">
               Email verified for {verifiedUser.email}.{' '}
               {verifiedUser.account_status === 'active'
                 ? 'Your account is active. Redirecting you to login...'
                 : 'Your account is waiting for admin approval. Redirecting you to login...'}
-            </div>
+            </StatusMessage>
           ) : null}
 
           {error ? (
-            <div className="rounded-[14px] border border-red-400/35 bg-red-900/45 px-4 py-3 text-[0.95rem] text-red-200">
-              {error.message}
-            </div>
+            <StatusMessage tone="error">{error.message}</StatusMessage>
           ) : null}
 
-          <button
-            className="cursor-pointer rounded-[14px] bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-4 font-semibold text-white transition duration-200 hover:-translate-y-px hover:shadow-[0_18px_30px_rgba(14,165,233,0.2)] disabled:cursor-wait disabled:opacity-70"
+          <Button
             type="submit"
             disabled={isSubmitting || isSuccess}
           >
             {isSubmitting ? 'Verifying...' : isSuccess ? 'Verified' : 'Verify email'}
-          </button>
+          </Button>
 
           <p className="text-center text-slate-400">
             Already verified?{' '}
