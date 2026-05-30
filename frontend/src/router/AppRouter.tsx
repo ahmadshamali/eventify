@@ -20,20 +20,33 @@ function ProtectedLayout() {
   return (
     <>
       <Navbar />
-      <Outlet />
+      <main className="min-h-screen bg-[#0b1326] pt-16 pb-20 text-[#dae2fd] lg:ml-[280px] lg:pb-0">
+        <Outlet />
+        <footer className="border-t border-[#4f4633] bg-[#060e20] px-4 py-6 md:px-8">
+          <div className="mx-auto flex w-full max-w-[1280px] flex-col justify-between gap-4 text-sm text-[#d3c5ac] md:flex-row md:items-center">
+            <div className="flex items-center gap-4">
+              <span className="font-['Hanken_Grotesk'] text-xl font-bold text-[#ffe1a7]">Eventify</span>
+              <span>University Eventify Platform.</span>
+            </div>
+            <div className="flex flex-wrap gap-5">
+              <a className="transition hover:text-[#ffe1a7]" href="#">Terms</a>
+              <a className="transition hover:text-[#ffe1a7]" href="#">Privacy</a>
+              <a className="transition hover:text-[#ffe1a7]" href="#">Accessibility</a>
+            </div>
+          </div>
+        </footer>
+      </main>
     </>
   )
 }
 
 function PlaceholderPage({ title, subtitle }: { title: string; subtitle: string }) {
   return (
-    <div className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-slate-900 px-4 py-10 text-slate-50">
-      <div className="pointer-events-none fixed -left-52 -top-52 h-[600px] w-[600px] rounded-full bg-blue-500/25 blur-[100px]" />
-      <div className="pointer-events-none fixed -bottom-52 -right-52 h-[600px] w-[600px] rounded-full bg-cyan-500/20 blur-[100px]" />
-
-      <div className="relative mx-auto w-full max-w-[900px] rounded-3xl border border-white/10 bg-slate-800/60 p-8 text-center backdrop-blur-md md:p-14">
-        <h1 className="mb-3 text-3xl font-semibold text-white md:text-4xl">{title}</h1>
-        <p className="text-slate-300">{subtitle}</p>
+    <div className="min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
+      <div className="mx-auto w-full max-w-[1000px] rounded-xl border border-[#4f4633] bg-[#131b2e] p-6 shadow-sm md:p-8">
+        <p className="font-mono text-xs uppercase tracking-widest text-[#ffe1a7]">Eventify</p>
+        <h1 className="mt-3 font-['Hanken_Grotesk'] text-3xl font-semibold text-[#dae2fd] md:text-4xl">{title}</h1>
+        <p className="mt-2 max-w-2xl text-[#d3c5ac]">{subtitle}</p>
       </div>
     </div>
   )

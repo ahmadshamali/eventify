@@ -22,28 +22,28 @@ import {
 
 function StatCard({ label, value, helper }: { label: string; value: string | number; helper?: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-slate-800/70 p-5 shadow-[0_10px_30px_-20px_rgba(15,23,42,0.8)] backdrop-blur-md">
-      <p className="text-sm text-slate-300">{label}</p>
-      <p className="mt-2 text-3xl font-semibold text-white">{value}</p>
-      {helper ? <p className="mt-2 text-xs text-slate-400">{helper}</p> : null}
+    <div className="rounded-xl border border-[#4f4633] bg-[#131b2e] p-5 shadow-sm">
+      <p className="font-mono text-xs uppercase tracking-wider text-[#d3c5ac]">{label}</p>
+      <p className="mt-3 font-['Hanken_Grotesk'] text-4xl font-semibold text-[#dae2fd]">{value}</p>
+      {helper ? <p className="mt-2 text-xs text-[#d3c5ac]">{helper}</p> : null}
     </div>
   )
 }
 
 function ActionCard({ to, title, description, tone }: { to: string; title: string; description: string; tone: 'cyan' | 'slate' | 'emerald' }) {
   const toneClasses = {
-    cyan: 'border-cyan-400/30 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-500/15',
-    slate: 'border-white/10 bg-white/5 text-white hover:bg-white/10',
-    emerald: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/15',
+    cyan: 'border-[#34daff]/40 bg-[#00a6e0]/20 text-[#b6edff] hover:bg-[#00a6e0]/30',
+    slate: 'border-[#4f4633] bg-[#131b2e] text-[#dae2fd] hover:bg-[#171f33]',
+    emerald: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400/20',
   }
 
   return (
     <Link
       to={to}
-      className={`rounded-2xl border p-5 transition duration-300 hover:-translate-y-0.5 ${toneClasses[tone]}`}
+      className={`rounded-xl border p-5 transition duration-200 ${toneClasses[tone]}`}
     >
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <p className="mt-2 text-sm text-slate-300">{description}</p>
+      <h3 className="font-['Hanken_Grotesk'] text-lg font-semibold">{title}</h3>
+      <p className="mt-2 text-sm text-[#d3c5ac]">{description}</p>
     </Link>
   )
 }
@@ -61,54 +61,52 @@ function EventCard({
   const isCompleted = statusLabel === 'Completed'
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-800/70 p-6 shadow-[0_16px_40px_-28px_rgba(15,23,42,0.9)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-white/20">
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 transition duration-300 group-hover:opacity-100" />
-
-      <div className="relative flex flex-col gap-4">
+    <div className="overflow-hidden rounded-xl border border-[#4f4633] bg-[#131b2e] p-6 shadow-sm transition duration-200 hover:border-[#f9bd22]/60 hover:bg-[#171f33]">
+      <div className="flex flex-col gap-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <h3 className="truncate text-xl font-semibold text-white">{event.title}</h3>
-            <p className="mt-1 line-clamp-2 text-sm text-slate-400">{event.description || 'No description provided.'}</p>
+            <h3 className="truncate font-['Hanken_Grotesk'] text-xl font-semibold text-[#dae2fd]">{event.title}</h3>
+            <p className="mt-1 line-clamp-2 text-sm text-[#d3c5ac]">{event.description || 'No description provided.'}</p>
           </div>
-          <span className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200">
+          <span className="shrink-0 rounded border border-[#4f4633] bg-[#222a3d] px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#d3c5ac]">
             {statusLabel}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 gap-2 text-sm text-slate-300 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 text-sm text-[#dae2fd] sm:grid-cols-2">
           <div>
-            <span className="block text-xs uppercase tracking-wide text-slate-500">Starts</span>
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-[#d3c5ac]">Starts</span>
             <span>{formatEventStartTime(event.startDateTime)}</span>
           </div>
           <div>
-            <span className="block text-xs uppercase tracking-wide text-slate-500">Ends</span>
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-[#d3c5ac]">Ends</span>
             <span>{formatEventEndTime(event.endDateTime)}</span>
           </div>
           <div>
-            <span className="block text-xs uppercase tracking-wide text-slate-500">Location</span>
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-[#d3c5ac]">Location</span>
             <span>{event.location}</span>
           </div>
           <div>
-            <span className="block text-xs uppercase tracking-wide text-slate-500">Category</span>
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-[#d3c5ac]">Category</span>
             <span>{event.category}</span>
           </div>
           <div>
-            <span className="block text-xs uppercase tracking-wide text-slate-500">Capacity</span>
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-[#d3c5ac]">Capacity</span>
             <span>{event.capacity}</span>
           </div>
           <div>
-            <span className="block text-xs uppercase tracking-wide text-slate-500">Registrations</span>
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-[#d3c5ac]">Registrations</span>
             <span>{event.registered_count} / {event.capacity}</span>
           </div>
         </div>
 
         <div className="pt-1">
-          <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
+          <div className="mb-2 flex items-center justify-between text-xs text-[#d3c5ac]">
             <span>Capacity filled</span>
             <span>{formatPercentage(fillRate)}</span>
           </div>
-          <div className="h-2 rounded-full bg-white/10">
-            <div className="h-2 rounded-full bg-cyan-400 transition-all" style={{ width: `${fillRate}%` }} />
+          <div className="h-2 rounded-full bg-[#222a3d]">
+            <div className="h-2 rounded-full bg-[#f9bd22] transition-all" style={{ width: `${fillRate}%` }} />
           </div>
         </div>
 
@@ -117,14 +115,14 @@ function EventCard({
             {isCompleted ? (
               <Link
                 to={`/events/${event.id}/feedbacks`}
-                className="rounded-lg border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:bg-cyan-500/15"
+                className="rounded-lg border border-[#34daff]/40 bg-[#00a6e0]/20 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#b6edff] transition hover:bg-[#00a6e0]/30"
               >
                 Feedbacks
               </Link>
             ) : (
               <Link
                 to={`/events/${event.id}/edit`}
-                className="rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+                className="rounded-lg border border-[#4f4633] bg-[#222a3d] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#dae2fd] transition hover:bg-[#2d3449] hover:text-[#ffe1a7]"
               >
                 Edit
               </Link>
@@ -200,68 +198,68 @@ export default function OrganizerDashboardPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-50">
+    <div className="min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
       <EventPageBackdrop />
 
-      <div className="relative mx-auto w-full max-w-[1280px] px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-[1280px]">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(320px,0.85fr)]">
-          <header className="rounded-3xl border border-white/10 bg-slate-800/60 p-6 shadow-[0_16px_40px_-28px_rgba(15,23,42,0.9)] backdrop-blur-md md:p-8">
-            <p className="text-sm uppercase tracking-[0.28em] text-cyan-200/80">Organizer Dashboard</p>
-            <h1 className="mt-3 bg-gradient-to-br from-white to-slate-300 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-5xl">
+          <header className="rounded-xl border border-[#4f4633] bg-[#131b2e] p-6 shadow-sm md:p-8">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#ffe1a7]">Organizer Dashboard</p>
+            <h1 className="mt-3 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[#dae2fd] md:text-5xl">
               Manage your events from one place
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300 md:text-lg">
+            <p className="mt-4 max-w-2xl text-base leading-7 text-[#d3c5ac] md:text-lg">
               Track upcoming events, review completed ones, cancel outdated listings, and jump into create or feedback actions without leaving the dashboard.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 to="/events"
-                className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                className="rounded-lg border border-[#4f4633] bg-[#222a3d] px-5 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[#dae2fd] transition hover:bg-[#2d3449] hover:text-[#ffe1a7]"
               >
                 View All Events
               </Link>
             </div>
           </header>
 
-          <aside className="rounded-3xl border border-white/10 bg-slate-800/60 p-6 shadow-[0_16px_40px_-28px_rgba(15,23,42,0.9)] backdrop-blur-md md:p-8">
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-400">At a Glance</p>
+          <aside className="rounded-xl border border-[#4f4633] bg-[#131b2e] p-6 shadow-sm md:p-8">
+            <p className="font-mono text-xs uppercase tracking-widest text-[#d3c5ac]">At a Glance</p>
             {nextEvent ? (
               <div className="mt-4 space-y-4">
                 <div>
-                  <h2 className="text-2xl font-semibold text-white">Next Event</h2>
-                  <p className="mt-2 text-slate-300">{nextEvent.title}</p>
+                  <h2 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[#dae2fd]">Next Event</h2>
+                  <p className="mt-2 text-[#d3c5ac]">{nextEvent.title}</p>
                 </div>
-                <div className="space-y-2 text-sm text-slate-300">
+                <div className="space-y-2 text-sm text-[#d3c5ac]">
                   <p>Starts: {formatEventStartTime(nextEvent.startDateTime)}</p>
                   <p>Ends: {formatEventEndTime(nextEvent.endDateTime)}</p>
                   <p>Location: {nextEvent.location}</p>
                   <p>Status: {nextEvent.status}</p>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
+                <div className="rounded-xl border border-[#4f4633] bg-[#0b1326] p-4">
+                  <div className="mb-2 flex items-center justify-between text-xs text-[#d3c5ac]">
                     <span>Fill rate</span>
                     <span>{formatPercentage(getFillRate(nextEvent))}</span>
                   </div>
-                  <div className="h-2 rounded-full bg-white/10">
-                    <div className="h-2 rounded-full bg-cyan-400" style={{ width: `${getFillRate(nextEvent)}%` }} />
+                  <div className="h-2 rounded-full bg-[#222a3d]">
+                    <div className="h-2 rounded-full bg-[#f9bd22]" style={{ width: `${getFillRate(nextEvent)}%` }} />
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="mt-4 rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-slate-300">
+              <div className="mt-4 rounded-xl border border-dashed border-[#4f4633] bg-[#0b1326] p-6 text-[#d3c5ac]">
                 No upcoming events yet. Create your first event to populate the dashboard.
               </div>
             )}
 
             <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="text-slate-400">Total</p>
-                <p className="mt-1 text-2xl font-semibold text-white">{myEvents.length}</p>
+              <div className="rounded-xl border border-[#4f4633] bg-[#0b1326] p-4">
+                <p className="text-[#d3c5ac]">Total</p>
+                <p className="mt-1 text-2xl font-semibold text-[#dae2fd]">{myEvents.length}</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="text-slate-400">Fill Avg</p>
-                <p className="mt-1 text-2xl font-semibold text-white">{formatPercentage(averageFillRate)}</p>
+              <div className="rounded-xl border border-[#4f4633] bg-[#0b1326] p-4">
+                <p className="text-[#d3c5ac]">Fill Avg</p>
+                <p className="mt-1 text-2xl font-semibold text-[#dae2fd]">{formatPercentage(averageFillRate)}</p>
               </div>
             </div>
           </aside>
@@ -296,13 +294,13 @@ export default function OrganizerDashboardPage() {
         </section>
 
         {error ? (
-          <div className="mt-6 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-red-100">
+          <div className="mt-6 rounded-xl border border-[#ffb4ab]/40 bg-[#93000a]/30 p-4 text-[#ffdad6]">
             <p>{error instanceof Error ? error.message : 'An error occurred while loading your events.'}</p>
           </div>
         ) : null}
 
         {isLoading ? (
-          <div className="mt-6 rounded-2xl border border-white/10 bg-slate-800/60 p-8 text-slate-300">
+          <div className="mt-6 rounded-xl border border-[#4f4633] bg-[#131b2e] p-8 text-[#d3c5ac]">
             Loading organizer dashboard...
           </div>
         ) : (
@@ -310,16 +308,16 @@ export default function OrganizerDashboardPage() {
             <section>
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold text-white">Upcoming Events</h2>
-                  <p className="mt-1 text-sm text-slate-400">Events that are still active and ready to manage</p>
+                  <h2 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[#dae2fd]">Upcoming Events</h2>
+                  <p className="mt-1 text-sm text-[#d3c5ac]">Events that are still active and ready to manage</p>
                 </div>
-                <span className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-100">
+                <span className="rounded border border-[#34daff]/40 bg-[#00a6e0]/20 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#b6edff]">
                   {upcomingEvents.length}
                 </span>
               </div>
 
               {upcomingEvents.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-slate-800/60 px-8 py-16 text-center text-slate-300">
+                <div className="rounded-xl border border-dashed border-[#4f4633] bg-[#131b2e] px-8 py-16 text-center text-[#d3c5ac]">
                   No upcoming events yet.
                 </div>
               ) : (
@@ -333,7 +331,7 @@ export default function OrganizerDashboardPage() {
                             type="button"
                             onClick={() => handleCancel(event.id, event.title)}
                             disabled={isCanceling}
-                            className="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-100 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="rounded-lg border border-[#ffb4ab]/40 bg-[#93000a]/30 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#ffdad6] transition hover:bg-[#93000a]/50 disabled:cursor-not-allowed disabled:opacity-60"
                           >
                             Cancel Event
                           </button>
@@ -348,16 +346,16 @@ export default function OrganizerDashboardPage() {
             <section>
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold text-white">Completed Events</h2>
-                  <p className="mt-1 text-sm text-slate-400">Finished events with feedback and performance context</p>
+                  <h2 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[#dae2fd]">Completed Events</h2>
+                  <p className="mt-1 text-sm text-[#d3c5ac]">Finished events with feedback and performance context</p>
                 </div>
-                <span className="rounded-full border border-slate-400/30 bg-slate-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200">
+                <span className="rounded border border-[#4f4633] bg-[#222a3d] px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#d3c5ac]">
                   {completedEvents.length}
                 </span>
               </div>
 
               {completedEvents.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-slate-800/60 px-8 py-16 text-center text-slate-300">
+                <div className="rounded-xl border border-dashed border-[#4f4633] bg-[#131b2e] px-8 py-16 text-center text-[#d3c5ac]">
                   No completed events yet.
                 </div>
               ) : (
@@ -372,16 +370,16 @@ export default function OrganizerDashboardPage() {
             <section>
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold text-white">Canceled Events</h2>
-                  <p className="mt-1 text-sm text-slate-400">Events that were removed from circulation</p>
+                  <h2 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[#dae2fd]">Canceled Events</h2>
+                  <p className="mt-1 text-sm text-[#d3c5ac]">Events that were removed from circulation</p>
                 </div>
-                <span className="rounded-full border border-slate-400/30 bg-slate-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200">
+                <span className="rounded border border-[#4f4633] bg-[#222a3d] px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#d3c5ac]">
                   {canceledEvents.length}
                 </span>
               </div>
 
               {canceledEvents.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-slate-800/60 px-8 py-16 text-center text-slate-300">
+                <div className="rounded-xl border border-dashed border-[#4f4633] bg-[#131b2e] px-8 py-16 text-center text-[#d3c5ac]">
                   No canceled events.
                 </div>
               ) : (

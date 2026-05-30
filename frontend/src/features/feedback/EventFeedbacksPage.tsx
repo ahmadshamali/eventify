@@ -17,7 +17,7 @@ function RatingStars({ rating }: { rating: number }) {
             fill="currentColor"
             className={[
               'h-4 w-4 transition',
-              isFilled ? 'text-cyan-300' : 'text-slate-600',
+              isFilled ? 'text-[#f9bd22]' : 'text-[#4f4633]',
             ].join(' ')}
           >
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.293a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.922-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.196-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81H7.03a1 1 0 00.95-.69l1.07-3.293z" />
@@ -39,44 +39,46 @@ function EventFeedbacksPage() {
   })
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-900 text-slate-50">
+    <div className="min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
       <EventPageBackdrop />
 
-      <div className="relative mx-auto w-full max-w-[900px] px-8 py-16">
+      <div className="mx-auto w-full max-w-[900px]">
         <div className="mb-6">
-          <Link to="/dashboard" className="text-sm text-blue-300 transition hover:text-blue-200">
+          <Link to="/dashboard" className="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-[#ffe1a7] transition hover:text-[#f9bd22]">
+            <span className="material-symbols-outlined text-base" aria-hidden="true">arrow_back</span>
             Back to dashboard
           </Link>
         </div>
 
-        <header className="mb-8 rounded-2xl border border-white/10 bg-slate-800/60 p-6 text-center backdrop-blur-md md:p-8">
-          <h1 className="mb-2 bg-gradient-to-br from-white to-slate-300 bg-clip-text text-4xl font-bold text-transparent">
+        <header className="mb-8 rounded-xl border border-[#4f4633] bg-[#131b2e] p-6 shadow-sm md:p-8">
+          <p className="font-mono text-xs uppercase tracking-widest text-[#ffe1a7]">Organizer Insights</p>
+          <h1 className="mt-2 font-['Hanken_Grotesk'] text-4xl font-semibold text-[#dae2fd]">
             Event Feedbacks
           </h1>
-          <p className="text-slate-400">Anonymous feedback submitted by participants</p>
+          <p className="mt-2 text-[#d3c5ac]">Anonymous feedback submitted by participants.</p>
         </header>
 
         {isLoading ? (
-          <div className="text-center text-slate-400">Loading feedbacks...</div>
+          <div className="text-center text-[#d3c5ac]">Loading feedbacks...</div>
         ) : error ? (
-          <div className="text-red-400">{(error as Error)?.message || 'Failed to load feedbacks'}</div>
+          <div className="rounded-xl border border-[#ffb4ab]/40 bg-[#93000a]/30 p-4 text-[#ffdad6]">{(error as Error)?.message || 'Failed to load feedbacks'}</div>
         ) : feedbacks.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/10 bg-slate-800/60 px-8 py-16 text-center">No feedbacks yet</div>
+          <div className="rounded-xl border border-dashed border-[#4f4633] bg-[#131b2e] px-8 py-16 text-center text-[#d3c5ac]">No feedbacks yet</div>
         ) : (
           <div className="flex flex-col gap-4">
             {feedbacks.map((fb) => (
-              <div key={fb.id} className="rounded-xl border border-white/10 bg-slate-800/60 p-5 backdrop-blur-sm">
+              <div key={fb.id} className="rounded-xl border border-[#4f4633] bg-[#131b2e] p-5 shadow-sm">
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <div className="space-y-1">
-                    <div className="text-sm font-semibold text-white">{fb.full_name}</div>
+                    <div className="text-sm font-semibold text-[#dae2fd]">{fb.full_name}</div>
                     <div className="flex items-center gap-3">
                       <RatingStars rating={fb.rating} />
-                      <span className="text-sm font-semibold text-cyan-100">{fb.rating} / 5</span>
+                      <span className="text-sm font-semibold text-[#ffe1a7]">{fb.rating} / 5</span>
                     </div>
                   </div>
-                  <div className="text-xs text-slate-400">{new Date(fb.created_at).toLocaleString()}</div>
+                  <div className="text-xs text-[#d3c5ac]">{new Date(fb.created_at).toLocaleString()}</div>
                 </div>
-                <div className="text-slate-200">{fb.comment || <span className="text-slate-400">No comment provided.</span>}</div>
+                <div className="text-[#dae2fd]">{fb.comment || <span className="text-[#d3c5ac]">No comment provided.</span>}</div>
               </div>
             ))}
           </div>

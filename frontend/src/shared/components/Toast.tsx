@@ -25,15 +25,15 @@ function ToastComponent({ toast, onClose }: ToastProps) {
   }, [toast.id, toast.duration, onClose])
 
   const toneClasses = {
-    success: 'border-emerald-300/70 bg-emerald-500 text-white',
-    error: 'border-rose-300/70 bg-rose-500 text-white',
-    info: 'border-sky-300/70 bg-sky-500 text-white',
+    success: 'border-emerald-400/40 bg-[#131b2e] text-emerald-200',
+    error: 'border-[#ffb4ab]/40 bg-[#131b2e] text-[#ffdad6]',
+    info: 'border-[#34daff]/40 bg-[#131b2e] text-[#b6edff]',
   }[toast.type]
 
   const iconColor = {
-    success: 'text-white',
-    error: 'text-white',
-    info: 'text-white',
+    success: 'text-emerald-300',
+    error: 'text-[#ffb4ab]',
+    info: 'text-[#b6edff]',
   }[toast.type]
 
   return (

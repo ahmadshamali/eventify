@@ -15,7 +15,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(function 
     <div className="relative">
       <Input ref={ref} type={showPassword ? 'text' : 'password'} className={`pr-20 ${className}`} {...props} />
       <button
-        className="absolute right-3 top-1/2 z-10 flex -translate-y-1/2 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-white/10"
+        className="absolute right-3 top-1/2 z-10 flex -translate-y-1/2 items-center gap-1 rounded border border-[#4f4633] bg-[#222a3d] px-3 py-2 font-mono text-[10px] uppercase tracking-wider text-[#d3c5ac] transition hover:bg-[#2d3449] hover:text-[#ffe1a7]"
         type="button"
         onClick={onToggle}
         aria-label={showPassword ? 'Hide password' : 'Show password'}

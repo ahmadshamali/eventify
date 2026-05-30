@@ -7,7 +7,6 @@ import { useToast } from '../../context/ToastContext'
 import EventEmptyState from '../../shared/components/events/EventEmptyState'
 import EventErrorState from '../../shared/components/events/EventErrorState'
 import EventLoadingState from '../../shared/components/events/EventLoadingState'
-import EventPageBackdrop from '../../shared/components/events/EventPageBackdrop'
 import EventStatusBadge from '../../shared/components/events/EventStatusBadge'
 
 import { fetchEvents, fetchRegistrationStatus, registerForEvent, unregisterFromEvent, joinWaitlist, leaveWaitlist } from './eventApi'
@@ -87,13 +86,13 @@ function EventDetailsPage() {
 
   if (!Number.isInteger(numericEventId)) {
     return (
-      <div className="relative min-h-screen overflow-hidden bg-slate-900 px-4 py-10 text-slate-50">
-        <div className="relative mx-auto w-full max-w-[900px] rounded-3xl border border-white/10 bg-slate-800/60 p-8 text-center backdrop-blur-md md:p-14">
-          <p className="text-slate-300">Invalid event id.</p>
+      <div className="min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
+        <div className="mx-auto w-full max-w-[900px] rounded-xl border border-[#4f4633] bg-[#131b2e] p-8 text-center md:p-14">
+          <p className="text-[#d3c5ac]">Invalid event id.</p>
           <button
             type="button"
             onClick={() => navigate('/events')}
-            className="mt-4 rounded-lg border border-white/20 px-4 py-2 text-sm text-slate-100 transition hover:bg-white/10"
+            className="mt-4 rounded-lg border border-[#4f4633] px-4 py-2 text-sm text-[#dae2fd] transition hover:bg-[#222a3d]"
           >
             Back to Events
           </button>
@@ -107,7 +106,7 @@ function EventDetailsPage() {
       return
     }
 
-    const confirmed = window.confirm(`Are sure you want to Unregister ${event.title} Event`)
+    const confirmed = window.confirm(`Are you sure you want to unregister from ${event.title}?`)
     if (!confirmed) {
       return
     }
@@ -116,12 +115,11 @@ function EventDetailsPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-900 px-5 py-10 text-slate-50">
-      <EventPageBackdrop />
-
-      <div className="relative mx-auto w-full max-w-[900px]">
+    <div className="min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
+      <div className="mx-auto w-full max-w-[1120px]">
         <div className="mb-6">
-          <Link to="/events" className="text-sm text-blue-300 transition hover:text-blue-200">
+          <Link to="/events" className="inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-[#ffe1a7] transition hover:text-[#f9bd22]">
+            <span className="material-symbols-outlined text-base" aria-hidden="true">arrow_back</span>
             Back to events
           </Link>
         </div>
@@ -137,126 +135,129 @@ function EventDetailsPage() {
         ) : !event ? (
           <EventEmptyState className="py-16" title="Event not found" description="This event may have been removed." />
         ) : (
-          <section className="rounded-2xl border border-white/10 bg-slate-800/70 p-8 backdrop-blur-md">
+          <section className="overflow-hidden rounded-xl border border-[#4f4633] bg-[#131b2e] shadow-sm">
             {event.imageUrl ? (
-              <div className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70">
+              <div className="relative h-[320px] overflow-hidden border-b border-[#4f4633] bg-[#060e20]">
                 <img
                   src={event.imageUrl}
                   alt={event.title}
-                  className="h-72 w-full object-cover"
+                  className="h-full w-full object-cover brightness-[0.68] grayscale-[10%]"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#060e20] to-transparent" />
               </div>
             ) : null}
 
-            <h1 className="mb-4 bg-gradient-to-br from-white to-slate-300 bg-clip-text text-4xl font-bold tracking-tight text-transparent">
-              {event.title}
-            </h1>
-            <p className="mb-8 text-lg text-slate-300">{event.description || 'No description provided.'}</p>
+            <div className="p-6 md:p-8">
+              <p className="mb-3 font-mono text-xs uppercase tracking-widest text-[#ffe1a7]">{event.category}</p>
+              <h1 className="mb-4 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[#dae2fd]">
+                {event.title}
+              </h1>
+              <p className="mb-8 max-w-3xl text-lg leading-8 text-[#d3c5ac]">{event.description || 'No description provided.'}</p>
 
-            <div className="mb-6 flex flex-wrap gap-2">
-              <EventStatusBadge
-                tone={event.status === 'Available' ? 'available' : event.status === 'Full' ? 'full' : 'neutral'}
-              >
-                {event.status}
-              </EventStatusBadge>
-              <EventStatusBadge tone={getEventLifecycleStatus(event) === 'Completed' ? 'completed' : 'active'}>
-                {getEventLifecycleStatus(event)}
-              </EventStatusBadge>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 text-sm text-slate-300 md:grid-cols-2">
-              <p><span className="text-slate-400">Starts:</span> {new Date(event.startDateTime).toLocaleString()}</p>
-              <p><span className="text-slate-400">Ends:</span> {formatEventEndTime(event.endDateTime)}</p>
-              <p><span className="text-slate-400">Location:</span> {event.location}</p>
-              <p><span className="text-slate-400">Category:</span> {event.category}</p>
-              <p><span className="text-slate-400">Capacity:</span> {event.capacity}</p>
-            </div>
-
-            {event.eventLink ? (
-              <div className="mt-6">
-                <a
-                  href={event.eventLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex rounded-lg border border-cyan-400/40 bg-cyan-500/20 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-500/30"
+              <div className="mb-6 flex flex-wrap gap-2">
+                <EventStatusBadge
+                  tone={event.status === 'Available' ? 'available' : event.status === 'Full' ? 'full' : 'neutral'}
                 >
-                  Open event link
-                </a>
+                  {event.status}
+                </EventStatusBadge>
+                <EventStatusBadge tone={getEventLifecycleStatus(event) === 'Completed' ? 'completed' : 'active'}>
+                  {getEventLifecycleStatus(event)}
+                </EventStatusBadge>
               </div>
-            ) : null}
 
-            {registrationError ? (
-              <div className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-300">
-                {registrationError instanceof Error ? registrationError.message : 'Failed to load registration state.'}
+              <div className="grid grid-cols-1 gap-3 text-sm text-[#dae2fd] md:grid-cols-2">
+                <p><span className="font-mono text-xs uppercase tracking-wider text-[#d3c5ac]">Starts:</span> {new Date(event.startDateTime).toLocaleString()}</p>
+                <p><span className="font-mono text-xs uppercase tracking-wider text-[#d3c5ac]">Ends:</span> {formatEventEndTime(event.endDateTime)}</p>
+                <p><span className="font-mono text-xs uppercase tracking-wider text-[#d3c5ac]">Location:</span> {event.location}</p>
+                <p><span className="font-mono text-xs uppercase tracking-wider text-[#d3c5ac]">Category:</span> {event.category}</p>
+                <p><span className="font-mono text-xs uppercase tracking-wider text-[#d3c5ac]">Capacity:</span> {event.capacity}</p>
               </div>
-            ) : null}
 
-            <div className="mt-8 border-t border-white/10 pt-6">
-              <div className="flex items-center justify-between">
-                <p className="mb-4 text-sm text-slate-300">
-                  Registered: {registrationStatus?.registered_count ?? 0} / {registrationStatus?.capacity ?? event.capacity}
-                </p>
+              {event.eventLink ? (
+                <div className="mt-6">
+                  <a
+                    href={event.eventLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex rounded-lg border border-[#34daff]/40 bg-[#00a6e0]/20 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#b6edff] transition hover:bg-[#00a6e0]/30"
+                  >
+                    Open event link
+                  </a>
+                </div>
+              ) : null}
 
-                {(auth.canAccess && (auth.canAccess(['organizer', 'admin']) || Number(auth.userId) === event.organizerId)) && (
-                  <p className="mb-4 text-sm text-slate-300">
-                    <span className="mr-2">👤🕒</span>
-                    {registrationStatus?.waitlist_count ?? 0}
+              {registrationError ? (
+                <div className="mt-6 rounded-xl border border-[#ffb4ab]/40 bg-[#93000a]/30 p-4 text-[#ffdad6]">
+                  {registrationError instanceof Error ? registrationError.message : 'Failed to load registration state.'}
+                </div>
+              ) : null}
+
+              <div className="mt-8 border-t border-[#4f4633] pt-6">
+                <div className="flex items-center justify-between">
+                  <p className="mb-4 text-sm text-[#d3c5ac]">
+                    Registered: {registrationStatus?.registered_count ?? 0} / {registrationStatus?.capacity ?? event.capacity}
                   </p>
-                )}
-              </div>
 
-              <div className="flex items-center gap-3">
-                {event.status === 'Full' && !registrationStatus?.is_registered ? null : (
-                  <button
-                    type="button"
-                    onClick={() => registerAsync()}
-                    disabled={
-                      isStatusLoading ||
-                      isRegistering ||
-                      isUnregistering ||
-                      Boolean(registrationStatus?.is_registered) ||
-                      event.status !== 'Available' ||
-                      getEventLifecycleStatus(event) === 'Completed'
-                    }
-                    className="rounded-lg bg-blue-500 px-5 py-2.5 font-semibold text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {registrationStatus?.is_registered ? 'Registered' : 'Register'}
-                  </button>
-                )}
+                  {(auth.canAccess && (auth.canAccess(['organizer', 'admin']) || Number(auth.userId) === event.organizerId)) && (
+                    <p className="mb-4 flex items-center gap-2 text-sm text-[#d3c5ac]">
+                      <span className="material-symbols-outlined text-base" aria-hidden="true">group_add</span>
+                      {registrationStatus?.waitlist_count ?? 0}
+                    </p>
+                  )}
+                </div>
 
-                {registrationStatus?.is_registered ? (
-                  <button
-                    type="button"
-                    onClick={handleUnregister}
-                    disabled={isUnregistering || isRegistering}
-                    className="rounded-lg border border-red-500/60 bg-red-600/90 px-5 py-2.5 font-semibold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    Unregister
-                  </button>
-                ) : null}
-
-                {/* When event is full, show waitlist actions */}
-                {event.status === 'Full' && !registrationStatus?.is_registered ? (
-                  registrationStatus?.is_in_waitlist ? (
+                <div className="flex flex-wrap items-center gap-3">
+                  {event.status === 'Full' && !registrationStatus?.is_registered ? null : (
                     <button
                       type="button"
-                      onClick={() => leaveWaitlistAsync()}
-                      disabled={isLeavingWaitlist || isJoiningWaitlist}
-                      className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={() => registerAsync()}
+                      disabled={
+                        isStatusLoading ||
+                        isRegistering ||
+                        isUnregistering ||
+                        Boolean(registrationStatus?.is_registered) ||
+                        event.status !== 'Available' ||
+                        getEventLifecycleStatus(event) === 'Completed'
+                      }
+                      className="rounded-lg bg-[#fbbf24] px-5 py-2.5 font-mono text-xs font-semibold uppercase tracking-wider text-[#402d00] transition hover:bg-[#f9bd22] disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      Leave waitlist
+                      {registrationStatus?.is_registered ? 'Registered' : 'Register'}
                     </button>
-                  ) : (
+                  )}
+
+                  {registrationStatus?.is_registered ? (
                     <button
                       type="button"
-                      onClick={() => joinWaitlistAsync()}
-                      disabled={isJoiningWaitlist || isRegistering || isUnregistering || isStatusLoading || getEventLifecycleStatus(event) === 'Completed'}
-                      className="rounded-lg bg-yellow-500 px-5 py-2.5 font-semibold text-slate-900 transition hover:bg-yellow-600 disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={handleUnregister}
+                      disabled={isUnregistering || isRegistering}
+                      className="rounded-lg border border-[#ffb4ab]/40 bg-[#93000a]/50 px-5 py-2.5 font-mono text-xs font-semibold uppercase tracking-wider text-[#ffdad6] transition hover:bg-[#93000a] disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      Join waitlist
+                      Unregister
                     </button>
-                  )
-                ) : null}
+                  ) : null}
+
+                  {event.status === 'Full' && !registrationStatus?.is_registered ? (
+                    registrationStatus?.is_in_waitlist ? (
+                      <button
+                        type="button"
+                        onClick={() => leaveWaitlistAsync()}
+                        disabled={isLeavingWaitlist || isJoiningWaitlist}
+                        className="rounded-lg border border-[#4f4633] bg-[#222a3d] px-4 py-2 text-sm font-medium text-[#dae2fd] transition hover:bg-[#2d3449] disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        Leave waitlist
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => joinWaitlistAsync()}
+                        disabled={isJoiningWaitlist || isRegistering || isUnregistering || isStatusLoading || getEventLifecycleStatus(event) === 'Completed'}
+                        className="rounded-lg bg-[#fbbf24] px-5 py-2.5 font-mono text-xs font-semibold uppercase tracking-wider text-[#402d00] transition hover:bg-[#f9bd22] disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        Join waitlist
+                      </button>
+                    )
+                  ) : null}
+                </div>
               </div>
             </div>
           </section>
