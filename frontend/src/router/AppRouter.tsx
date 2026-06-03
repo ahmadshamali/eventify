@@ -20,18 +20,18 @@ function ProtectedLayout() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-[#0b1326] pt-16 pb-20 text-[#dae2fd] lg:ml-[280px] lg:pb-0">
+      <main className="min-h-screen bg-[var(--background)] pt-16 pb-20 text-[var(--on-surface)] lg:ml-[280px] lg:pb-0">
         <Outlet />
-        <footer className="border-t border-[#4f4633] bg-[#060e20] px-4 py-6 md:px-8">
-          <div className="mx-auto flex w-full max-w-[1280px] flex-col justify-between gap-4 text-sm text-[#d3c5ac] md:flex-row md:items-center">
+        <footer className="border-t border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] px-4 py-6 md:px-8">
+          <div className="mx-auto flex w-full max-w-[1280px] flex-col justify-between gap-4 text-sm text-[var(--on-surface-variant)] md:flex-row md:items-center">
             <div className="flex items-center gap-4">
-              <span className="font-['Hanken_Grotesk'] text-xl font-bold text-[#ffe1a7]">Eventify</span>
+              <span className="font-['Hanken_Grotesk'] text-xl font-bold text-[var(--primary)]">Eventify</span>
               <span>University Eventify Platform.</span>
             </div>
             <div className="flex flex-wrap gap-5">
-              <a className="transition hover:text-[#ffe1a7]" href="#">Terms</a>
-              <a className="transition hover:text-[#ffe1a7]" href="#">Privacy</a>
-              <a className="transition hover:text-[#ffe1a7]" href="#">Accessibility</a>
+              <a className="transition hover:text-[var(--primary)]" href="#">Terms</a>
+              <a className="transition hover:text-[var(--primary)]" href="#">Privacy</a>
+              <a className="transition hover:text-[var(--primary)]" href="#">Accessibility</a>
             </div>
           </div>
         </footer>
@@ -43,10 +43,10 @@ function ProtectedLayout() {
 function PlaceholderPage({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
-      <div className="mx-auto w-full max-w-[1000px] rounded-xl border border-[#4f4633] bg-[#131b2e] p-6 shadow-sm md:p-8">
-        <p className="font-mono text-xs uppercase tracking-widest text-[#ffe1a7]">Eventify</p>
-        <h1 className="mt-3 font-['Hanken_Grotesk'] text-3xl font-semibold text-[#dae2fd] md:text-4xl">{title}</h1>
-        <p className="mt-2 max-w-2xl text-[#d3c5ac]">{subtitle}</p>
+      <div className="mx-auto w-full max-w-[1000px] rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:p-8">
+        <p className="font-mono text-xs uppercase tracking-widest text-[var(--primary)]">Eventify</p>
+        <h1 className="mt-3 font-['Hanken_Grotesk'] text-3xl font-semibold text-[var(--on-surface)] md:text-4xl">{title}</h1>
+        <p className="mt-2 max-w-2xl text-[var(--on-surface-variant)]">{subtitle}</p>
       </div>
     </div>
   )

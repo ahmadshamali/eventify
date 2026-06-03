@@ -11,12 +11,12 @@ function EventEmptyState({ title, description, children, className = '' }: Event
   return (
     <div
       className={[
-        'rounded-xl border border-dashed border-[#4f4633] bg-[#131b2e] px-8 py-20 text-center',
+        'rounded-xl border border-dashed border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-8 py-20 text-center',
         className,
       ].join(' ')}
     >
-      <h3 className="mb-4 font-['Hanken_Grotesk'] text-2xl font-semibold text-[#dae2fd]">{title}</h3>
-      <p className="text-[#d3c5ac]">{description}</p>
+      <h3 className="mb-4 font-['Hanken_Grotesk'] text-2xl font-semibold text-[var(--on-surface)]">{title}</h3>
+      <p className="text-[var(--on-surface-variant)]">{description}</p>
       {children ? <div className="mt-6">{children}</div> : null}
     </div>
   )

@@ -16,10 +16,10 @@ type Tab = 'pending' | 'users' | 'events'
 
 function MetricCard({ label, value, helper }: { label: string; value: number; helper?: string }) {
   return (
-    <div className="rounded-xl border border-[#4f4633] bg-[#131b2e] p-5 shadow-sm">
-      <p className="font-mono text-xs uppercase tracking-wider text-[#d3c5ac]">{label}</p>
-      <p className="mt-3 font-['Hanken_Grotesk'] text-4xl font-semibold text-[#dae2fd]">{value}</p>
-      {helper ? <p className="mt-2 text-xs text-[#d3c5ac]">{helper}</p> : null}
+    <div className="rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-5 shadow-sm">
+      <p className="font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)]">{label}</p>
+      <p className="mt-3 font-['Hanken_Grotesk'] text-4xl font-semibold text-[var(--on-surface)]">{value}</p>
+      {helper ? <p className="mt-2 text-xs text-[var(--on-surface-variant)]">{helper}</p> : null}
     </div>
   )
 }
@@ -132,28 +132,28 @@ export default function AdminDashboardPage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
       <div className="mx-auto w-full max-w-[1280px]">
-        <header className="mb-8 flex flex-col justify-between gap-4 rounded-xl border border-[#4f4633] bg-[#131b2e] p-6 shadow-sm md:flex-row md:items-end md:p-8">
+        <header className="mb-8 flex flex-col justify-between gap-4 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:flex-row md:items-end md:p-8">
           <div>
-            <p className="font-mono text-xs uppercase tracking-widest text-[#ffe1a7]">University Admin</p>
-            <h1 className="mt-2 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[#dae2fd]">
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--primary)]">University Admin</p>
+            <h1 className="mt-2 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[var(--on-surface)]">
               Admin Dashboard
             </h1>
-            <p className="mt-2 text-[#d3c5ac]">Manage users, events, and organizer approvals.</p>
+            <p className="mt-2 text-[var(--on-surface-variant)]">Manage users, events, and organizer approvals.</p>
           </div>
-          <span className="inline-flex w-fit items-center gap-2 rounded-lg border border-[#4f4633] bg-[#222a3d] px-4 py-2 font-mono text-xs uppercase tracking-wider text-[#ffe1a7]">
+          <span className="inline-flex w-fit items-center gap-2 rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-4 py-2 font-mono text-xs uppercase tracking-wider text-[var(--primary)]">
             <span className="material-symbols-outlined text-base" aria-hidden="true">health_and_safety</span>
             Stable
           </span>
         </header>
 
         {hasAnyError ? (
-          <div className="mb-6 rounded-xl border border-[#ffb4ab]/40 bg-[#93000a]/30 p-4 text-[#ffdad6]">
+          <div className="mb-6 rounded-xl border border-[var(--error)]/40 bg-[var(--error-container)]/30 p-4 text-[var(--on-error-container)]">
             {(hasAnyError as Error).message}
           </div>
         ) : null}
 
         {overviewLoading ? (
-          <div className="mb-6 rounded-xl border border-[#4f4633] bg-[#131b2e] p-6 text-[#d3c5ac]">Loading metrics...</div>
+          <div className="mb-6 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 text-[var(--on-surface-variant)]">Loading metrics...</div>
         ) : (
           <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
             <MetricCard
@@ -168,14 +168,14 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        <section className="overflow-hidden rounded-xl border border-[#4f4633] bg-[#131b2e] shadow-sm">
-          <div className="grid grid-cols-1 border-b border-[#4f4633] md:grid-cols-3">
+        <section className="overflow-hidden rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] shadow-sm">
+          <div className="grid grid-cols-1 border-b border-[var(--outline-variant)] md:grid-cols-3">
             <button
               type="button"
               onClick={() => setActiveTab('pending')}
               className={[
                 'px-5 py-4 font-mono text-xs font-semibold uppercase tracking-wider transition',
-                activeTab === 'pending' ? 'bg-[#222a3d] text-[#ffe1a7]' : 'text-[#d3c5ac] hover:bg-[#171f33] hover:text-[#dae2fd]',
+                activeTab === 'pending' ? 'bg-[var(--surface-container-high)] text-[var(--primary)]' : 'text-[var(--on-surface-variant)] hover:bg-[var(--surface-container)] hover:text-[var(--on-surface)]',
               ].join(' ')}
             >
               Pending Approvals ({pendingOrganizers.length})
@@ -185,7 +185,7 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab('users')}
               className={[
                 'px-5 py-4 font-mono text-xs font-semibold uppercase tracking-wider transition',
-                activeTab === 'users' ? 'bg-[#222a3d] text-[#ffe1a7]' : 'text-[#d3c5ac] hover:bg-[#171f33] hover:text-[#dae2fd]',
+                activeTab === 'users' ? 'bg-[var(--surface-container-high)] text-[var(--primary)]' : 'text-[var(--on-surface-variant)] hover:bg-[var(--surface-container)] hover:text-[var(--on-surface)]',
               ].join(' ')}
             >
               Users
@@ -195,7 +195,7 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab('events')}
               className={[
                 'px-5 py-4 font-mono text-xs font-semibold uppercase tracking-wider transition',
-                activeTab === 'events' ? 'bg-[#222a3d] text-[#ffe1a7]' : 'text-[#d3c5ac] hover:bg-[#171f33] hover:text-[#dae2fd]',
+                activeTab === 'events' ? 'bg-[var(--surface-container-high)] text-[var(--primary)]' : 'text-[var(--on-surface-variant)] hover:bg-[var(--surface-container)] hover:text-[var(--on-surface)]',
               ].join(' ')}
             >
               Events
@@ -205,9 +205,9 @@ export default function AdminDashboardPage() {
           <div className="p-5 md:p-6">
             {activeTab === 'pending' ? (
               pendingLoading ? (
-                <p className="text-[#d3c5ac]">Loading pending organizers...</p>
+                <p className="text-[var(--on-surface-variant)]">Loading pending organizers...</p>
               ) : pendingOrganizers.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-[#4f4633] bg-[#0b1326] p-8 text-center text-[#d3c5ac]">
+                <div className="rounded-xl border border-dashed border-[var(--outline-variant)] bg-[var(--background)] p-8 text-center text-[var(--on-surface-variant)]">
                   No pending organizer approvals.
                 </div>
               ) : (
@@ -215,12 +215,12 @@ export default function AdminDashboardPage() {
                   {pendingOrganizers.map((organizer) => (
                     <div
                       key={organizer.user_id}
-                      className="flex flex-col justify-between gap-4 rounded-xl border border-[#4f4633] bg-[#0b1326] p-4 md:flex-row md:items-center"
+                      className="flex flex-col justify-between gap-4 rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-4 md:flex-row md:items-center"
                     >
                       <div>
-                        <h3 className="text-lg font-semibold text-[#dae2fd]">{organizer.full_name}</h3>
-                        <p className="text-sm text-[#d3c5ac]">{organizer.email}</p>
-                        <p className="mt-1 text-sm text-[#d3c5ac]/80">
+                        <h3 className="text-lg font-semibold text-[var(--on-surface)]">{organizer.full_name}</h3>
+                        <p className="text-sm text-[var(--on-surface-variant)]">{organizer.email}</p>
+                        <p className="mt-1 text-sm text-[var(--on-surface-variant)]/80">
                           Club: {organizer.club_name} | Submitted: {new Date(organizer.submitted_at).toLocaleDateString()}
                         </p>
                       </div>
@@ -238,7 +238,7 @@ export default function AdminDashboardPage() {
                           type="button"
                           onClick={() => rejectMutation.mutate({ organizerUserId: organizer.user_id })}
                           disabled={approveMutation.isPending || rejectMutation.isPending}
-                          className="rounded-lg border border-[#ffb4ab]/40 bg-[#93000a]/30 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#ffdad6] transition hover:bg-[#93000a]/50 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="rounded-lg border border-[var(--error)]/40 bg-[var(--error-container)]/30 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-error-container)] transition hover:bg-[var(--error-container)]/50 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           Reject
                         </button>
@@ -251,12 +251,12 @@ export default function AdminDashboardPage() {
 
             {activeTab === 'users' ? (
               usersLoading ? (
-                <p className="text-[#d3c5ac]">Loading users...</p>
+                <p className="text-[var(--on-surface-variant)]">Loading users...</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[760px]">
                     <thead>
-                      <tr className="border-b border-[#4f4633] text-left font-mono text-xs uppercase tracking-wider text-[#d3c5ac]">
+                      <tr className="border-b border-[var(--outline-variant)] text-left font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)]">
                         <th className="px-3 py-3 font-medium">Name</th>
                         <th className="px-3 py-3 font-medium">Email</th>
                         <th className="px-3 py-3 font-medium">Role</th>
@@ -267,26 +267,26 @@ export default function AdminDashboardPage() {
                     </thead>
                     <tbody>
                       {users.map((user) => (
-                        <tr key={user.user_id} className="border-b border-[#4f4633]/70 text-sm text-[#dae2fd] last:border-0 hover:bg-[#171f33]">
+                        <tr key={user.user_id} className="border-b border-[var(--outline-variant)]/70 text-sm text-[var(--on-surface)] last:border-0 hover:bg-[var(--surface-container)]">
                           <td className="px-3 py-3">{user.full_name}</td>
-                          <td className="px-3 py-3 text-[#d3c5ac]">{user.email}</td>
+                          <td className="px-3 py-3 text-[var(--on-surface-variant)]">{user.email}</td>
                           <td className="px-3 py-3">
-                            <span className="rounded border border-[#34daff]/40 bg-[#00a6e0]/20 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-[#b6edff]">
+                            <span className="rounded border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-[var(--tertiary)]">
                               {user.role}
                             </span>
                           </td>
                           <td className="px-3 py-3">
-                            <span className="rounded border border-[#4f4633] bg-[#222a3d] px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-[#dae2fd]">
+                            <span className="rounded border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-[var(--on-surface)]">
                               {user.account_status}
                             </span>
                           </td>
-                          <td className="px-3 py-3 text-[#d3c5ac]">{new Date(user.created_at).toLocaleDateString()}</td>
+                          <td className="px-3 py-3 text-[var(--on-surface-variant)]">{new Date(user.created_at).toLocaleDateString()}</td>
                           <td className="px-3 py-3">
                             <button
                               type="button"
                               onClick={() => handleDeleteUser(user.user_id, user.full_name)}
                               disabled={deleteUserMutation.isPending}
-                              className="rounded-lg border border-[#ffb4ab]/40 bg-[#93000a]/30 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#ffdad6] transition hover:bg-[#93000a]/50 disabled:cursor-not-allowed disabled:opacity-60"
+                              className="rounded-lg border border-[var(--error)]/40 bg-[var(--error-container)]/30 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--on-error-container)] transition hover:bg-[var(--error-container)]/50 disabled:cursor-not-allowed disabled:opacity-60"
                             >
                               Delete
                             </button>
@@ -301,12 +301,12 @@ export default function AdminDashboardPage() {
 
             {activeTab === 'events' ? (
               eventsLoading ? (
-                <p className="text-[#d3c5ac]">Loading events...</p>
+                <p className="text-[var(--on-surface-variant)]">Loading events...</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[720px]">
                     <thead>
-                      <tr className="border-b border-[#4f4633] text-left font-mono text-xs uppercase tracking-wider text-[#d3c5ac]">
+                      <tr className="border-b border-[var(--outline-variant)] text-left font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)]">
                         <th className="px-3 py-3 font-medium">Title</th>
                         <th className="px-3 py-3 font-medium">Subtitle</th>
                         <th className="px-3 py-3 font-medium">Created</th>
@@ -316,17 +316,17 @@ export default function AdminDashboardPage() {
                     </thead>
                     <tbody>
                       {events.map((event) => (
-                        <tr key={event.id} className="border-b border-[#4f4633]/70 text-sm text-[#dae2fd] last:border-0 hover:bg-[#171f33]">
+                        <tr key={event.id} className="border-b border-[var(--outline-variant)]/70 text-sm text-[var(--on-surface)] last:border-0 hover:bg-[var(--surface-container)]">
                           <td className="px-3 py-3">{event.title}</td>
-                          <td className="px-3 py-3 text-[#d3c5ac]">{event.subtitle}</td>
-                          <td className="px-3 py-3 text-[#d3c5ac]">{new Date(event.created_at).toLocaleDateString()}</td>
-                          <td className="px-3 py-3 text-[#d3c5ac]">{event.capacity ?? 'N/A'}</td>
+                          <td className="px-3 py-3 text-[var(--on-surface-variant)]">{event.subtitle}</td>
+                          <td className="px-3 py-3 text-[var(--on-surface-variant)]">{new Date(event.created_at).toLocaleDateString()}</td>
+                          <td className="px-3 py-3 text-[var(--on-surface-variant)]">{event.capacity ?? 'N/A'}</td>
                           <td className="px-3 py-3">
                             <button
                               type="button"
                               onClick={() => handleDeleteEvent(event.id, event.title)}
                               disabled={deleteEventMutation.isPending}
-                              className="rounded-lg border border-[#ffb4ab]/40 bg-[#93000a]/30 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#ffdad6] transition hover:bg-[#93000a]/50 disabled:cursor-not-allowed disabled:opacity-60"
+                              className="rounded-lg border border-[var(--error)]/40 bg-[var(--error-container)]/30 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--on-error-container)] transition hover:bg-[var(--error-container)]/50 disabled:cursor-not-allowed disabled:opacity-60"
                             >
                               Delete
                             </button>

@@ -119,31 +119,31 @@ function RegisterPage() {
     const isStudent = useWatch({ control, name: 'role' }) === 'student'
 
     return (
-        <div className="grid min-h-screen place-items-center bg-[#0b1326] px-4 py-8 text-[#dae2fd]">
-            <section className="grid w-full max-w-[920px] grid-cols-1 overflow-hidden rounded-xl border border-[#4f4633] bg-[#131b2e] shadow-2xl md:grid-cols-2">
-                <div className="flex flex-col justify-center gap-4 border-b border-[#4f4633] bg-[#060e20] p-8 md:border-r md:border-b-0 md:p-12">
-                    <span className="inline-flex w-fit rounded border border-[#4f4633] bg-[#222a3d] px-3.5 py-2 font-mono text-xs uppercase tracking-wider text-[#ffe1a7]">
+        <div className="grid min-h-screen place-items-center bg-[var(--background)] px-4 py-8 text-[var(--on-surface)]">
+            <section className="grid w-full max-w-[920px] grid-cols-1 overflow-hidden rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] shadow-2xl md:grid-cols-2">
+                <div className="flex flex-col justify-center gap-4 border-b border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] p-8 md:border-r md:border-b-0 md:p-12">
+                    <span className="inline-flex w-fit rounded border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-3.5 py-2 font-mono text-xs uppercase tracking-wider text-[var(--primary)]">
                         Eventify
                     </span>
-                    <h1 className="font-['Hanken_Grotesk'] text-4xl font-semibold leading-none tracking-tight text-[#dae2fd] md:text-5xl">Create your account</h1>
-                    <p className="text-[#d3c5ac]">
+                    <h1 className="font-['Hanken_Grotesk'] text-4xl font-semibold leading-none tracking-tight text-[var(--on-surface)] md:text-5xl">Create your account</h1>
+                    <p className="text-[var(--on-surface-variant)]">
                         Join the platform as a student or organizer to create and manage events, and connect with your campus community.
                     </p>
                 </div>
 
                 <form className="grid gap-4 p-8 md:p-12" onSubmit={handleSubmit(onSubmit)} autoComplete="on">
                     <label className="grid gap-2">
-                        <span className="text-sm text-[#d3c5ac]">Full name</span>
+                        <span className="text-sm text-[var(--on-surface-variant)]">Full name</span>
                         <Input
                             {...register('full_name')}
                             autoComplete="name"
                         />
                     </label>
 
-                    {errors.full_name && <p className="text-sm text-[#ffb4ab]">{errors.full_name.message}</p>}
+                    {errors.full_name && <p className="text-sm text-[var(--error)]">{errors.full_name.message}</p>}
 
                     <label className="grid gap-2">
-                        <span className="text-sm text-[#d3c5ac]">Email</span>
+                        <span className="text-sm text-[var(--on-surface-variant)]">Email</span>
                         <Input
                             placeholder="1210000@student.birzeit.edu"
                             {...register('email')}
@@ -151,10 +151,10 @@ function RegisterPage() {
                         />
                     </label>
 
-                    {errors.email && <p className="text-sm text-[#ffb4ab]">{errors.email.message}</p>}
+                    {errors.email && <p className="text-sm text-[var(--error)]">{errors.email.message}</p>}
 
                     <label className="grid gap-2">
-                        <span className="text-sm text-[#d3c5ac]">Password</span>
+                        <span className="text-sm text-[var(--on-surface-variant)]">Password</span>
                         <PasswordInput
                             placeholder="At least 8 characters"
                             {...register('password')}
@@ -164,12 +164,12 @@ function RegisterPage() {
                         />
                     </label>
 
-                    {errors.password && <p className="text-sm text-[#ffb4ab]">{errors.password.message}</p>}
+                    {errors.password && <p className="text-sm text-[var(--error)]">{errors.password.message}</p>}
 
                     <label className="grid gap-2">
-                        <span className="text-sm text-[#d3c5ac]">Role</span>
+                        <span className="text-sm text-[var(--on-surface-variant)]">Role</span>
                         <select
-                            className="w-full rounded-lg border border-[#4f4633] bg-[#131b2e] px-4 py-3 text-[#dae2fd] outline-none transition duration-200 focus:border-[#f9bd22] focus:ring-2 focus:ring-[#f9bd22]/20"
+                            className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition duration-200 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                             {...register('role')}
                         >
                             <option value="student">Student</option>
@@ -177,12 +177,12 @@ function RegisterPage() {
                         </select>
                     </label>
 
-                    {errors.role && <p className="text-sm text-[#ffb4ab]">{errors.role.message}</p>}
+                    {errors.role && <p className="text-sm text-[var(--error)]">{errors.role.message}</p>}
 
                     {isStudent ? (
                         <>
                             <label className="grid gap-2">
-                                <span className="text-sm text-[#d3c5ac]">Major</span>
+                                <span className="text-sm text-[var(--on-surface-variant)]">Major</span>
                                 <Input
                                     placeholder="Computer Science"
                                     {...register('major')}
@@ -190,12 +190,12 @@ function RegisterPage() {
                                 />
                             </label>
 
-                            {errors.major && <p className="text-sm text-[#ffb4ab]">{errors.major.message}</p>}
+                            {errors.major && <p className="text-sm text-[var(--error)]">{errors.major.message}</p>}
                         </>
                     ) : (
                         <>
                             <label className="grid gap-2">
-                                <span className="text-sm text-[#d3c5ac]">Club name</span>
+                                <span className="text-sm text-[var(--on-surface-variant)]">Club name</span>
                                 <Input
                                     placeholder="IEEE Student Branch"
                                     {...register('club_name')}
@@ -203,7 +203,7 @@ function RegisterPage() {
                                 />
                             </label>
 
-                            {errors.club_name && <p className="text-sm text-[#ffb4ab]">{errors.club_name.message}</p>}
+                            {errors.club_name && <p className="text-sm text-[var(--error)]">{errors.club_name.message}</p>}
                         </>
                     )}
 
@@ -218,9 +218,9 @@ function RegisterPage() {
                         {isSubmitting ? 'Creating account...' : 'Create account'}
                     </Button>
 
-                    <p className="text-center text-[#d3c5ac]">
+                    <p className="text-center text-[var(--on-surface-variant)]">
                         Already registered?{' '}
-                        <Link className="text-[#ffe1a7] transition hover:text-[#f9bd22]" to="/login">
+                        <Link className="text-[var(--primary)] transition hover:text-[var(--primary-fixed-dim)]" to="/login">
                             Go to login
                         </Link>
                     </p>

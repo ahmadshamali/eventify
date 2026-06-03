@@ -9,7 +9,7 @@ type EventLoadingStateProps = {
 
 function EventLoadingState({ message, className = '' }: EventLoadingStateProps) {
   return (
-    <div className={['flex items-center justify-center text-xl text-[#d3c5ac]', className].join(' ')}>
+    <div className={['flex items-center justify-center text-xl text-[var(--on-surface-variant)]', className].join(' ')}>
       <Spinner className="mr-4 h-10 w-10" />
       <span>{message}</span>
     </div>

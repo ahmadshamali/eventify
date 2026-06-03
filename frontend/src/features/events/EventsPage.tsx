@@ -45,18 +45,18 @@ function EventsPage() {
       <EventPageBackdrop />
 
       <div className="mx-auto w-full max-w-[1280px]">
-        <header className="mb-8 flex flex-col justify-between gap-4 rounded-xl border border-[#4f4633] bg-[#131b2e] p-6 shadow-sm md:flex-row md:items-end">
+        <header className="mb-8 flex flex-col justify-between gap-4 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:flex-row md:items-end">
           <div>
-            <p className="font-mono text-xs uppercase tracking-widest text-[#ffe1a7]">Eventify Catalog</p>
-            <h1 className="mt-2 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[#dae2fd]">
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--primary)]">Eventify Catalog</p>
+            <h1 className="mt-2 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[var(--on-surface)]">
               Events
             </h1>
-            <p className="mt-2 text-[#d3c5ac]">Discover and manage upcoming university events.</p>
+            <p className="mt-2 text-[var(--on-surface-variant)]">Discover and manage upcoming university events.</p>
           </div>
           {(role === 'organizer' || role === 'admin') ? (
             <Link
               to="/events/create"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#fbbf24] px-5 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[#402d00] transition hover:bg-[#f9bd22]"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--primary-container)] px-5 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-primary)] transition hover:bg-[var(--primary-fixed-dim)]"
             >
               <span className="material-symbols-outlined text-lg" aria-hidden="true">add</span>
               New Event
@@ -86,7 +86,7 @@ function EventsPage() {
                 .map((event) => (
                 <EventCardShell key={event.id}>
                   {event.imageUrl ? (
-                    <div className="mb-5 overflow-hidden rounded-lg border border-[#4f4633] bg-[#060e20]">
+                    <div className="mb-5 overflow-hidden rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)]">
                       <img
                         src={event.imageUrl}
                         alt={event.title}
@@ -95,18 +95,18 @@ function EventsPage() {
                     </div>
                   ) : null}
                   <div className="mb-4 flex items-start justify-between gap-3">
-                    <h3 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[#dae2fd]">{event.title}</h3>
+                    <h3 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[var(--on-surface)]">{event.title}</h3>
                     <div className="flex flex-col items-end gap-2">
                       <EventStatusBadge tone={event.status === 'Full' ? 'full' : 'available'}>
                         {event.status === 'Full' ? 'Full' : 'Available'}
                       </EventStatusBadge>
                     </div>
                   </div>
-                  <p className="grow text-sm leading-6 text-[#d3c5ac]">
+                  <p className="grow text-sm leading-6 text-[var(--on-surface-variant)]">
                     {event.description || 'No description provided.'}
                   </p>
-                  <div className="mt-8 border-t border-[#4f4633] pt-6">
-                    <div className="flex flex-col gap-1 text-sm text-[#d3c5ac]">
+                  <div className="mt-8 border-t border-[var(--outline-variant)] pt-6">
+                    <div className="flex flex-col gap-1 text-sm text-[var(--on-surface-variant)]">
                       <span>Starts: {formatEventStartTime(event.startDateTime)}</span>
                       <span>Location: {event.location}</span>
                       <span>
@@ -120,7 +120,7 @@ function EventsPage() {
                           href={event.eventLink}
                           target="_blank"
                           rel="noreferrer"
-                          className="rounded-lg border border-[#4f4633] px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[#dae2fd] transition hover:bg-[#222a3d] hover:text-[#ffe1a7]"
+                          className="rounded-lg border border-[var(--outline-variant)] px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-surface)] transition hover:bg-[var(--surface-container-high)] hover:text-[var(--primary)]"
                         >
                           Link
                         </a>
@@ -129,7 +129,7 @@ function EventsPage() {
                         <>
                           <Link
                             to={`/events/${event.id}/edit`}
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[#4f4633] text-[#dae2fd] transition hover:bg-[#222a3d] hover:text-[#ffe1a7]"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[var(--outline-variant)] text-[var(--on-surface)] transition hover:bg-[var(--surface-container-high)] hover:text-[var(--primary)]"
                             aria-label={`Edit ${event.title}`}
                             title="Edit event"
                           >
@@ -148,7 +148,7 @@ function EventsPage() {
                             </svg>
                           </Link>
                           <button
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[#ffb4ab]/40 bg-[#93000a]/50 text-[#ffdad6] transition hover:bg-[#93000a] disabled:cursor-not-allowed disabled:opacity-60"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[var(--error)]/40 bg-[var(--error-container)]/50 text-[var(--on-error-container)] transition hover:bg-[var(--error-container)] disabled:cursor-not-allowed disabled:opacity-60"
                             onClick={() => handleCancel(event.id, event.title)}
                             disabled={isCanceling}
                             aria-label={`Delete ${event.title}`}

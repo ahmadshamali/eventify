@@ -27,12 +27,12 @@ function MyRegistrationsPage() {
       <EventPageBackdrop />
 
       <div className="mx-auto w-full max-w-[1280px]">
-        <header className="mb-8 rounded-xl border border-[#4f4633] bg-[#131b2e] p-6 shadow-sm md:p-8">
-          <p className="font-mono text-xs uppercase tracking-widest text-[#ffe1a7]">Student Activity</p>
-          <h1 className="mt-2 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[#dae2fd]">
+        <header className="mb-8 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:p-8">
+          <p className="font-mono text-xs uppercase tracking-widest text-[var(--primary)]">Student Activity</p>
+          <h1 className="mt-2 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[var(--on-surface)]">
             My Registrations
           </h1>
-          <p className="mt-2 text-[#d3c5ac]">Track all events you registered for.</p>
+          <p className="mt-2 text-[var(--on-surface-variant)]">Track all events you registered for.</p>
         </header>
 
         {error ? (
@@ -50,7 +50,7 @@ function MyRegistrationsPage() {
             description="You have not registered for any events yet."
           >
             <div className="mt-6">
-                <Link className="font-mono text-xs uppercase tracking-wider text-[#ffe1a7] transition hover:text-[#f9bd22]" to="/events">
+                <Link className="font-mono text-xs uppercase tracking-wider text-[var(--primary)] transition hover:text-[var(--primary-fixed-dim)]" to="/events">
                 Browse events
               </Link>
             </div>
@@ -60,15 +60,15 @@ function MyRegistrationsPage() {
             {registrations.map((item) => (
               <EventCardShell key={item.registration_id}>
                 <div className="mb-4 flex items-start justify-between gap-3">
-                  <h3 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[#dae2fd]">{item.title}</h3>
+                  <h3 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[var(--on-surface)]">{item.title}</h3>
                   <EventStatusBadge tone={getEventLifecycleStatus({ endDateTime: item.end_datetime }) === 'Completed' ? 'completed' : 'active'}>
                     {getEventLifecycleStatus({ endDateTime: item.end_datetime })}
                   </EventStatusBadge>
                 </div>
-                <p className="grow text-base leading-7 text-[#d3c5ac]">{item.description || 'No description provided.'}</p>
+                <p className="grow text-base leading-7 text-[var(--on-surface-variant)]">{item.description || 'No description provided.'}</p>
 
-                <div className="mt-8 border-t border-[#4f4633] pt-6">
-                  <div className="flex flex-col gap-1 text-xs text-[#d3c5ac]">
+                <div className="mt-8 border-t border-[var(--outline-variant)] pt-6">
+                  <div className="flex flex-col gap-1 text-xs text-[var(--on-surface-variant)]">
                     <span>Registered on: {new Date(item.registered_at).toLocaleDateString()}</span>
                     <span>Starts: {new Date(item.start_datetime).toLocaleString()}</span>
                     <span>Ends: {formatEventEndTime(item.end_datetime)}</span>
@@ -150,11 +150,11 @@ function FeedbackWidget({ item }: { item: StudentRegistrationEvent }) {
   }
 
   return (
-    <div className="w-full rounded-xl border border-[#4f4633] bg-[#0b1326] p-4">
+    <div className="w-full rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-4">
       {!open ? (
         <button
           onClick={startFeedback}
-          className="inline-flex w-full items-center justify-center rounded-lg border border-[#34daff]/40 bg-[#00a6e0]/20 px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[#b6edff] transition hover:bg-[#00a6e0]/30"
+          className="inline-flex w-full items-center justify-center rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30"
         >
           Give Feedback
         </button>
@@ -169,8 +169,8 @@ function FeedbackWidget({ item }: { item: StudentRegistrationEvent }) {
         >
           <div className="flex flex-col gap-3">
             <div>
-              <p className="text-sm font-medium text-[#dae2fd]">Rating</p>
-              <p className="text-xs text-[#d3c5ac]">Choose how you felt about this event</p>
+              <p className="text-sm font-medium text-[var(--on-surface)]">Rating</p>
+              <p className="text-xs text-[var(--on-surface-variant)]">Choose how you felt about this event</p>
             </div>
             <div className="flex flex-nowrap items-center gap-2 self-start overflow-hidden">
               {[1, 2, 3, 4, 5].map((v) => (
@@ -181,8 +181,8 @@ function FeedbackWidget({ item }: { item: StudentRegistrationEvent }) {
                   className={[
                     'inline-flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold transition',
                     v <= rating
-                      ? 'border-[#f9bd22]/60 bg-[#fbbf24]/20 text-[#ffe1a7]'
-                      : 'border-[#4f4633] bg-[#131b2e] text-[#d3c5ac] hover:bg-[#222a3d] hover:text-[#ffe1a7]',
+                      ? 'border-[var(--primary-fixed-dim)]/60 bg-[var(--primary-container)]/20 text-[var(--primary)]'
+                      : 'border-[var(--outline-variant)] bg-[var(--surface-container-low)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-container-high)] hover:text-[var(--primary)]',
                   ].join(' ')}
                   aria-pressed={v === rating}
                   aria-label={`${v} star${v === 1 ? '' : 's'}`}
@@ -196,22 +196,22 @@ function FeedbackWidget({ item }: { item: StudentRegistrationEvent }) {
             value={comment}
             onChange={(event) => setComment(event.target.value)}
             placeholder="How did you find it? (optional)"
-            className="min-h-[96px] w-full rounded-xl border border-[#4f4633] bg-[#131b2e] p-3 text-sm text-[#dae2fd] outline-none transition placeholder:text-[#d3c5ac]/60 focus:border-[#f9bd22] focus:ring-2 focus:ring-[#f9bd22]/20"
+            className="min-h-[96px] w-full rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-3 text-sm text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
             rows={3}
           />
-          {feedbackError ? <p className="w-full text-left text-sm text-[#ffb4ab]">{feedbackError}</p> : null}
+          {feedbackError ? <p className="w-full text-left text-sm text-[var(--error)]">{feedbackError}</p> : null}
           <div className="flex flex-wrap gap-2 self-end">
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-lg border border-[#4f4633] bg-[#222a3d] px-3 py-2 text-sm font-medium text-[#dae2fd] transition hover:bg-[#2d3449]"
+              className="rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-3 py-2 text-sm font-medium text-[var(--on-surface)] transition hover:bg-[var(--surface-container-highest)]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="rounded-lg bg-[#fbbf24] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#402d00] transition hover:bg-[#f9bd22] disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg bg-[var(--primary-container)] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-primary)] transition hover:bg-[var(--primary-fixed-dim)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {mutation.isPending ? 'Submitting...' : 'Submit'}
             </button>

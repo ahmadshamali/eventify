@@ -71,22 +71,22 @@ function VerifyEmailPage() {
   }
 
   return (
-    <div className="grid min-h-screen place-items-center bg-[#0b1326] px-4 py-8 text-[#dae2fd]">
-      <section className="grid w-full max-w-[900px] grid-cols-1 overflow-hidden rounded-xl border border-[#4f4633] bg-[#131b2e] shadow-2xl md:grid-cols-2">
-        <div className="flex flex-col justify-center gap-4 border-b border-[#4f4633] bg-[#060e20] p-8 md:border-r md:border-b-0 md:p-12">
-          <span className="inline-flex w-fit rounded border border-[#4f4633] bg-[#222a3d] px-3.5 py-2 font-mono text-xs uppercase tracking-wider text-[#ffe1a7]">
+    <div className="grid min-h-screen place-items-center bg-[var(--background)] px-4 py-8 text-[var(--on-surface)]">
+      <section className="grid w-full max-w-[900px] grid-cols-1 overflow-hidden rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] shadow-2xl md:grid-cols-2">
+        <div className="flex flex-col justify-center gap-4 border-b border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] p-8 md:border-r md:border-b-0 md:p-12">
+          <span className="inline-flex w-fit rounded border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-3.5 py-2 font-mono text-xs uppercase tracking-wider text-[var(--primary)]">
             Eventify
           </span>
-          <h1 className="font-['Hanken_Grotesk'] text-4xl font-semibold leading-none tracking-tight text-[#dae2fd] md:text-5xl">Verify your email</h1>
-          <p className="text-[#d3c5ac]">
+          <h1 className="font-['Hanken_Grotesk'] text-4xl font-semibold leading-none tracking-tight text-[var(--on-surface)] md:text-5xl">Verify your email</h1>
+          <p className="text-[var(--on-surface-variant)]">
             Confirm your account to continue. Organizers will still need admin approval after verification.
           </p>
-          {emailFromUrl ? <p className="text-sm text-[#ffe1a7]">Verification was sent to {emailFromUrl}</p> : null}
+          {emailFromUrl ? <p className="text-sm text-[var(--primary)]">Verification was sent to {emailFromUrl}</p> : null}
         </div>
 
         <form className="grid gap-4 p-8 md:p-12" onSubmit={handleSubmit(onSubmit)}>
           <label className="grid gap-2" htmlFor="code">
-            <span className="text-sm text-[#d3c5ac]">Verification code</span>
+            <span className="text-sm text-[var(--on-surface-variant)]">Verification code</span>
             <Input
               id="code"
               type="text"
@@ -97,7 +97,7 @@ function VerifyEmailPage() {
             />
           </label>
 
-          {errors.code && <p className="text-sm text-[#ffb4ab]">{errors.code.message}</p>}
+          {errors.code && <p className="text-sm text-[var(--error)]">{errors.code.message}</p>}
 
           {isSuccess ? (
             <StatusMessage tone="success">
@@ -119,9 +119,9 @@ function VerifyEmailPage() {
             {isSubmitting ? 'Verifying...' : isSuccess ? 'Verified' : 'Verify email'}
           </Button>
 
-          <p className="text-center text-[#d3c5ac]">
+          <p className="text-center text-[var(--on-surface-variant)]">
             Already verified?{' '}
-            <Link className="text-[#ffe1a7] transition hover:text-[#f9bd22]" to="/login">
+            <Link className="text-[var(--primary)] transition hover:text-[var(--primary-fixed-dim)]" to="/login">
               Go to login
             </Link>
           </p>

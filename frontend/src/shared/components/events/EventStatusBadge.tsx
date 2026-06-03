@@ -9,10 +9,10 @@ type EventStatusBadgeProps = {
 
 const toneClasses: Record<EventStatusTone, string> = {
   available: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-200',
-  full: 'border-[#ffb4ab]/40 bg-[#93000a]/30 text-[#ffdad6]',
-  completed: 'border-[#4f4633] bg-[#222a3d] text-[#d3c5ac]',
-  active: 'border-[#34daff]/40 bg-[#00a6e0]/20 text-[#b6edff]',
-  neutral: 'border-[#4f4633] bg-[#2d3449] text-[#dae2fd]',
+  full: 'border-[var(--error)]/40 bg-[var(--error-container)]/30 text-[var(--on-error-container)]',
+  completed: 'border-[var(--outline-variant)] bg-[var(--surface-container-high)] text-[var(--on-surface-variant)]',
+  active: 'border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 text-[var(--tertiary)]',
+  neutral: 'border-[var(--outline-variant)] bg-[var(--surface-container-highest)] text-[var(--on-surface)]',
 }
 
 function EventStatusBadge({ tone, children }: EventStatusBadgeProps) {

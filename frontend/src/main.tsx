@@ -6,6 +6,10 @@ import App from './App.tsx'
 
 const queryClient = new QueryClient()
 
+if (localStorage.getItem('eventify-theme') === 'light') {
+  document.documentElement.classList.add('light')
+}
+
 // Register manual service worker located at /sw.js
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

@@ -7,7 +7,7 @@ type StatusMessageProps = {
 
 const toneClasses = {
   success: 'border-emerald-400/35 bg-emerald-400/10 text-emerald-200',
-  error: 'border-[#ffb4ab]/40 bg-[#93000a]/30 text-[#ffdad6]',
+  error: 'border-[var(--error)]/40 bg-[var(--error-container)]/30 text-[var(--on-error-container)]',
 } as const
 
 function StatusMessage({ tone, children }: StatusMessageProps) {

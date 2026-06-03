@@ -22,18 +22,18 @@ import {
 
 function StatCard({ label, value, helper }: { label: string; value: string | number; helper?: string }) {
   return (
-    <div className="rounded-xl border border-[#4f4633] bg-[#131b2e] p-5 shadow-sm">
-      <p className="font-mono text-xs uppercase tracking-wider text-[#d3c5ac]">{label}</p>
-      <p className="mt-3 font-['Hanken_Grotesk'] text-4xl font-semibold text-[#dae2fd]">{value}</p>
-      {helper ? <p className="mt-2 text-xs text-[#d3c5ac]">{helper}</p> : null}
+    <div className="rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-5 shadow-sm">
+      <p className="font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)]">{label}</p>
+      <p className="mt-3 font-['Hanken_Grotesk'] text-4xl font-semibold text-[var(--on-surface)]">{value}</p>
+      {helper ? <p className="mt-2 text-xs text-[var(--on-surface-variant)]">{helper}</p> : null}
     </div>
   )
 }
 
 function ActionCard({ to, title, description, tone }: { to: string; title: string; description: string; tone: 'cyan' | 'slate' | 'emerald' }) {
   const toneClasses = {
-    cyan: 'border-[#34daff]/40 bg-[#00a6e0]/20 text-[#b6edff] hover:bg-[#00a6e0]/30',
-    slate: 'border-[#4f4633] bg-[#131b2e] text-[#dae2fd] hover:bg-[#171f33]',
+    cyan: 'border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 text-[var(--tertiary)] hover:bg-[var(--secondary-container)]/30',
+    slate: 'border-[var(--outline-variant)] bg-[var(--surface-container-low)] text-[var(--on-surface)] hover:bg-[var(--surface-container)]',
     emerald: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400/20',
   }
 
@@ -43,7 +43,7 @@ function ActionCard({ to, title, description, tone }: { to: string; title: strin
       className={`rounded-xl border p-5 transition duration-200 ${toneClasses[tone]}`}
     >
       <h3 className="font-['Hanken_Grotesk'] text-lg font-semibold">{title}</h3>
-      <p className="mt-2 text-sm text-[#d3c5ac]">{description}</p>
+      <p className="mt-2 text-sm text-[var(--on-surface-variant)]">{description}</p>
     </Link>
   )
 }
@@ -61,52 +61,52 @@ function EventCard({
   const isCompleted = statusLabel === 'Completed'
 
   return (
-    <div className="overflow-hidden rounded-xl border border-[#4f4633] bg-[#131b2e] p-6 shadow-sm transition duration-200 hover:border-[#f9bd22]/60 hover:bg-[#171f33]">
+    <div className="overflow-hidden rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm transition duration-200 hover:border-[var(--primary-fixed-dim)]/60 hover:bg-[var(--surface-container)]">
       <div className="flex flex-col gap-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <h3 className="truncate font-['Hanken_Grotesk'] text-xl font-semibold text-[#dae2fd]">{event.title}</h3>
-            <p className="mt-1 line-clamp-2 text-sm text-[#d3c5ac]">{event.description || 'No description provided.'}</p>
+            <h3 className="truncate font-['Hanken_Grotesk'] text-xl font-semibold text-[var(--on-surface)]">{event.title}</h3>
+            <p className="mt-1 line-clamp-2 text-sm text-[var(--on-surface-variant)]">{event.description || 'No description provided.'}</p>
           </div>
-          <span className="shrink-0 rounded border border-[#4f4633] bg-[#222a3d] px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#d3c5ac]">
+          <span className="shrink-0 rounded border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--on-surface-variant)]">
             {statusLabel}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 gap-2 text-sm text-[#dae2fd] sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 text-sm text-[var(--on-surface)] sm:grid-cols-2">
           <div>
-            <span className="block font-mono text-[10px] uppercase tracking-wider text-[#d3c5ac]">Starts</span>
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-[var(--on-surface-variant)]">Starts</span>
             <span>{formatEventStartTime(event.startDateTime)}</span>
           </div>
           <div>
-            <span className="block font-mono text-[10px] uppercase tracking-wider text-[#d3c5ac]">Ends</span>
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-[var(--on-surface-variant)]">Ends</span>
             <span>{formatEventEndTime(event.endDateTime)}</span>
           </div>
           <div>
-            <span className="block font-mono text-[10px] uppercase tracking-wider text-[#d3c5ac]">Location</span>
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-[var(--on-surface-variant)]">Location</span>
             <span>{event.location}</span>
           </div>
           <div>
-            <span className="block font-mono text-[10px] uppercase tracking-wider text-[#d3c5ac]">Category</span>
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-[var(--on-surface-variant)]">Category</span>
             <span>{event.category}</span>
           </div>
           <div>
-            <span className="block font-mono text-[10px] uppercase tracking-wider text-[#d3c5ac]">Capacity</span>
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-[var(--on-surface-variant)]">Capacity</span>
             <span>{event.capacity}</span>
           </div>
           <div>
-            <span className="block font-mono text-[10px] uppercase tracking-wider text-[#d3c5ac]">Registrations</span>
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-[var(--on-surface-variant)]">Registrations</span>
             <span>{event.registered_count} / {event.capacity}</span>
           </div>
         </div>
 
         <div className="pt-1">
-          <div className="mb-2 flex items-center justify-between text-xs text-[#d3c5ac]">
+          <div className="mb-2 flex items-center justify-between text-xs text-[var(--on-surface-variant)]">
             <span>Capacity filled</span>
             <span>{formatPercentage(fillRate)}</span>
           </div>
-          <div className="h-2 rounded-full bg-[#222a3d]">
-            <div className="h-2 rounded-full bg-[#f9bd22] transition-all" style={{ width: `${fillRate}%` }} />
+          <div className="h-2 rounded-full bg-[var(--surface-container-high)]">
+            <div className="h-2 rounded-full bg-[var(--primary-fixed-dim)] transition-all" style={{ width: `${fillRate}%` }} />
           </div>
         </div>
 
@@ -115,14 +115,14 @@ function EventCard({
             {isCompleted ? (
               <Link
                 to={`/events/${event.id}/feedbacks`}
-                className="rounded-lg border border-[#34daff]/40 bg-[#00a6e0]/20 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#b6edff] transition hover:bg-[#00a6e0]/30"
+                className="rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30"
               >
                 Feedbacks
               </Link>
             ) : (
               <Link
                 to={`/events/${event.id}/edit`}
-                className="rounded-lg border border-[#4f4633] bg-[#222a3d] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#dae2fd] transition hover:bg-[#2d3449] hover:text-[#ffe1a7]"
+                className="rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-surface)] transition hover:bg-[var(--surface-container-highest)] hover:text-[var(--primary)]"
               >
                 Edit
               </Link>
@@ -203,63 +203,63 @@ export default function OrganizerDashboardPage() {
 
       <div className="mx-auto w-full max-w-[1280px]">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(320px,0.85fr)]">
-          <header className="rounded-xl border border-[#4f4633] bg-[#131b2e] p-6 shadow-sm md:p-8">
-            <p className="font-mono text-xs uppercase tracking-widest text-[#ffe1a7]">Organizer Dashboard</p>
-            <h1 className="mt-3 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[#dae2fd] md:text-5xl">
+          <header className="rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:p-8">
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--primary)]">Organizer Dashboard</p>
+            <h1 className="mt-3 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[var(--on-surface)] md:text-5xl">
               Manage your events from one place
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-[#d3c5ac] md:text-lg">
+            <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--on-surface-variant)] md:text-lg">
               Track upcoming events, review completed ones, cancel outdated listings, and jump into create or feedback actions without leaving the dashboard.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 to="/events"
-                className="rounded-lg border border-[#4f4633] bg-[#222a3d] px-5 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[#dae2fd] transition hover:bg-[#2d3449] hover:text-[#ffe1a7]"
+                className="rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-5 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-surface)] transition hover:bg-[var(--surface-container-highest)] hover:text-[var(--primary)]"
               >
                 View All Events
               </Link>
             </div>
           </header>
 
-          <aside className="rounded-xl border border-[#4f4633] bg-[#131b2e] p-6 shadow-sm md:p-8">
-            <p className="font-mono text-xs uppercase tracking-widest text-[#d3c5ac]">At a Glance</p>
+          <aside className="rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:p-8">
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--on-surface-variant)]">At a Glance</p>
             {nextEvent ? (
               <div className="mt-4 space-y-4">
                 <div>
-                  <h2 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[#dae2fd]">Next Event</h2>
-                  <p className="mt-2 text-[#d3c5ac]">{nextEvent.title}</p>
+                  <h2 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[var(--on-surface)]">Next Event</h2>
+                  <p className="mt-2 text-[var(--on-surface-variant)]">{nextEvent.title}</p>
                 </div>
-                <div className="space-y-2 text-sm text-[#d3c5ac]">
+                <div className="space-y-2 text-sm text-[var(--on-surface-variant)]">
                   <p>Starts: {formatEventStartTime(nextEvent.startDateTime)}</p>
                   <p>Ends: {formatEventEndTime(nextEvent.endDateTime)}</p>
                   <p>Location: {nextEvent.location}</p>
                   <p>Status: {nextEvent.status}</p>
                 </div>
-                <div className="rounded-xl border border-[#4f4633] bg-[#0b1326] p-4">
-                  <div className="mb-2 flex items-center justify-between text-xs text-[#d3c5ac]">
+                <div className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-4">
+                  <div className="mb-2 flex items-center justify-between text-xs text-[var(--on-surface-variant)]">
                     <span>Fill rate</span>
                     <span>{formatPercentage(getFillRate(nextEvent))}</span>
                   </div>
-                  <div className="h-2 rounded-full bg-[#222a3d]">
-                    <div className="h-2 rounded-full bg-[#f9bd22]" style={{ width: `${getFillRate(nextEvent)}%` }} />
+                  <div className="h-2 rounded-full bg-[var(--surface-container-high)]">
+                    <div className="h-2 rounded-full bg-[var(--primary-fixed-dim)]" style={{ width: `${getFillRate(nextEvent)}%` }} />
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="mt-4 rounded-xl border border-dashed border-[#4f4633] bg-[#0b1326] p-6 text-[#d3c5ac]">
+              <div className="mt-4 rounded-xl border border-dashed border-[var(--outline-variant)] bg-[var(--background)] p-6 text-[var(--on-surface-variant)]">
                 No upcoming events yet. Create your first event to populate the dashboard.
               </div>
             )}
 
             <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-xl border border-[#4f4633] bg-[#0b1326] p-4">
-                <p className="text-[#d3c5ac]">Total</p>
-                <p className="mt-1 text-2xl font-semibold text-[#dae2fd]">{myEvents.length}</p>
+              <div className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-4">
+                <p className="text-[var(--on-surface-variant)]">Total</p>
+                <p className="mt-1 text-2xl font-semibold text-[var(--on-surface)]">{myEvents.length}</p>
               </div>
-              <div className="rounded-xl border border-[#4f4633] bg-[#0b1326] p-4">
-                <p className="text-[#d3c5ac]">Fill Avg</p>
-                <p className="mt-1 text-2xl font-semibold text-[#dae2fd]">{formatPercentage(averageFillRate)}</p>
+              <div className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-4">
+                <p className="text-[var(--on-surface-variant)]">Fill Avg</p>
+                <p className="mt-1 text-2xl font-semibold text-[var(--on-surface)]">{formatPercentage(averageFillRate)}</p>
               </div>
             </div>
           </aside>
@@ -294,13 +294,13 @@ export default function OrganizerDashboardPage() {
         </section>
 
         {error ? (
-          <div className="mt-6 rounded-xl border border-[#ffb4ab]/40 bg-[#93000a]/30 p-4 text-[#ffdad6]">
+          <div className="mt-6 rounded-xl border border-[var(--error)]/40 bg-[var(--error-container)]/30 p-4 text-[var(--on-error-container)]">
             <p>{error instanceof Error ? error.message : 'An error occurred while loading your events.'}</p>
           </div>
         ) : null}
 
         {isLoading ? (
-          <div className="mt-6 rounded-xl border border-[#4f4633] bg-[#131b2e] p-8 text-[#d3c5ac]">
+          <div className="mt-6 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-8 text-[var(--on-surface-variant)]">
             Loading organizer dashboard...
           </div>
         ) : (
@@ -308,16 +308,16 @@ export default function OrganizerDashboardPage() {
             <section>
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[#dae2fd]">Upcoming Events</h2>
-                  <p className="mt-1 text-sm text-[#d3c5ac]">Events that are still active and ready to manage</p>
+                  <h2 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[var(--on-surface)]">Upcoming Events</h2>
+                  <p className="mt-1 text-sm text-[var(--on-surface-variant)]">Events that are still active and ready to manage</p>
                 </div>
-                <span className="rounded border border-[#34daff]/40 bg-[#00a6e0]/20 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#b6edff]">
+                <span className="rounded border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--tertiary)]">
                   {upcomingEvents.length}
                 </span>
               </div>
 
               {upcomingEvents.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-[#4f4633] bg-[#131b2e] px-8 py-16 text-center text-[#d3c5ac]">
+                <div className="rounded-xl border border-dashed border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-8 py-16 text-center text-[var(--on-surface-variant)]">
                   No upcoming events yet.
                 </div>
               ) : (
@@ -331,7 +331,7 @@ export default function OrganizerDashboardPage() {
                             type="button"
                             onClick={() => handleCancel(event.id, event.title)}
                             disabled={isCanceling}
-                            className="rounded-lg border border-[#ffb4ab]/40 bg-[#93000a]/30 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#ffdad6] transition hover:bg-[#93000a]/50 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="rounded-lg border border-[var(--error)]/40 bg-[var(--error-container)]/30 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-error-container)] transition hover:bg-[var(--error-container)]/50 disabled:cursor-not-allowed disabled:opacity-60"
                           >
                             Cancel Event
                           </button>
@@ -346,16 +346,16 @@ export default function OrganizerDashboardPage() {
             <section>
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[#dae2fd]">Completed Events</h2>
-                  <p className="mt-1 text-sm text-[#d3c5ac]">Finished events with feedback and performance context</p>
+                  <h2 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[var(--on-surface)]">Completed Events</h2>
+                  <p className="mt-1 text-sm text-[var(--on-surface-variant)]">Finished events with feedback and performance context</p>
                 </div>
-                <span className="rounded border border-[#4f4633] bg-[#222a3d] px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#d3c5ac]">
+                <span className="rounded border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--on-surface-variant)]">
                   {completedEvents.length}
                 </span>
               </div>
 
               {completedEvents.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-[#4f4633] bg-[#131b2e] px-8 py-16 text-center text-[#d3c5ac]">
+                <div className="rounded-xl border border-dashed border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-8 py-16 text-center text-[var(--on-surface-variant)]">
                   No completed events yet.
                 </div>
               ) : (
@@ -370,16 +370,16 @@ export default function OrganizerDashboardPage() {
             <section>
               <div className="mb-4 flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[#dae2fd]">Canceled Events</h2>
-                  <p className="mt-1 text-sm text-[#d3c5ac]">Events that were removed from circulation</p>
+                  <h2 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[var(--on-surface)]">Canceled Events</h2>
+                  <p className="mt-1 text-sm text-[var(--on-surface-variant)]">Events that were removed from circulation</p>
                 </div>
-                <span className="rounded border border-[#4f4633] bg-[#222a3d] px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[#d3c5ac]">
+                <span className="rounded border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--on-surface-variant)]">
                   {canceledEvents.length}
                 </span>
               </div>
 
               {canceledEvents.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-[#4f4633] bg-[#131b2e] px-8 py-16 text-center text-[#d3c5ac]">
+                <div className="rounded-xl border border-dashed border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-8 py-16 text-center text-[var(--on-surface-variant)]">
                   No canceled events.
                 </div>
               ) : (
