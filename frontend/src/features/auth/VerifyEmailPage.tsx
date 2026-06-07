@@ -71,25 +71,22 @@ function VerifyEmailPage() {
   }
 
   return (
-    <div className="relative grid min-h-screen place-items-center overflow-hidden px-4 py-8">
-      <div className="pointer-events-none absolute left-[-8%] top-[5%] h-88 w-88 rounded-full bg-blue-600/40 blur-[70px]" />
-      <div className="pointer-events-none absolute bottom-0 right-[-10%] h-88 w-88 rounded-full bg-cyan-500/40 blur-[70px]" />
-
-      <section className="z-10 grid w-full max-w-[860px] grid-cols-1 overflow-hidden rounded-[28px] border border-white/10 bg-slate-900/90 shadow-[0_32px_80px_rgba(15,23,42,0.45)] backdrop-blur-[18px] md:grid-cols-2">
-        <div className="flex flex-col justify-center gap-4 bg-gradient-to-br from-blue-500/25 to-cyan-700/20 p-8 md:p-12">
-          <span className="inline-flex w-fit rounded-full border border-white/10 bg-white/10 px-3.5 py-2 text-[0.85rem] uppercase tracking-[0.14em] text-blue-200">
+    <div className="grid min-h-screen place-items-center bg-[var(--background)] px-4 py-8 text-[var(--on-surface)]">
+      <section className="grid w-full max-w-[900px] grid-cols-1 overflow-hidden rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] shadow-2xl md:grid-cols-2">
+        <div className="flex flex-col justify-center gap-4 border-b border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] p-8 md:border-r md:border-b-0 md:p-12">
+          <span className="inline-flex w-fit rounded border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-3.5 py-2 font-mono text-xs uppercase tracking-wider text-[var(--primary)]">
             Eventify
           </span>
-          <h1 className="text-4xl leading-none tracking-tight text-white md:text-5xl">Verify your email</h1>
-          <p className="text-slate-300">
+          <h1 className="font-['Hanken_Grotesk'] text-4xl font-semibold leading-none tracking-tight text-[var(--on-surface)] md:text-5xl">Verify your email</h1>
+          <p className="text-[var(--on-surface-variant)]">
             Confirm your account to continue. Organizers will still need admin approval after verification.
           </p>
-          {emailFromUrl ? <p className="text-sm text-blue-200">Verification was sent to {emailFromUrl}</p> : null}
+          {emailFromUrl ? <p className="text-sm text-[var(--primary)]">Verification was sent to {emailFromUrl}</p> : null}
         </div>
 
         <form className="grid gap-4 p-8 md:p-12" onSubmit={handleSubmit(onSubmit)}>
           <label className="grid gap-2" htmlFor="code">
-            <span className="text-[0.95rem] text-slate-300">Verification code</span>
+            <span className="text-sm text-[var(--on-surface-variant)]">Verification code</span>
             <Input
               id="code"
               type="text"
@@ -100,7 +97,7 @@ function VerifyEmailPage() {
             />
           </label>
 
-          {errors.code && <p className="text-sm text-red-400">{errors.code.message}</p>}
+          {errors.code && <p className="text-sm text-[var(--error)]">{errors.code.message}</p>}
 
           {isSuccess ? (
             <StatusMessage tone="success">
@@ -122,9 +119,9 @@ function VerifyEmailPage() {
             {isSubmitting ? 'Verifying...' : isSuccess ? 'Verified' : 'Verify email'}
           </Button>
 
-          <p className="text-center text-slate-400">
+          <p className="text-center text-[var(--on-surface-variant)]">
             Already verified?{' '}
-            <Link className="text-blue-300 transition hover:text-blue-200" to="/login">
+            <Link className="text-[var(--primary)] transition hover:text-[var(--primary-fixed-dim)]" to="/login">
               Go to login
             </Link>
           </p>

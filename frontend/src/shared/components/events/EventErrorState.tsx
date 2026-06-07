@@ -5,7 +5,7 @@ type EventErrorStateProps = {
 }
 
 function EventErrorState({ children }: EventErrorStateProps) {
-  return <div className="mb-8 rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-center text-red-300">{children}</div>
+  return <div className="mb-8 rounded-xl border border-[var(--error)]/40 bg-[var(--error-container)]/30 p-6 text-center text-[var(--on-error-container)]">{children}</div>
 }
 
 export default EventErrorState

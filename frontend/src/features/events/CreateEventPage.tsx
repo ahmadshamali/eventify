@@ -157,67 +157,92 @@ function CreateEventPage() {
         }
 
     return (
-        <div className="relative min-h-screen overflow-hidden bg-slate-900 px-5 py-10 text-slate-50">
+        <div className="min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
             <EventPageBackdrop />
 
-            <div className="relative mx-auto w-full max-w-[600px]">
-                <header className="mb-14 text-center">
-                    <h1 className="mb-4 bg-gradient-to-br from-white to-slate-300 bg-clip-text text-5xl font-bold tracking-tight text-transparent">
+            <div className="mx-auto w-full max-w-5xl">
+                <header className="mb-8 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:p-8">
+                    <p className="font-mono text-xs uppercase tracking-widest text-[var(--primary)]">Create Event</p>
+                    <h1 className="mt-2 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[var(--on-surface)]">
                         {isEditMode ? 'Update Event' : 'Create Event'}
                     </h1>
-                    <p className="text-xl font-light text-slate-400">
-                        {isEditMode ? 'Edit your event details' : 'Add a new event'}
+                    <p className="mt-2 text-[var(--on-surface-variant)]">
+                        {isEditMode ? 'Edit your event details.' : 'Fill in the details below to publish a new institutional event.'}
                     </p>
                 </header>
-                <div className="rounded-2xl border border-white/10 bg-slate-800/70 p-8 backdrop-blur-md">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                    <aside className="lg:col-span-3">
+                        <div className="sticky top-24 space-y-2 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-4">
+                            {['Basic Info', 'Description', 'Schedule', 'Publish'].map((step, index) => (
+                                <div
+                                    key={step}
+                                    className={[
+                                        'flex items-center gap-3 border-l-4 px-4 py-3',
+                                        index === 0
+                                            ? 'border-[var(--primary-fixed-dim)] bg-[var(--surface-container-high)] text-[var(--primary)]'
+                                            : 'border-[var(--outline-variant)] text-[var(--on-surface-variant)]',
+                                    ].join(' ')}
+                                >
+                                    <span className={[
+                                        'flex h-8 w-8 items-center justify-center rounded-full font-mono text-xs font-bold',
+                                        index === 0 ? 'bg-[var(--primary-container)] text-[var(--on-primary)]' : 'bg-[var(--surface-container-highest)] text-[var(--on-surface-variant)]',
+                                    ].join(' ')}>
+                                        {String(index + 1).padStart(2, '0')}
+                                    </span>
+                                    <span className="font-mono text-xs uppercase tracking-wider">{step}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </aside>
+                    <div className="rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:p-8 lg:col-span-9">
                     <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
-                        <section className="rounded-2xl border border-white/10 bg-slate-900/40 p-5">
-                            <h2 className="mb-4 text-lg font-semibold text-white">Event Details</h2>
+                        <section className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-5">
+                            <h2 className="mb-4 font-['Hanken_Grotesk'] text-xl font-semibold text-[var(--on-surface)]">Event Details</h2>
                             <div className="flex flex-col gap-4">
                                 <div>
                                     <input
-                                      className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                      className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                       placeholder={'title'}
                                       {...register('title')}
                                     />
-                                    {errors.title && <p className="mt-1 text-sm text-red-400">{errors.title.message}</p>}
+                                    {errors.title && <p className="mt-1 text-sm text-[var(--error)]">{errors.title.message}</p>}
                                 </div>
 
                                 <div>
                                     <textarea
-                                      className="min-h-[120px] w-full resize-y rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                      className="min-h-[120px] w-full resize-y rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                       placeholder={'description'}
                                       {...register('description')}
                                     />
-                                    {errors.description && <p className="mt-1 text-sm text-red-400">{errors.description.message}</p>}
+                                    {errors.description && <p className="mt-1 text-sm text-[var(--error)]">{errors.description.message}</p>}
                                 </div>
 
                                 <div>
                                     <textarea
-                                      className="min-h-[90px] w-full resize-y rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                      className="min-h-[90px] w-full resize-y rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                       placeholder={'additional details for AI description (optional)'}
                                       value={additionalDetails}
                                       onChange={(event) => setAdditionalDetails(event.target.value)}
                                     />
                                     <div className="mt-2 flex items-center justify-between gap-3">
-                                        <p className="text-xs text-slate-400">AI uses title, category, and these details.</p>
+                                        <p className="text-xs text-[var(--on-surface-variant)]">AI uses title, category, and these details.</p>
                                         <button
                                             type="button"
                                             onClick={handleGenerateDescription}
                                             disabled={isGeneratingDescription}
-                                            className="rounded-lg border border-cyan-400/40 bg-cyan-500/20 px-3 py-1.5 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-500/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                            className="rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30 disabled:cursor-not-allowed disabled:opacity-60"
                                         >
                                             {isGeneratingDescription ? 'Generating...' : 'Generate Description'}
                                         </button>
                                     </div>
                                     {generateError ? (
-                                        <p className="mt-1 text-sm text-red-400">{generateError.message}</p>
+                                        <p className="mt-1 text-sm text-[var(--error)]">{generateError.message}</p>
                                     ) : null}
                                 </div>
 
                                 <div>
                                     <select
-                                        className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                        className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                         {...register('category')}
                                     >
                                         {eventCategories.map((category) => (
@@ -226,64 +251,64 @@ function CreateEventPage() {
                                             </option>
                                         ))}
                                     </select>
-                                    {errors.category && <p className="mt-1 text-sm text-red-400">{errors.category.message}</p>}
+                                    {errors.category && <p className="mt-1 text-sm text-[var(--error)]">{errors.category.message}</p>}
                                 </div>
 
-                                <div className="rounded-2xl border border-white/10 bg-slate-900/30 p-4">
+                                <div className="rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-4">
                                     <div className="mb-3 flex items-center justify-between gap-3">
                                         <div>
-                                            <p className="text-sm font-medium text-slate-200">Event Image</p>
-                                            <p className="text-xs text-slate-400">Upload from device or paste an image URL</p>
+                                            <p className="text-sm font-medium text-[var(--on-surface)]">Event Image</p>
+                                            <p className="text-xs text-[var(--on-surface-variant)]">Upload from device or paste an image URL</p>
                                         </div>
-                                        <label className="cursor-pointer rounded-lg border border-cyan-400/40 bg-cyan-500/20 px-3 py-1.5 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-500/30">
+                                        <label className="cursor-pointer rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30">
                                             {isUploadingImage ? 'Uploading...' : 'Upload Image'}
                                             <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploadingImage} />
                                         </label>
                                     </div>
                                     <input
                                         type="url"
-                                        className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                        className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--background)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                         placeholder={'image URL (optional)'}
                                         {...register('imageUrl')}
                                     />
-                                    {imageUploadError ? <p className="mt-1 text-sm text-red-400">{imageUploadError}</p> : null}
-                                    {errors.imageUrl && <p className="mt-1 text-sm text-red-400">{errors.imageUrl.message}</p>}
+                                    {imageUploadError ? <p className="mt-1 text-sm text-[var(--error)]">{imageUploadError}</p> : null}
+                                    {errors.imageUrl && <p className="mt-1 text-sm text-[var(--error)]">{errors.imageUrl.message}</p>}
                                 </div>
 
                                                                 <div>
                                     <input
                                       type="url"
-                                      className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                      className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                       placeholder={'event link (optional)'}
                                       {...register('eventLink')}
                                     />
-                                    {errors.eventLink && <p className="mt-1 text-sm text-red-400">{errors.eventLink.message}</p>}
+                                    {errors.eventLink && <p className="mt-1 text-sm text-[var(--error)]">{errors.eventLink.message}</p>}
                                 </div>
                             </div>
                         </section>
 
-                        <section className="rounded-2xl border border-white/10 bg-slate-900/40 p-5">
-                            <h2 className="mb-4 text-lg font-semibold text-white">Schedule and Capacity</h2>
+                        <section className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-5">
+                            <h2 className="mb-4 font-['Hanken_Grotesk'] text-xl font-semibold text-[var(--on-surface)]">Schedule and Capacity</h2>
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div>
                                     <input
                                         type="date"
                                         lang="en-GB"
                                         style={{ colorScheme: 'dark' }}
-                                        className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                        className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                         {...register('date')}
                                     />
-                                    {errors.date && <p className="mt-1 text-sm text-red-400">{errors.date.message}</p>}
+                                    {errors.date && <p className="mt-1 text-sm text-[var(--error)]">{errors.date.message}</p>}
                                 </div>
 
                                 <div>
                                     <input
                                         type="time"
                                         style={{ colorScheme: 'dark' }}
-                                        className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                        className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                         {...register('time')}
                                     />
-                                    {errors.time && <p className="mt-1 text-sm text-red-400">{errors.time.message}</p>}
+                                    {errors.time && <p className="mt-1 text-sm text-[var(--error)]">{errors.time.message}</p>}
                                 </div>
 
                                 <div>
@@ -291,48 +316,48 @@ function CreateEventPage() {
                                         type="date"
                                         lang="en-GB"
                                         style={{ colorScheme: 'dark' }}
-                                        className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                        className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                         {...register('endDate')}
                                     />
-                                    {errors.endDate && <p className="mt-1 text-sm text-red-400">{errors.endDate.message}</p>}
+                                    {errors.endDate && <p className="mt-1 text-sm text-[var(--error)]">{errors.endDate.message}</p>}
                                 </div>
 
                                 <div>
                                     <input
                                         type="time"
                                         style={{ colorScheme: 'dark' }}
-                                        className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                        className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                         {...register('endTime')}
                                     />
-                                    {errors.endTime && <p className="mt-1 text-sm text-red-400">{errors.endTime.message}</p>}
+                                    {errors.endTime && <p className="mt-1 text-sm text-[var(--error)]">{errors.endTime.message}</p>}
                                 </div>
 
                                 <div className="md:col-span-2">
                                     <input
-                                        className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                        className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                         placeholder={'location'}
                                         {...register('location')}
                                     />
-                                    {errors.location && <p className="mt-1 text-sm text-red-400">{errors.location.message}</p>}
+                                    {errors.location && <p className="mt-1 text-sm text-[var(--error)]">{errors.location.message}</p>}
                                 </div>
 
                                 <div className="md:col-span-2">
                                     <input
                                         type="number"
                                         min={1}
-                                        className="w-full rounded-lg border border-white/10 bg-slate-900/60 px-3.5 py-2.5 text-[15px] text-slate-100 outline-none transition focus:border-blue-500"
+                                        className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                         placeholder={'capacity'}
                                         {...register('capacity')}
                                     />
-                                    {errors.capacity && <p className="mt-1 text-sm text-red-400">{errors.capacity.message}</p>}
+                                    {errors.capacity && <p className="mt-1 text-sm text-[var(--error)]">{errors.capacity.message}</p>}
                                 </div>
                             </div>
                         </section>
 
-                        <section className="rounded-2xl border border-white/10 bg-slate-900/40 p-5">
+                        <section className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-5">
                             <div className="flex flex-col gap-4">
                                 <button
-                                    className="rounded-lg bg-blue-500 px-6 py-3 font-semibold text-white transition hover:bg-blue-600 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] disabled:cursor-wait disabled:opacity-70"
+                                    className="rounded-lg bg-[var(--primary-container)] px-6 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-primary)] transition hover:bg-[var(--primary-fixed-dim)] disabled:cursor-wait disabled:opacity-70"
                                     type="submit"
                                     disabled={isLoading}
                                 >
@@ -342,9 +367,10 @@ function CreateEventPage() {
                         </section>
                     </form>
 
-                    {error && <p className="mt-4 text-sm text-red-400">{error.message}</p>}
+                    {error && <p className="mt-4 text-sm text-[var(--error)]">{error.message}</p>}
                 </div>
             </div>
+        </div>
         </div>
     );
 }

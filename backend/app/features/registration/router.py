@@ -3,10 +3,12 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.features.auth.dependencies import get_current_user
-from app.features.registration.schemas import RegistrationRead, RegistrationStatusRead, StudentRegistrationEventRead
+from app.features.registration.schemas import RegistrationRead, RegistrationStatusRead, StudentRegistrationEventRead, WaitlistEntryRead
 from app.features.registration.service import (
 	get_registration_status,
 	get_student_registrations,
+	join_event_waitlist,
+	leave_event_waitlist,
 	register_student_for_event,
 	unregister_student_from_event,
 )
@@ -48,3 +50,21 @@ def unregister_from_event(
 	current_user: User = Depends(get_current_user),
 ):
 	unregister_student_from_event(db, event_id, current_user)
+
+
+@router.post("/{event_id}/waitlist", response_model=WaitlistEntryRead, status_code=status.HTTP_201_CREATED)
+def join_waitlist(
+	event_id: int,
+	db: Session = Depends(get_db),
+	current_user: User = Depends(get_current_user),
+):
+	return join_event_waitlist(db, event_id, current_user)
+
+
+@router.delete("/{event_id}/waitlist", status_code=status.HTTP_204_NO_CONTENT)
+def leave_waitlist(
+	event_id: int,
+	db: Session = Depends(get_db),
+	current_user: User = Depends(get_current_user),
+):
+	leave_event_waitlist(db, event_id, current_user)

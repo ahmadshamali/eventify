@@ -57,8 +57,8 @@ export const unregisterFromEvent = async (eventId: number): Promise<void> => {
   })
 }
 
-export const joinWaitlist = async (eventId: number): Promise<any> => {
-  return apiRequest<any>(`/events/${eventId}/waitlist`, {
+export const joinWaitlist = async (eventId: number): Promise<unknown> => {
+  return apiRequest<unknown>(`/events/${eventId}/waitlist`, {
     method: 'POST',
   })
 }

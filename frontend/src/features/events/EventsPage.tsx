@@ -11,6 +11,7 @@ import EventPrimaryLinkButton from '../../shared/components/events/EventPrimaryL
 import EventStatusBadge from '../../shared/components/events/EventStatusBadge'
 
 import { cancelEvent, fetchEvents } from './eventApi'
+import { resolveEventImageUrl } from './eventImage'
 import type { Event } from './event.types'
 import { formatEventStartTime, getEventLifecycleStatus } from './eventTime'
 
@@ -31,7 +32,7 @@ function EventsPage() {
   })
 
   const handleCancel = async (eventId: number, eventTitle: string) => {
-    const confirmed = window.confirm(`Are sure you to delete ${eventTitle}`)
+    const confirmed = window.confirm(`Are you sure you want to cancel ${eventTitle}?`)
     if (!confirmed) {
       return
     }
@@ -41,15 +42,27 @@ function EventsPage() {
   const canManageEvent = (eventOrganizerId: number | null) => role === 'organizer' && String(eventOrganizerId) === userId
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-900 text-slate-50">
+    <div className="min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
       <EventPageBackdrop />
 
-      <div className="relative mx-auto w-full max-w-[1200px] px-8 py-16">
-        <header className="mb-16 text-center">
-          <h1 className="mb-4 bg-gradient-to-br from-white to-slate-300 bg-clip-text text-5xl font-bold tracking-tight text-transparent md:text-6xl">
-            Eventify
-          </h1>
-          <p className="text-xl font-light text-slate-400">Discover the most anticipated upcoming events</p>
+      <div className="mx-auto w-full max-w-[1280px]">
+        <header className="mb-8 flex flex-col justify-between gap-4 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:flex-row md:items-end">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--primary)]">Eventify Catalog</p>
+            <h1 className="mt-2 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[var(--on-surface)]">
+              Events
+            </h1>
+            <p className="mt-2 text-[var(--on-surface-variant)]">Discover and manage upcoming university events.</p>
+          </div>
+          {(role === 'organizer' || role === 'admin') ? (
+            <Link
+              to="/events/create"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--primary-container)] px-5 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-primary)] transition hover:bg-[var(--primary-fixed-dim)]"
+            >
+              <span className="material-symbols-outlined text-lg" aria-hidden="true">add</span>
+              New Event
+            </Link>
+          ) : null}
         </header>
 
         {error && (
@@ -61,7 +74,7 @@ function EventsPage() {
         {loading ? (
           <EventLoadingState className="h-[200px]" message="Loading events..." />
         ) : (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {events.filter((event) => getEventLifecycleStatus(event) !== 'Completed').length === 0 && !error ? (
               <EventEmptyState
                 className="col-span-full"
@@ -74,27 +87,27 @@ function EventsPage() {
                 .map((event) => (
                 <EventCardShell key={event.id}>
                   {event.imageUrl ? (
-                    <div className="mb-5 overflow-hidden rounded-xl border border-white/10 bg-slate-900/70">
+                    <div className="mb-5 overflow-hidden rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)]">
                       <img
-                        src={event.imageUrl}
+                        src={resolveEventImageUrl(event.imageUrl) ?? undefined}
                         alt={event.title}
                         className="h-48 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                       />
                     </div>
                   ) : null}
                   <div className="mb-4 flex items-start justify-between gap-3">
-                    <h3 className="text-2xl font-semibold text-white">{event.title}</h3>
+                    <h3 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[var(--on-surface)]">{event.title}</h3>
                     <div className="flex flex-col items-end gap-2">
                       <EventStatusBadge tone={event.status === 'Full' ? 'full' : 'available'}>
                         {event.status === 'Full' ? 'Full' : 'Available'}
                       </EventStatusBadge>
                     </div>
                   </div>
-                  <p className="grow text-sm leading-6 text-slate-400">
+                  <p className="grow text-sm leading-6 text-[var(--on-surface-variant)]">
                     {event.description || 'No description provided.'}
                   </p>
-                  <div className="mt-8 border-t border-white/5 pt-6">
-                    <div className="flex flex-col gap-1 text-sm text-slate-500">
+                  <div className="mt-8 border-t border-[var(--outline-variant)] pt-6">
+                    <div className="flex flex-col gap-1 text-sm text-[var(--on-surface-variant)]">
                       <span>Starts: {formatEventStartTime(event.startDateTime)}</span>
                       <span>Location: {event.location}</span>
                       <span>
@@ -108,7 +121,7 @@ function EventsPage() {
                           href={event.eventLink}
                           target="_blank"
                           rel="noreferrer"
-                          className="rounded-lg border border-white/20 px-4 py-3 font-semibold text-white transition hover:border-white/40 hover:bg-white/5"
+                          className="rounded-lg border border-[var(--outline-variant)] px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-surface)] transition hover:bg-[var(--surface-container-high)] hover:text-[var(--primary)]"
                         >
                           Link
                         </a>
@@ -117,7 +130,7 @@ function EventsPage() {
                         <>
                           <Link
                             to={`/events/${event.id}/edit`}
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/20 text-white transition hover:border-white/40 hover:bg-white/5"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[var(--outline-variant)] text-[var(--on-surface)] transition hover:bg-[var(--surface-container-high)] hover:text-[var(--primary)]"
                             aria-label={`Edit ${event.title}`}
                             title="Edit event"
                           >
@@ -136,7 +149,7 @@ function EventsPage() {
                             </svg>
                           </Link>
                           <button
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-500/60 bg-red-600/90 text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[var(--error)]/40 bg-[var(--error-container)]/50 text-[var(--on-error-container)] transition hover:bg-[var(--error-container)] disabled:cursor-not-allowed disabled:opacity-60"
                             onClick={() => handleCancel(event.id, event.title)}
                             disabled={isCanceling}
                             aria-label={`Delete ${event.title}`}

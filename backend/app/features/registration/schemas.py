@@ -18,6 +18,17 @@ class RegistrationStatusRead(BaseModel):
 	registered_count: int
 	capacity: int
 	available_seats: int
+	waitlist_count: int
+	is_in_waitlist: bool
+
+
+class WaitlistEntryRead(BaseModel):
+	id: int
+	event_id: int
+	student_id: int
+	created_at: datetime
+
+	model_config = ConfigDict(from_attributes=True)
 
 
 class StudentRegistrationEventRead(BaseModel):
