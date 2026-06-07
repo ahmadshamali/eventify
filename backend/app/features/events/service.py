@@ -6,9 +6,11 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.features.events.schemas import EventCreate, EventUpdate
+from app.features.registration.service import promote_waitlisted_students
 from app.models.event import Event
 from app.models.registration import Registration
 from app.models.user import User
+from app.models.waitlist import WaitlistEntry
 from app.shared.storage import save_image_upload
 from app.shared.event_time import build_end_datetime, is_public_event_visible, normalize_datetime, resolve_event_end_datetime
 
@@ -30,8 +32,9 @@ def get_events(db: Session, skip: int = 0, limit: int = 100, current_user: User 
     return visible_events[skip : skip + limit]
 
 
-def get_event_by_id(db: Session, event_id: int) -> Event:
-    db_event = db.query(Event).filter(Event.id == event_id).first()
+def get_event_by_id(db: Session, event_id: int, for_update: bool = False) -> Event:
+    query = db.query(Event).filter(Event.id == event_id)
+    db_event = query.with_for_update().first() if for_update else query.first()
     if not db_event:
         raise HTTPException(status_code=404, detail="Event not found.")
     return db_event
@@ -94,7 +97,7 @@ def create_event(db: Session, event: EventCreate, organizer: User):
 
 
 def update_event(db: Session, event_id: int, payload: EventUpdate, organizer: User) -> Event:
-    db_event = get_event_by_id(db, event_id)
+    db_event = get_event_by_id(db, event_id, for_update=True)
     if db_event.organizer_id != organizer.user_id:
         raise HTTPException(status_code=403, detail="You can only update your own events.")
 
@@ -123,6 +126,7 @@ def update_event(db: Session, event_id: int, payload: EventUpdate, organizer: Us
         raise HTTPException(status_code=400, detail="End date and time must be after the start date and time.")
 
     try:
+        promote_waitlisted_students(db, db_event)
         _recompute_event_status(db, db_event)
         db.commit()
         db.refresh(db_event)
@@ -139,7 +143,7 @@ def update_event(db: Session, event_id: int, payload: EventUpdate, organizer: Us
 
 
 def cancel_event(db: Session, event_id: int, organizer: User):
-    db_event = get_event_by_id(db, event_id)
+    db_event = get_event_by_id(db, event_id, for_update=True)
     if db_event.organizer_id != organizer.user_id:
         raise HTTPException(status_code=403, detail="You can only cancel your own events.")
 
@@ -160,6 +164,7 @@ def cancel_event(db: Session, event_id: int, organizer: User):
     }
 
     try:
+        db.query(WaitlistEntry).filter(WaitlistEntry.event_id == db_event.id).delete(synchronize_session=False)
         db.query(Registration).filter(Registration.event_id == db_event.id).delete(synchronize_session=False)
         db.delete(db_event)
         db.commit()

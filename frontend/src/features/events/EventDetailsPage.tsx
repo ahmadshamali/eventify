@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
-import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 
 import EventEmptyState from '../../shared/components/events/EventEmptyState'
@@ -13,7 +12,6 @@ import { fetchEvents, fetchRegistrationStatus, registerForEvent, unregisterFromE
 import { formatEventEndTime, getEventLifecycleStatus } from './eventTime'
 
 function EventDetailsPage() {
-  const auth = useAuth()
   const { eventId } = useParams<{ eventId: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -171,6 +169,13 @@ function EventDetailsPage() {
                 <p><span className="font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)]">Location:</span> {event.location}</p>
                 <p><span className="font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)]">Category:</span> {event.category}</p>
                 <p><span className="font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)]">Capacity:</span> {event.capacity}</p>
+                <p className="flex items-center gap-2 md:col-span-2">
+                  <span className="font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)]">Waitlist:</span>
+                  <span className="inline-flex items-center gap-1 text-[var(--on-surface)]">
+                    <span className="material-symbols-outlined text-base" aria-hidden="true">person_clock</span>
+                    {registrationStatus?.waitlist_count ?? 0}
+                  </span>
+                </p>
               </div>
 
               {event.eventLink ? (
@@ -198,12 +203,9 @@ function EventDetailsPage() {
                     Registered: {registrationStatus?.registered_count ?? 0} / {registrationStatus?.capacity ?? event.capacity}
                   </p>
 
-                  {(auth.canAccess && (auth.canAccess(['organizer', 'admin']) || Number(auth.userId) === event.organizerId)) && (
-                    <p className="mb-4 flex items-center gap-2 text-sm text-[var(--on-surface-variant)]">
-                      <span className="material-symbols-outlined text-base" aria-hidden="true">group_add</span>
-                      {registrationStatus?.waitlist_count ?? 0}
-                    </p>
-                  )}
+                  <p className="mb-4 text-sm text-[var(--on-surface-variant)]">
+                    {registrationStatus?.is_in_waitlist ? 'You are in the waitlist' : 'Waitlist updates automatically when seats open.'}
+                  </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">

@@ -11,6 +11,7 @@ import EventPrimaryLinkButton from '../../shared/components/events/EventPrimaryL
 import EventStatusBadge from '../../shared/components/events/EventStatusBadge'
 
 import { cancelEvent, fetchEvents } from './eventApi'
+import { resolveEventImageUrl } from './eventImage'
 import type { Event } from './event.types'
 import { formatEventStartTime, getEventLifecycleStatus } from './eventTime'
 
@@ -88,7 +89,7 @@ function EventsPage() {
                   {event.imageUrl ? (
                     <div className="mb-5 overflow-hidden rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)]">
                       <img
-                        src={event.imageUrl}
+                        src={resolveEventImageUrl(event.imageUrl) ?? undefined}
                         alt={event.title}
                         className="h-48 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                       />

@@ -65,8 +65,8 @@ export interface RegistrationStatus {
   registered_count: number;
   capacity: number;
   available_seats: number;
-  waitlist_count?: number;
-  is_in_waitlist?: boolean;
+  waitlist_count: number;
+  is_in_waitlist: boolean;
 }
 
 export interface StudentRegistrationEvent {
