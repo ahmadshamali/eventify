@@ -28,6 +28,9 @@ class User(Base):
     full_name = Column(String(255), nullable=False)
     email_verified = Column(Boolean, nullable=False, default=False)
     verification_token = Column(String(255), nullable=True, unique=True, index=True)
+    reset_password_code = Column(String(6), nullable=True)
+    reset_password_expires_at = Column(DateTime, nullable=True)
+    reset_password_attempts = Column(Integer, nullable=False, default=0)
     account_status = Column(
         Enum("pending", "pending_approval", "approved", "rejected", "active", "disabled", "deleted"),
         nullable=False,

@@ -9,6 +9,19 @@ export interface VerifyEmailRequest {
   code: string
 }
 
+export interface ForgotPasswordRequest {
+  email: string
+}
+
+export interface ResetPasswordRequest extends ForgotPasswordRequest {
+  code: string
+  new_password: string
+}
+
+export interface MessageResponse {
+  message: string
+}
+
 export interface StudentProfilePayload {
   major: string
 }

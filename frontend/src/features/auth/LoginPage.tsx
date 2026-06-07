@@ -106,6 +106,13 @@ function LoginPage() {
 
           {errors.password && <p className="text-sm text-[var(--error)]">{errors.password.message}</p>}
 
+          <Link
+            className="justify-self-end text-sm text-[var(--primary)] transition hover:text-[var(--primary-fixed-dim)]"
+            to="/forgot-password"
+          >
+            Forgot password?
+          </Link>
+
           {error ? (
             <StatusMessage tone="error">{error.message}</StatusMessage>
           ) : null}

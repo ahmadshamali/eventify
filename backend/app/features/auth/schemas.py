@@ -88,6 +88,27 @@ class VerifyEmailRequest(BaseModel):
     code: str = Field(..., min_length=6, max_length=6, validation_alias=AliasChoices("code", "token"))
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+    @field_validator("email")
+    @classmethod
+    def validate_email_domain(cls, value):
+        email = str(value).lower()
+        if not (email.endswith("@student.birzeit.edu") or email.endswith("@staff.birzeit.edu")):
+            raise ValueError("email must end with @student.birzeit.edu or @staff.birzeit.edu")
+        return email
+
+
+class ResetPasswordRequest(ForgotPasswordRequest):
+    code: str = Field(..., min_length=6, max_length=6, pattern=r"^\d{6}$")
+    new_password: str = Field(..., min_length=8, max_length=255)
+
+
+class MessageResponse(BaseModel):
+    message: str
+
+
 class AuthLoginResponse(BaseModel):
     user: "UserRead"
     access_token: str

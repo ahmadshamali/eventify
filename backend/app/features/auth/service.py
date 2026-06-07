@@ -1,11 +1,12 @@
 
 import logging
 import secrets
+from datetime import datetime, timedelta
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
 from app.core.security import hash_password, verify_password
 from app.models.user import User, StudentProfile, OrganizerProfile, Role
-from app.features.auth.schemas import UserRegister, UserLogin
+from app.features.auth.schemas import ForgotPasswordRequest, ResetPasswordRequest, UserRegister, UserLogin
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +105,72 @@ def register_user(db, user_data: UserRegister):
         joinedload(User.organizer_profile)
     ).filter(User.user_id == db_user.user_id).first()
     
+    return db_user
+
+
+def request_password_reset(db, request: ForgotPasswordRequest):
+    normalized_email = str(request.email).strip().lower()
+    db_user = db.query(User).filter(User.email == normalized_email).first()
+
+    if not db_user:
+        return None
+
+    code = f"{secrets.randbelow(1_000_000):06d}"
+    db_user.reset_password_code = code
+    db_user.reset_password_expires_at = datetime.utcnow() + timedelta(minutes=15)
+    db_user.reset_password_attempts = 0
+
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise ValueError("Unable to create password reset code")
+
+    return db_user, code
+
+
+def reset_password(db, request: ResetPasswordRequest):
+    normalized_email = str(request.email).strip().lower()
+    code = request.code.strip()
+
+    if not code.isdigit():
+        raise ValueError("Reset code must be a 6-digit number")
+
+    db_user = db.query(User).filter(User.email == normalized_email).first()
+
+    if not db_user or not db_user.reset_password_code or not db_user.reset_password_expires_at:
+        raise ValueError("Invalid or expired reset code")
+
+    if db_user.reset_password_expires_at < datetime.utcnow():
+        db_user.reset_password_code = None
+        db_user.reset_password_expires_at = None
+        db_user.reset_password_attempts = 0
+        db.commit()
+        raise ValueError("Invalid or expired reset code")
+
+    if db_user.reset_password_attempts >= 5:
+        raise ValueError("Invalid or expired reset code")
+
+    if not secrets.compare_digest(code, db_user.reset_password_code):
+        db_user.reset_password_attempts += 1
+        if db_user.reset_password_attempts >= 5:
+            db_user.reset_password_code = None
+            db_user.reset_password_expires_at = None
+            db_user.reset_password_attempts = 0
+        db.commit()
+        raise ValueError("Invalid or expired reset code")
+
+    db_user.password_hash = hash_password(request.new_password)
+    db_user.reset_password_code = None
+    db_user.reset_password_expires_at = None
+    db_user.reset_password_attempts = 0
+
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise ValueError("Unable to reset password")
+
     return db_user
 
 

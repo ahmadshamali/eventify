@@ -102,6 +102,74 @@ def send_verification_email(email: str, verification_code: str, frontend_url: Op
         raise ValueError(f"Failed to send verification email: {str(e)}")
 
 
+def send_password_reset_email(email: str, reset_code: str, frontend_url: Optional[str] = None) -> bool:
+    if not settings.SMTP_ENABLED:
+        logger.warning("SMTP is disabled. Password reset email not sent to %s", email)
+        return False
+
+    frontend_url = frontend_url or settings.FRONTEND_URL
+    reset_page = f"{frontend_url}/forgot-password"
+
+    html_body = f"""
+    <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #0066cc;">Reset Your Eventify Password</h2>
+                <p>Use this 6-digit code to set a new password:</p>
+                <p style="margin: 30px 0; font-size: 2rem; font-weight: bold; letter-spacing: 0.35em; color: #0066cc;">
+                    {reset_code}
+                </p>
+                <p>Enter the code on the password reset page:</p>
+                <p style="word-break: break-all; color: #666;"><code>{reset_page}</code></p>
+                <p style="margin-top: 30px; font-size: 0.9em; color: #999;">
+                    This code expires in 15 minutes.<br>
+                    If you did not request a password reset, ignore this email.
+                </p>
+            </div>
+        </body>
+    </html>
+    """
+
+    text_body = f"""
+    Reset Your Eventify Password
+
+    Use this 6-digit code to set a new password:
+    {reset_code}
+
+    Enter the code on the password reset page:
+    {reset_page}
+
+    This code expires in 15 minutes.
+    If you did not request a password reset, ignore this email.
+    """
+
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "Reset Your Eventify Password"
+        msg["From"] = f"{settings.SMTP_FROM_NAME} <{settings.SMTP_FROM_EMAIL}>"
+        msg["To"] = email
+        msg.attach(MIMEText(text_body, "plain"))
+        msg.attach(MIMEText(html_body, "html"))
+
+        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as server:
+            if settings.SMTP_USER and settings.SMTP_PASSWORD:
+                server.starttls()
+                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+            server.send_message(msg)
+
+        logger.info("Password reset email sent successfully to %s", email)
+        return True
+    except smtplib.SMTPAuthenticationError as e:
+        logger.error("SMTP authentication failed: %s", str(e))
+        raise ValueError("Email service authentication failed. Please contact support.")
+    except smtplib.SMTPException as e:
+        logger.error("SMTP error while sending password reset email to %s: %s", email, str(e))
+        raise ValueError(f"Failed to send password reset email: {str(e)}")
+    except Exception as e:
+        logger.error("Unexpected error sending password reset email to %s: %s", email, str(e))
+        raise ValueError(f"Failed to send password reset email: {str(e)}")
+
+
 def send_organizer_approval_email(email: str, organizer_name: str, status: str, rejection_reason: Optional[str] = None) -> bool:
     """
     Send organizer approval/rejection email via SMTP.

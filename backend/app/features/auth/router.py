@@ -1,14 +1,32 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.core.security import create_access_token
 from app.db.session import get_db
-from app.features.auth.schemas import AuthLoginResponse, UserLogin, UserRegister, UserRead, VerifyEmailRequest
-from app.features.auth.service import login_user, register_user, verify_email
-from app.shared.email import send_verification_email
+from app.features.auth.schemas import (
+    AuthLoginResponse,
+    ForgotPasswordRequest,
+    MessageResponse,
+    ResetPasswordRequest,
+    UserLogin,
+    UserRegister,
+    UserRead,
+    VerifyEmailRequest,
+)
+from app.features.auth.service import (
+    login_user,
+    register_user,
+    request_password_reset,
+    reset_password as reset_user_password,
+    verify_email,
+)
+from app.shared.email import send_password_reset_email, send_verification_email
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
@@ -76,6 +94,56 @@ def verify_email_endpoint(request: VerifyEmailRequest, db: Session = Depends(get
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@router.post("/forgot-password", response_model=MessageResponse, status_code=status.HTTP_200_OK)
+def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    generic_message = "If an account exists for that email, a 6-digit reset code has been sent."
+
+    try:
+        reset_details = request_password_reset(db, request)
+        if reset_details:
+            db_user, reset_code = reset_details
+            try:
+                send_password_reset_email(db_user.email, reset_code)
+            except Exception as exc:
+                logger.error("Failed to send password reset email: %s", str(exc))
+        return {"message": generic_message}
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal database error.",
+        )
+    except Exception:
+        db.rollback()
+        logger.exception("Unexpected error while requesting password reset")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unable to request password reset.",
+        )
+
+
+@router.post("/reset-password", response_model=MessageResponse, status_code=status.HTTP_200_OK)
+def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+    try:
+        reset_user_password(db, request)
+        return {"message": "Password changed successfully. You can now sign in."}
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal database error.",
+        )
+    except Exception:
+        db.rollback()
+        logger.exception("Unexpected error while resetting password")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unable to reset password.",
+        )
 
 
 @router.post("/login", response_model=AuthLoginResponse, status_code=status.HTTP_200_OK)
