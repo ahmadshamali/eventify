@@ -1,4 +1,4 @@
-const CACHE_NAME = 'eventify-cache-v2'
+const CACHE_NAME = 'eventify-cache-v3'
 const ASSETS = ['/', '/index.html', '/manifest.webmanifest', '/favicon1.svg', '/icons/pwa-192x192.svg', '/icons/pwa-512x512.svg']
 
 self.addEventListener('install', (event) => {
@@ -23,6 +23,8 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return
 
   const requestUrl = new URL(event.request.url)
+  if (!['http:', 'https:'].includes(requestUrl.protocol) || requestUrl.origin !== self.location.origin) return
+
   if (requestUrl.pathname.startsWith('/api/')) {
     event.respondWith(fetch(event.request))
     return
@@ -34,11 +36,7 @@ self.addEventListener('fetch', (event) => {
       return fetch(event.request)
         .then((res) => {
           return caches.open(CACHE_NAME).then((cache) => {
-            try {
-              cache.put(event.request, res.clone())
-            } catch (e) {
-              // ignore put errors for opaque responses
-            }
+            void cache.put(event.request, res.clone()).catch(() => {})
             return res
           })
         })

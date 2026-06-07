@@ -169,12 +169,9 @@ function EventDetailsPage() {
                 <p><span className="font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)]">Location:</span> {event.location}</p>
                 <p><span className="font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)]">Category:</span> {event.category}</p>
                 <p><span className="font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)]">Capacity:</span> {event.capacity}</p>
-                <p className="flex items-center gap-2 md:col-span-2">
+                <p className="md:col-span-2">
                   <span className="font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)]">Waitlist:</span>
-                  <span className="inline-flex items-center gap-1 text-[var(--on-surface)]">
-                    <span className="material-symbols-outlined text-base" aria-hidden="true">person_clock</span>
-                    {registrationStatus?.waitlist_count ?? 0}
-                  </span>
+                  {' '}{registrationStatus?.waitlist_count ?? 0}
                 </p>
               </div>
 
@@ -198,14 +195,16 @@ function EventDetailsPage() {
               ) : null}
 
               <div className="mt-8 border-t border-[var(--outline-variant)] pt-6">
-                <div className="flex items-center justify-between">
-                  <p className="mb-4 text-sm text-[var(--on-surface-variant)]">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm text-[var(--on-surface-variant)]">
                     Registered: {registrationStatus?.registered_count ?? 0} / {registrationStatus?.capacity ?? event.capacity}
                   </p>
 
-                  <p className="mb-4 text-sm text-[var(--on-surface-variant)]">
-                    {registrationStatus?.is_in_waitlist ? 'You are in the waitlist' : 'Waitlist updates automatically when seats open.'}
-                  </p>
+                  {registrationStatus?.is_in_waitlist ? (
+                    <p className="text-sm text-[var(--on-surface-variant)]">You are on the waitlist.</p>
+                  ) : event.status === 'Full' && !registrationStatus?.is_registered ? (
+                    <p className="text-sm text-[var(--on-surface-variant)]">This event is full. Join the waitlist for the next available seat.</p>
+                  ) : null}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
