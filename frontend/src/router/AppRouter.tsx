@@ -12,6 +12,7 @@ import ForgotPasswordPage from '../features/auth/ForgotPasswordPage'
 import EventsPage from '../features/events/EventsPage'
 import CreateEventPage from '../features/events/CreateEventPage'
 import OrganizerDashboardPage from '../features/organizer/OrganizerDashboardPage'
+import AttendanceScanPage from '../features/organizer/AttendanceScanPage'
 import EventDetailsPage from '../features/events/EventDetailsPage'
 import MyRegistrationsPage from '../features/events/MyRegistrationsPage.tsx'
 import EventFeedbacksPage from '../features/feedback/EventFeedbacksPage'
@@ -120,6 +121,10 @@ export default function AppRouter() {
               <Route
                 path="/dashboard"
                 element={<OrganizerDashboardPage />}
+              />
+              <Route
+                path="/attendance/scan"
+                element={<AttendanceScanPage />}
               />
             </Route>
 

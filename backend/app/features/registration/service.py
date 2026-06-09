@@ -1,4 +1,5 @@
 import logging
+import uuid
 from datetime import datetime
 
 from fastapi import HTTPException
@@ -44,7 +45,7 @@ def promote_waitlisted_students(db: Session, db_event: Event) -> int:
 		if registered_count >= db_event.capacity:
 			break
 
-		db.add(Registration(event_id=db_event.id, student_id=entry.student_id))
+		db.add(Registration(event_id=db_event.id, student_id=entry.student_id, qr_token=str(uuid.uuid4())))
 		db.delete(entry)
 		registered_count += 1
 		promoted_count += 1
@@ -88,7 +89,7 @@ def register_student_for_event(db: Session, event_id: int, student: User) -> Reg
 		db.commit()
 		raise HTTPException(status_code=400, detail="Event is full.")
 
-	registration = Registration(event_id=event_id, student_id=student.user_id)
+	registration = Registration(event_id=event_id, student_id=student.user_id, qr_token=str(uuid.uuid4()))
 
 	try:
 		db.add(registration)
@@ -251,6 +252,7 @@ def get_student_registrations(db: Session, student: User) -> list[dict]:
 		{
 			"registration_id": registration.id,
 			"registered_at": registration.created_at,
+			"qr_token": registration.qr_token,
 			"event_id": event.id,
 			"title": event.title,
 			"description": event.description,

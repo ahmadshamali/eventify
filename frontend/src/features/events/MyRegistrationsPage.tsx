@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { QRCodeSVG } from 'qrcode.react'
 
 import { useToast } from '../../context/ToastContext'
 import EventCardShell from '../../shared/components/events/EventCardShell'
@@ -21,10 +22,15 @@ function MyRegistrationsPage() {
     queryKey: ['my-registrations'],
     queryFn: fetchMyRegistrations,
   })
+  const [qrItem, setQrItem] = useState<StudentRegistrationEvent | null>(null)
 
   return (
     <div className="min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
       <EventPageBackdrop />
+
+      {qrItem ? (
+        <QRModal item={qrItem} onClose={() => setQrItem(null)} />
+      ) : null}
 
       <div className="mx-auto w-full max-w-[1280px]">
         <header className="mb-8 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:p-8">
@@ -82,7 +88,17 @@ function MyRegistrationsPage() {
                     {getEventLifecycleStatus({ endDateTime: item.end_datetime }) === 'Completed' ? (
                       <FeedbackWidget item={item} />
                     ) : (
-                      <EventPrimaryLinkButton to={`/events/${item.event_id}/details`}>Details</EventPrimaryLinkButton>
+                      <>
+                        {item.qr_token ? (
+                          <button
+                            onClick={() => setQrItem(item)}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container)] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-surface)] transition hover:bg-[var(--surface-container-high)]"
+                          >
+                            Show QR
+                          </button>
+                        ) : null}
+                        <EventPrimaryLinkButton to={`/events/${item.event_id}/details`}>Details</EventPrimaryLinkButton>
+                      </>
                     )}
                   </div>
                 </div>
@@ -90,6 +106,41 @@ function MyRegistrationsPage() {
             ))}
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+function QRModal({ item, onClose }: { item: StudentRegistrationEvent; onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-sm rounded-2xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-3 py-1 font-mono text-xs text-[var(--on-surface-variant)] transition hover:bg-[var(--surface-container-highest)]"
+        >
+          Close
+        </button>
+        <p className="font-mono text-xs uppercase tracking-widest text-[var(--primary)]">Attendance QR</p>
+        <h2 className="mt-2 font-['Hanken_Grotesk'] text-xl font-semibold text-[var(--on-surface)]">{item.title}</h2>
+        <p className="mt-1 text-sm text-[var(--on-surface-variant)]">Show this QR code to the event organizer to mark your attendance.</p>
+        <div className="mt-6 flex justify-center rounded-xl bg-white p-4">
+          <QRCodeSVG
+            value={item.qr_token!}
+            size={220}
+            level="H"
+            includeMargin={false}
+          />
+        </div>
+        <p className="mt-4 text-center font-mono text-[10px] tracking-wider text-[var(--on-surface-variant)]">
+          {item.location} &middot; {new Date(item.start_datetime).toLocaleDateString()}
+        </p>
       </div>
     </div>
   )

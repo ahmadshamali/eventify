@@ -1,4 +1,5 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, UniqueConstraint
+from sqlalchemy.dialects.mysql import CHAR
 from sqlalchemy.sql import func
 
 from app.db.base import Base
@@ -10,6 +11,7 @@ class Registration(Base):
 	id = Column(Integer, primary_key=True, index=True)
 	event_id = Column(Integer, ForeignKey("events.id"), nullable=False, index=True)
 	student_id = Column(Integer, ForeignKey("users.user_id"), nullable=False, index=True)
+	qr_token = Column(CHAR(36), nullable=True, unique=True, index=True)
 	created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 	__table_args__ = (
