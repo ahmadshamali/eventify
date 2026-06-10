@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
 from app.core.security import hash_password, verify_password
 from app.models.user import User, StudentProfile, OrganizerProfile, Role
-from app.features.auth.schemas import ForgotPasswordRequest, ResetPasswordRequest, UserRegister, UserLogin
+from app.features.auth.schemas import ForgotPasswordRequest, ResetPasswordRequest, UserRegister, UserLogin, VerifyResetCodeRequest
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ def request_password_reset(db, request: ForgotPasswordRequest):
     return db_user, code
 
 
-def reset_password(db, request: ResetPasswordRequest):
+def verify_reset_code(db, request: VerifyResetCodeRequest):
     normalized_email = str(request.email).strip().lower()
     code = request.code.strip()
 
@@ -160,6 +160,11 @@ def reset_password(db, request: ResetPasswordRequest):
         db.commit()
         raise ValueError("Invalid or expired reset code")
 
+    return db_user
+
+
+def reset_password(db, request: ResetPasswordRequest):
+    db_user = verify_reset_code(db, request)
     db_user.password_hash = hash_password(request.new_password)
     db_user.reset_password_code = None
     db_user.reset_password_expires_at = None

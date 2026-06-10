@@ -15,6 +15,7 @@ from app.features.auth.schemas import (
     UserRegister,
     UserRead,
     VerifyEmailRequest,
+    VerifyResetCodeRequest,
 )
 from app.features.auth.service import (
     login_user,
@@ -22,6 +23,7 @@ from app.features.auth.service import (
     request_password_reset,
     reset_password as reset_user_password,
     verify_email,
+    verify_reset_code,
 )
 from app.shared.email import send_password_reset_email, send_verification_email
 
@@ -143,6 +145,28 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unable to reset password.",
+        )
+
+
+@router.post("/verify-reset-code", response_model=MessageResponse, status_code=status.HTTP_200_OK)
+def verify_password_reset_code(request: VerifyResetCodeRequest, db: Session = Depends(get_db)):
+    try:
+        verify_reset_code(db, request)
+        return {"message": "Reset code verified."}
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal database error.",
+        )
+    except Exception:
+        db.rollback()
+        logger.exception("Unexpected error while verifying password reset code")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Unable to verify password reset code.",
         )
 
 

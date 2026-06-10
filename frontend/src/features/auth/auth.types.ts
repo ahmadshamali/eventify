@@ -13,8 +13,11 @@ export interface ForgotPasswordRequest {
   email: string
 }
 
-export interface ResetPasswordRequest extends ForgotPasswordRequest {
+export interface VerifyResetCodeRequest extends ForgotPasswordRequest {
   code: string
+}
+
+export interface ResetPasswordRequest extends VerifyResetCodeRequest {
   new_password: string
 }
 

@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 from typing import Literal, Optional
 
 from pydantic import BaseModel, EmailStr, Field, AliasChoices, field_validator, model_validator
@@ -62,6 +63,25 @@ class UserRegister(UserBase):
     student_profile: Optional[StudentProfileCreate] = None
     organizer_profile: Optional[OrganizerProfileCreate] = None
 
+    @field_validator("email")
+    @classmethod
+    def validate_registration_email(cls, value):
+        email = str(value).lower()
+        if not re.fullmatch(r"(?:\d{4}|\d{7})@(student|staff)\.birzeit\.edu", email):
+            raise ValueError("email must start with exactly 4 or 7 numbers and use a Birzeit university domain")
+        return email
+
+    @field_validator("password")
+    @classmethod
+    def validate_password_complexity(cls, value):
+        if not re.search(r"[A-Z]", value):
+            raise ValueError("password must contain an uppercase letter")
+        if not re.search(r"[a-z]", value):
+            raise ValueError("password must contain a lowercase letter")
+        if not re.search(r"\d", value):
+            raise ValueError("password must contain a number")
+        return value
+
     @model_validator(mode="after")
     def validate_role_profiles(self):
         if self.role == "student":
@@ -100,8 +120,11 @@ class ForgotPasswordRequest(BaseModel):
         return email
 
 
-class ResetPasswordRequest(ForgotPasswordRequest):
+class VerifyResetCodeRequest(ForgotPasswordRequest):
     code: str = Field(..., min_length=6, max_length=6, pattern=r"^\d{6}$")
+
+
+class ResetPasswordRequest(VerifyResetCodeRequest):
     new_password: str = Field(..., min_length=8, max_length=255)
 
 

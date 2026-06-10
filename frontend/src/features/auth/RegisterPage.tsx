@@ -12,7 +12,7 @@ import Input from '../../shared/components/Input'
 import PasswordInput from '../../shared/components/PasswordInput'
 import StatusMessage from '../../shared/components/StatusMessage'
 
-const allowedEmailDomain = /@(student|staff)\.birzeit\.edu$/i
+const allowedEmailDomain = /^(?:\d{4}|\d{7})@(student|staff)\.birzeit\.edu$/i
 
 const registerFormSchema = z
     .object({
@@ -26,11 +26,14 @@ const registerFormSchema = z
             .trim()
             .email({ message: 'Invalid email address' })
             .refine((value) => allowedEmailDomain.test(value), {
-                message: 'Email must end with @student.birzeit.edu or @staff.birzeit.edu',
+                message: 'Email must start with exactly 4 or 7 numbers and use a Birzeit university domain',
             }),
         password: z
             .string()
             .min(8, { message: 'Password must be at least 8 characters' })
+            .regex(/[A-Z]/, { message: 'Password must contain an uppercase letter' })
+            .regex(/[a-z]/, { message: 'Password must contain a lowercase letter' })
+            .regex(/\d/, { message: 'Password must contain a number' })
             .max(255, { message: 'Password must be at most 255 characters' }),
         role: z.enum(['student', 'organizer']),
         major: z.string().trim(),
@@ -156,7 +159,7 @@ function RegisterPage() {
                     <label className="grid gap-2">
                         <span className="text-sm text-[var(--on-surface-variant)]">Password</span>
                         <PasswordInput
-                            placeholder="At least 8 characters"
+                            placeholder="8+ characters, uppercase, lowercase, number"
                             {...register('password')}
                             autoComplete="new-password"
                             showPassword={showPassword}

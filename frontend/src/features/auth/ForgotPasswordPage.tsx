@@ -5,14 +5,14 @@ import { useForm, type SubmitHandler } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import * as z from 'zod'
 
-import { forgotPassword, resetPassword } from './authApi'
-import type { ForgotPasswordRequest, ResetPasswordRequest } from './auth.types'
+import { forgotPassword, verifyResetCode } from './authApi'
+import type { ForgotPasswordRequest, VerifyResetCodeRequest } from './auth.types'
 import Button from '../../shared/components/Button'
 import Input from '../../shared/components/Input'
-import PasswordInput from '../../shared/components/PasswordInput'
 import StatusMessage from '../../shared/components/StatusMessage'
 
 const allowedEmailDomain = /@(student|staff)\.birzeit\.edu$/i
+const RESEND_COOLDOWN_SECONDS = 60
 
 const emailSchema = z.object({
   email: z
@@ -24,67 +24,75 @@ const emailSchema = z.object({
     }),
 })
 
-const resetSchema = z
-  .object({
-    code: z.string().trim().regex(/^\d{6}$/, { message: 'Reset code must be a 6-digit number' }),
-    password: z.string().min(8, { message: 'Password must be at least 8 characters' }).max(255),
-    confirmPassword: z.string().min(1, { message: 'Please confirm your new password' }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  })
+const codeSchema = z.object({
+  code: z.string().trim().regex(/^\d{6}$/, { message: 'Reset code must be a 6-digit number' }),
+})
 
 type EmailFormState = z.infer<typeof emailSchema>
-type ResetFormState = z.infer<typeof resetSchema>
+type CodeFormState = z.infer<typeof codeSchema>
 
 function ForgotPasswordPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
+  const [resendSeconds, setResendSeconds] = useState(0)
 
   const emailForm = useForm<EmailFormState>({
     resolver: zodResolver(emailSchema),
     defaultValues: { email: '' },
   })
 
-  const resetForm = useForm<ResetFormState>({
-    resolver: zodResolver(resetSchema),
-    defaultValues: { code: '', password: '', confirmPassword: '' },
+  const codeForm = useForm<CodeFormState>({
+    resolver: zodResolver(codeSchema),
+    defaultValues: { code: '' },
   })
 
   const requestMutation = useMutation({
     mutationFn: (payload: ForgotPasswordRequest) => forgotPassword(payload),
-    onSuccess: (_, payload) => setEmail(payload.email),
+    onSuccess: (_, payload) => {
+      setEmail(payload.email)
+      setResendSeconds(RESEND_COOLDOWN_SECONDS)
+    },
   })
 
-  const resetMutation = useMutation({
-    mutationFn: (payload: ResetPasswordRequest) => resetPassword(payload),
+  const verifyMutation = useMutation({
+    mutationFn: (payload: VerifyResetCodeRequest) => verifyResetCode(payload),
+    onSuccess: (_, payload) => {
+      navigate('/reset-password', {
+        state: { email: payload.email, code: payload.code },
+      })
+    },
   })
 
   useEffect(() => {
-    if (!resetMutation.isSuccess) return undefined
+    if (resendSeconds <= 0) return undefined
 
-    const timer = window.setTimeout(() => navigate('/login', { replace: true }), 1800)
-    return () => window.clearTimeout(timer)
-  }, [navigate, resetMutation.isSuccess])
+    const timer = window.setInterval(() => {
+      setResendSeconds((seconds) => Math.max(0, seconds - 1))
+    }, 1000)
+
+    return () => window.clearInterval(timer)
+  }, [resendSeconds])
 
   const onRequestCode: SubmitHandler<EmailFormState> = (data) => {
     return requestMutation.mutateAsync({ email: data.email.trim().toLowerCase() })
   }
 
-  const onResetPassword: SubmitHandler<ResetFormState> = (data) => {
-    return resetMutation.mutateAsync({
-      email,
-      code: data.code.trim(),
-      new_password: data.password,
-    })
+  const onVerifyCode: SubmitHandler<CodeFormState> = (data) => {
+    return verifyMutation.mutateAsync({ email, code: data.code.trim() })
   }
 
   const requestAnotherCode = () => {
-    resetMutation.reset()
-    resetForm.resetField('code')
+    verifyMutation.reset()
+    codeForm.reset()
     requestMutation.mutate({ email })
+  }
+
+  const useAnotherEmail = () => {
+    setEmail('')
+    setResendSeconds(0)
+    requestMutation.reset()
+    verifyMutation.reset()
+    codeForm.reset()
   }
 
   return (
@@ -95,11 +103,11 @@ function ForgotPasswordPage() {
             Eventify
           </span>
           <h1 className="font-['Hanken_Grotesk'] text-4xl font-semibold leading-none tracking-tight text-[var(--on-surface)] md:text-5xl">
-            Reset password
+            {email ? 'Verify reset code' : 'Forgot password'}
           </h1>
           <p className="text-[var(--on-surface-variant)]">
             {email
-              ? 'Enter the 6-digit code from your email and choose a new password.'
+              ? 'Enter the 6-digit code from your email. After it is verified, you can choose a new password.'
               : 'Enter your university email and we will send you a 6-digit reset code.'}
           </p>
           {email ? <p className="text-sm text-[var(--primary)]">Code requested for {email}</p> : null}
@@ -123,7 +131,6 @@ function ForgotPasswordPage() {
             {emailForm.formState.errors.email ? (
               <p className="text-sm text-[var(--error)]">{emailForm.formState.errors.email.message}</p>
             ) : null}
-
             {requestMutation.error ? <StatusMessage tone="error">{requestMutation.error.message}</StatusMessage> : null}
 
             <Button type="submit" disabled={requestMutation.isPending}>
@@ -138,7 +145,7 @@ function ForgotPasswordPage() {
             </p>
           </form>
         ) : (
-          <form className="grid gap-4 p-8 md:p-12" onSubmit={resetForm.handleSubmit(onResetPassword)}>
+          <form className="grid content-center gap-4 p-8 md:p-12" onSubmit={codeForm.handleSubmit(onVerifyCode)}>
             {requestMutation.data ? <StatusMessage tone="success">{requestMutation.data.message}</StatusMessage> : null}
 
             <label className="grid gap-2" htmlFor="code">
@@ -147,7 +154,7 @@ function ForgotPasswordPage() {
                 id="code"
                 type="text"
                 placeholder="Enter 6-digit code"
-                {...resetForm.register('code')}
+                {...codeForm.register('code')}
                 inputMode="numeric"
                 autoComplete="one-time-code"
                 maxLength={6}
@@ -155,72 +162,39 @@ function ForgotPasswordPage() {
                 required
               />
             </label>
-            {resetForm.formState.errors.code ? (
-              <p className="text-sm text-[var(--error)]">{resetForm.formState.errors.code.message}</p>
-            ) : null}
 
-            <label className="grid gap-2" htmlFor="new-password">
-              <span className="text-sm text-[var(--on-surface-variant)]">New password</span>
-              <PasswordInput
-                id="new-password"
-                placeholder="At least 8 characters"
-                {...resetForm.register('password')}
-                autoComplete="new-password"
-                showPassword={showPassword}
-                onToggle={() => setShowPassword((value) => !value)}
-                required
-              />
-            </label>
-            {resetForm.formState.errors.password ? (
-              <p className="text-sm text-[var(--error)]">{resetForm.formState.errors.password.message}</p>
+            {codeForm.formState.errors.code ? (
+              <p className="text-sm text-[var(--error)]">{codeForm.formState.errors.code.message}</p>
             ) : null}
+            {verifyMutation.error ? <StatusMessage tone="error">{verifyMutation.error.message}</StatusMessage> : null}
 
-            <label className="grid gap-2" htmlFor="confirm-password">
-              <span className="text-sm text-[var(--on-surface-variant)]">Confirm new password</span>
-              <PasswordInput
-                id="confirm-password"
-                placeholder="Repeat your new password"
-                {...resetForm.register('confirmPassword')}
-                autoComplete="new-password"
-                showPassword={showPassword}
-                onToggle={() => setShowPassword((value) => !value)}
-                required
-              />
-            </label>
-            {resetForm.formState.errors.confirmPassword ? (
-              <p className="text-sm text-[var(--error)]">{resetForm.formState.errors.confirmPassword.message}</p>
-            ) : null}
-
-            {resetMutation.isSuccess ? (
-              <StatusMessage tone="success">{resetMutation.data.message} Redirecting to login...</StatusMessage>
-            ) : null}
-            {resetMutation.error ? <StatusMessage tone="error">{resetMutation.error.message}</StatusMessage> : null}
-
-            <Button type="submit" disabled={resetMutation.isPending || resetMutation.isSuccess}>
-              {resetMutation.isPending ? 'Changing password...' : resetMutation.isSuccess ? 'Password changed' : 'Change password'}
+            <Button type="submit" disabled={verifyMutation.isPending}>
+              {verifyMutation.isPending ? 'Verifying...' : 'Verify code'}
             </Button>
 
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">
               <button
-                className="text-[var(--primary)] transition hover:text-[var(--primary-fixed-dim)] disabled:opacity-60"
+                className="text-[var(--primary)] transition hover:text-[var(--primary-fixed-dim)] disabled:cursor-not-allowed disabled:opacity-60"
                 type="button"
-                disabled={requestMutation.isPending}
+                disabled={requestMutation.isPending || resendSeconds > 0}
                 onClick={requestAnotherCode}
               >
-                {requestMutation.isPending ? 'Sending...' : 'Send another code'}
+                {requestMutation.isPending
+                  ? 'Sending...'
+                  : resendSeconds > 0
+                    ? `Send another code (${resendSeconds}s)`
+                    : 'Send another code'}
               </button>
               <button
                 className="text-[var(--on-surface-variant)] transition hover:text-[var(--primary)]"
                 type="button"
-                onClick={() => {
-                  setEmail('')
-                  requestMutation.reset()
-                  resetMutation.reset()
-                  resetForm.reset()
-                }}
+                onClick={useAnotherEmail}
               >
                 Use another email
               </button>
+              <Link className="text-[var(--on-surface-variant)] transition hover:text-[var(--primary)]" to="/login">
+                Login
+              </Link>
             </div>
           </form>
         )}

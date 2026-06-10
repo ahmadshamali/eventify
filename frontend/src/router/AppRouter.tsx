@@ -7,6 +7,7 @@ import LoginPage from '../features/auth/LoginPage'
 import RegisterPage from '../features/auth/RegisterPage'
 import VerifyEmailPage from '../features/auth/VerifyEmailPage'
 import ForgotPasswordPage from '../features/auth/ForgotPasswordPage'
+import ResetPasswordPage from '../features/auth/ResetPasswordPage'
 
 // Events
 import EventsPage from '../features/events/EventsPage'
@@ -93,6 +94,7 @@ export default function AppRouter() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
 
         {/* Events */}

@@ -8,6 +8,7 @@ import type {
   ResetPasswordRequest,
   User,
   VerifyEmailRequest,
+  VerifyResetCodeRequest,
 } from './auth.types'
 
 export async function register(data: RegisterRequest): Promise<User> {
@@ -40,6 +41,13 @@ export async function forgotPassword(data: ForgotPasswordRequest): Promise<Messa
 
 export async function resetPassword(data: ResetPasswordRequest): Promise<MessageResponse> {
   return apiRequest<MessageResponse>('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function verifyResetCode(data: VerifyResetCodeRequest): Promise<MessageResponse> {
+  return apiRequest<MessageResponse>('/auth/verify-reset-code', {
     method: 'POST',
     body: JSON.stringify(data),
   })
