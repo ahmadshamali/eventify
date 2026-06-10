@@ -272,12 +272,18 @@ export default function OrganizerDashboardPage() {
           <StatCard label="Registrations" value={totalRegistrations} helper={`${formatPercentage(averageFillRate)} average fill rate`} />
         </div>
 
-        <section className="mt-6 grid gap-4 md:grid-cols-3">
+        <section className="mt-6 grid gap-4 md:grid-cols-4">
           <ActionCard
             to="/events/create"
             title="Create a new event"
             description="Open the event form and publish something new from the dashboard."
             tone="cyan"
+          />
+          <ActionCard
+            to="/attendance/scan"
+            title="Scan attendance"
+            description="Use your camera to scan student QR codes and mark attendance."
+            tone="emerald"
           />
           <ActionCard
             to="/events"
@@ -327,6 +333,12 @@ export default function OrganizerDashboardPage() {
                       <EventCard event={event} statusLabel={event.status} showActions />
                       {event.status !== 'Canceled' ? (
                         <div className="flex flex-wrap gap-2 px-1">
+                          <Link
+                            to="/attendance/scan"
+                            className="rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30"
+                          >
+                            Scan Attendance
+                          </Link>
                           <button
                             type="button"
                             onClick={() => handleCancel(event.id, event.title)}

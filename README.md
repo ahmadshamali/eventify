@@ -51,6 +51,20 @@ npm run dev
 
 The frontend will be available at `http://localhost:5173`.
 
+### Connect with DBeaver
+
+When using the development Docker Compose setup, connect DBeaver to the
+published host port:
+
+- Host: `localhost`
+- Port: `3307`
+- Database: `eventify`
+- Username: `eventify`
+- Password: `eventify_password`
+
+MySQL uses port `3306` inside Docker, so the API connects to `db:3306`.
+DBeaver runs on the host and must connect to `localhost:3307`.
+
 ---
 
 ## � Email Setup (Development)

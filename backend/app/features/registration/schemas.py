@@ -34,6 +34,7 @@ class WaitlistEntryRead(BaseModel):
 class StudentRegistrationEventRead(BaseModel):
 	registration_id: int
 	registered_at: datetime
+	qr_token: str | None
 	event_id: int
 	title: str
 	description: str | None

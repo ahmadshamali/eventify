@@ -21,5 +21,5 @@ from app.models.user import User, Role, OrganizerProfile, StudentProfile
 from app.models.registration import Registration
 from app.models.waitlist import WaitlistEntry
 from app.models.feedback import Feedback
-# from app.models.attendance import Attendance
+from app.models.attendance import Attendance
 # from app.models.certificate import Certificate

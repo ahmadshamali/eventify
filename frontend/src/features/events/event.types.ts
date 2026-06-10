@@ -72,6 +72,7 @@ export interface RegistrationStatus {
 export interface StudentRegistrationEvent {
   registration_id: number;
   registered_at: string;
+  qr_token: string | null;
   event_id: number;
   title: string;
   description: string | null;

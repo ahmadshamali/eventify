@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.features.auth.router import router as auth_router
 from app.features.ai.router import router as ai_router
+from app.features.attendance.router import router as attendance_router
 from app.features.dashboard.router import router as dashboard_router
 from app.features.events.router import router as events_router
 from app.features.registration.router import router as registration_router
@@ -47,6 +48,7 @@ app.include_router(ai_router, prefix="/api/v1/ai", tags=["AI"])
 app.include_router(events_router, prefix="/api/v1/events", tags=["Events"])
 app.include_router(registration_router, prefix="/api/v1/events", tags=["Registrations"])
 app.include_router(feedback_router, prefix="/api/v1/events", tags=["Feedbacks"])
+app.include_router(attendance_router, prefix="/api/v1/attendance", tags=["Attendance"])
 app.include_router(dashboard_router, prefix="/api/v1", tags=["Admin"])
 
 uploads_dir = Path(__file__).resolve().parents[1] / "uploads"
