@@ -17,6 +17,7 @@ import AttendanceScanPage from '../features/organizer/AttendanceScanPage'
 import EventDetailsPage from '../features/events/EventDetailsPage'
 import MyRegistrationsPage from '../features/events/MyRegistrationsPage.tsx'
 import EventFeedbacksPage from '../features/feedback/EventFeedbacksPage'
+import CertificatesPage from '../features/certificates/CertificatesPage'
 import AdminDashboardPage from '../features/admin/AdminDashboardPage'
 
 function ProtectedLayout() {
@@ -110,7 +111,14 @@ export default function AppRouter() {
               />
               <Route
                 path="/certificates"
-                element={<PlaceholderPage title="Certificates" subtitle="View and download your earned certificates." />}
+                element={<CertificatesPage />}
+              />
+            </Route>
+
+            <Route element={<ProtectedRoute allowedRoles={['student', 'organizer', 'admin']} />}>
+              <Route
+                path="/certificates/:certificateId"
+                element={<CertificatesPage />}
               />
             </Route>
 

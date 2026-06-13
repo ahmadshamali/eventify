@@ -9,6 +9,7 @@ import EventPageBackdrop from '../../shared/components/events/EventPageBackdrop'
 import { cancelEvent, fetchEvents } from '../events/eventApi'
 import type { Event } from '../events/event.types'
 import { formatEventStartTime } from '../events/eventTime'
+import { generateEventCertificates } from '../certificates/certificateApi'
 import {
   formatPercentage,
   getCanceledOrganizerEvents,
@@ -35,11 +36,15 @@ function EventCard({
   tab,
   isCanceling,
   onCancel,
+  onGenerateCertificates,
+  isGeneratingCertificates,
 }: {
   event: Event
   tab: EventTab
   isCanceling: boolean
   onCancel: (event: Event) => void
+  onGenerateCertificates: (event: Event) => void
+  isGeneratingCertificates: boolean
 }) {
   const fillRate = getFillRate(event)
 
@@ -72,39 +77,45 @@ function EventCard({
         </div>
       </div>
 
-      {tab !== 'canceled' ? (
+      {tab === 'completed' ? (
         <div className="mt-5 flex flex-wrap gap-2">
-          {tab === 'completed' ? (
-            <Link
-              to={`/events/${event.id}/feedbacks`}
-              className="rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30"
-            >
-              View Feedback
-            </Link>
-          ) : (
-            <>
-              <Link
-                to={`/events/${event.id}/edit`}
-                className="rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-surface)] transition hover:text-[var(--primary)]"
-              >
-                Edit
-              </Link>
-              <Link
-                to="/attendance/scan"
-                className="rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30"
-              >
-                Scan Attendance
-              </Link>
-              <button
-                type="button"
-                onClick={() => onCancel(event)}
-                disabled={isCanceling}
-                className="rounded-lg px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-error-container)] transition hover:bg-[var(--error-container)]/30 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Cancel
-              </button>
-            </>
-          )}
+          <Link
+            to={`/events/${event.id}/feedbacks`}
+            className="rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30"
+          >
+            View Feedback
+          </Link>
+          <button
+            type="button"
+            onClick={() => onGenerateCertificates(event)}
+            disabled={isGeneratingCertificates}
+            className="rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-surface)] transition hover:text-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Generate Certificates
+          </button>
+        </div>
+      ) : tab !== 'canceled' ? (
+        <div className="mt-5 flex flex-wrap gap-2">
+          <Link
+            to={`/events/${event.id}/edit`}
+            className="rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-surface)] transition hover:text-[var(--primary)]"
+          >
+            Edit
+          </Link>
+          <Link
+            to="/attendance/scan"
+            className="rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30"
+          >
+            Scan Attendance
+          </Link>
+          <button
+            type="button"
+            onClick={() => onCancel(event)}
+            disabled={isCanceling}
+            className="rounded-lg px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-error-container)] transition hover:bg-[var(--error-container)]/30 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Cancel
+          </button>
         </div>
       ) : null}
     </article>
@@ -130,6 +141,18 @@ export default function OrganizerDashboardPage() {
     },
     onError: (mutationError: Error) => {
       addToast(mutationError.message || 'Unable to cancel event', 'error')
+    },
+  })
+
+  const { mutateAsync: generateCertificatesAsync, isPending: isGeneratingCertificates } = useMutation({
+    mutationFn: (eventId: number) => generateEventCertificates(eventId),
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({ queryKey: ['events'] })
+      const certificateWord = data.generated_count === 1 ? 'certificate' : 'certificates'
+      addToast(`Generated ${data.generated_count} ${certificateWord} for this event`, 'success')
+    },
+    onError: (mutationError: Error) => {
+      addToast(mutationError.message || 'Unable to generate certificates', 'error')
     },
   })
 
@@ -234,6 +257,8 @@ export default function OrganizerDashboardPage() {
                     tab={activeTab}
                     isCanceling={isCanceling}
                     onCancel={handleCancel}
+                    onGenerateCertificates={(selectedEvent) => generateCertificatesAsync(selectedEvent.id)}
+                    isGeneratingCertificates={isGeneratingCertificates}
                   />
                 ))}
               </div>
