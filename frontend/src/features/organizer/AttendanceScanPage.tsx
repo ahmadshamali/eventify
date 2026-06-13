@@ -14,6 +14,7 @@ export default function AttendanceScanPage() {
   const [lastScanned, setLastScanned] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [cameraStarted, setCameraStarted] = useState(false)
+  const isProcessingScan = useRef(false)
   const { addToast } = useToast()
 
   const mutation = useMutation({
@@ -45,6 +46,7 @@ export default function AttendanceScanPage() {
     setScanState('scanning')
     setLastScanned(null)
     setErrorMsg(null)
+    isProcessingScan.current = false
 
     if (!scannerRef.current) {
       scannerRef.current = new Html5Qrcode('qr-reader')
@@ -55,10 +57,18 @@ export default function AttendanceScanPage() {
         { facingMode: 'environment' },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         async (decodedText) => {
-          if (mutation.isPending) return
+          // Guard against multiple rapid scans
+          if (isProcessingScan.current) return
+          isProcessingScan.current = true
+          
           setLastScanned(decodedText)
-          await stopScanner()
-          mutation.mutate(decodedText)
+          
+          try {
+            await stopScanner()
+            mutation.mutate(decodedText)
+          } catch (err) {
+            isProcessingScan.current = false
+          }
         },
         () => { /* scan errors are normal, ignore them */ },
       )
@@ -74,6 +84,7 @@ export default function AttendanceScanPage() {
     setScanState('idle')
     setLastScanned(null)
     setErrorMsg(null)
+    isProcessingScan.current = false
   }
 
   // Cleanup on unmount

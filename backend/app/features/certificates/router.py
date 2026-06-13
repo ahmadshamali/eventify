@@ -10,7 +10,7 @@ from app.models.user import User
 router = APIRouter()
 
 
-@router.post("/events/{event_id}/generate", response_model=GenerateCertificatesResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/{event_id}/generate", response_model=GenerateCertificatesResponse, status_code=status.HTTP_201_CREATED)
 def generate_certificates(
 	event_id: int,
 	db: Session = Depends(get_db),

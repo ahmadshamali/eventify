@@ -17,54 +17,61 @@ def _to_certificate_read(certificate: Certificate) -> CertificateRead:
 
 
 def generate_event_certificates(db: Session, event_id: int, organizer: User) -> dict:
-	event = db.query(Event).filter(Event.id == event_id).first()
-	if not event:
-		raise HTTPException(status_code=404, detail="Event not found.")
+    # 1. Validation logic
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found.")
 
-	if event.organizer_id != organizer.user_id:
-		raise HTTPException(status_code=403, detail="You can only generate certificates for your own events.")
+    if event.organizer_id != organizer.user_id:
+        raise HTTPException(status_code=403, detail="You do not have permission to generate certificates for this event.")
 
-	if not is_event_completed(event.end_datetime):
-		raise HTTPException(status_code=400, detail="Certificates can only be generated for completed events.")
+    if not is_event_completed(event.end_datetime):
+        raise HTTPException(status_code=400, detail="Certificates can only be generated after the event has ended.")
 
-	organizer_user = db.query(User).filter(User.user_id == event.organizer_id).first()
-	if not organizer_user:
-		raise HTTPException(status_code=404, detail="Organizer not found.")
+    # 2. Get attendees without certificates
+    # We use a subquery to find registration IDs that ALREADY have certificates
+    certs_subquery = db.query(Certificate.registration_id).filter(Certificate.event_id == event_id)
+    
+    attendees_to_process = (
+        db.query(Attendance, Registration, User)
+        .join(Registration, Attendance.registration_id == Registration.id)
+        .join(User, Registration.student_id == User.user_id)
+        .filter(Attendance.event_id == event_id)
+        .filter(~Registration.id.in_(certs_subquery))
+        .all()
+    )
 
-	attendance_rows = (
-		db.query(Attendance, Registration, User)
-		.join(Registration, Registration.id == Attendance.registration_id)
-		.join(User, User.user_id == Attendance.student_id)
-		.filter(Attendance.event_id == event_id)
-		.all()
-	)
+    if not attendees_to_process:
+        return {
+            "event_id": event_id,
+            "total_attended": db.query(Attendance).filter(Attendance.event_id == event_id).count(),
+            "generated_count": 0,
+            "message": "All attendees already have certificates or no attendees found."
+        }
 
-	created_count = 0
-	for attendance, registration, student in attendance_rows:
-		existing = db.query(Certificate).filter(Certificate.registration_id == registration.id).first()
-		if existing:
-			continue
+    # 3. Batch Create
+    new_certificates = []
+    organizer_display_name = organizer.full_name or organizer.email.split('@')[0].capitalize()
 
-		certificate = Certificate(
-			id=str(uuid4()),
-			event_id=event.id,
-			registration_id=registration.id,
-			student_id=student.user_id,
-			organizer_id=organizer_user.user_id,
-			student_name=student.full_name,
-			organizer_name=organizer_user.full_name,
-			event_title=event.title,
-		)
-		db.add(certificate)
-		created_count += 1
+    for attendance, registration, student in attendees_to_process:
+        new_certificates.append(Certificate(
+            id=str(uuid4()),
+            event_id=event.id,
+            registration_id=registration.id,
+            student_id=student.user_id,
+            organizer_id=organizer.user_id,
+            student_name=student.full_name or "Participant",
+            organizer_name=organizer_display_name,
+            event_title=event.title
+        ))
 
-	db.commit()
+    db.add_all(new_certificates)
+    db.commit()
 
-	return {
-		"event_id": event.id,
-		"total_attended": len(attendance_rows),
-		"generated_count": created_count,
-	}
+    return {
+        "event_id": event_id,
+        "generated_count": len(new_certificates),
+    }
 
 
 def get_my_certificates(db: Session, student: User) -> list[CertificateRead]:

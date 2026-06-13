@@ -153,6 +153,7 @@ The project uses **Mailtrap** for email testing in development. When users regis
 # 2. Rebuild the API image and start containers
 docker compose build api
 docker compose up -d db api
+docker compose up -d --build
 
 # 3. Apply latest database migrations
 docker compose exec api alembic upgrade head
