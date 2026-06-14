@@ -154,6 +154,15 @@ export default function Navbar() {
 				{visibleItems.slice(0, 5).map((item) => (
 					<NavButton key={item.to} to={item.to} label={item.label} icon={item.icon} compact />
 				))}
+				<button
+					type="button"
+					onClick={handleSignOut}
+					className="group flex flex-col items-center justify-center gap-1 text-[10px] font-mono uppercase tracking-wide text-[var(--on-surface-variant)] transition hover:text-[var(--error)]"
+					aria-label="Logout"
+				>
+					<span className="material-symbols-outlined text-[22px]" aria-hidden="true">logout</span>
+					<span>Logout</span>
+				</button>
 			</nav>
 		</>
 	)
