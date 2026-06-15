@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
 import EventCardShell from '../../shared/components/events/EventCardShell'
@@ -14,14 +16,85 @@ import { cancelEvent, fetchEvents } from './eventApi'
 import type { Event } from './event.types'
 import { formatEventStartTime, getEventLifecycleStatus } from './eventTime'
 
+const categoryOptions = ['All Categories', 'Technology', 'Business & Entrepreneurship', 'Education & Workshops', 'Sports & Fitness', 'Arts & Culture'] as const
+const availabilityOptions = ['All Events', 'Available', 'Full'] as const
+const timeRangeOptions = ['All Events', 'This Week', 'This Month'] as const
+type TimeRange = (typeof timeRangeOptions)[number]
+
+const isEventInTimeRange = (eventDateTime: string, range: TimeRange) => {
+  if (range === 'All Events') {
+    return true
+  }
+
+  const eventDate = new Date(eventDateTime)
+  const now = new Date()
+
+  if (range === 'This Week') {
+    const startOfWeek = new Date(now)
+    startOfWeek.setHours(0, 0, 0, 0)
+    const dayOffset = (startOfWeek.getDay() + 6) % 7
+    startOfWeek.setDate(startOfWeek.getDate() - dayOffset)
+
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 7)
+
+    return eventDate >= startOfWeek && eventDate < endOfWeek
+  }
+
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+  const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+
+  return eventDate >= startOfMonth && eventDate < startOfNextMonth
+}
+
 function EventsPage() {
   const queryClient = useQueryClient()
   const { role, userId } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const searchTerm = searchParams.get('search')?.trim().toLowerCase() ?? ''
+  const selectedCategory = searchParams.get('category') ?? 'All Categories'
+  const selectedAvailability = searchParams.get('availability') ?? 'All Events'
+  const selectedTimeRange = (timeRangeOptions.includes(searchParams.get('range') as TimeRange) ? searchParams.get('range') : 'All Events') as TimeRange
 
   const { data: events = [], isLoading: loading, error } = useQuery<Event[]>({
     queryKey: ['events'],
     queryFn: () => fetchEvents(),
   })
+
+  const visibleEvents = useMemo(() => {
+    const upcomingEvents = events.filter((event) => getEventLifecycleStatus(event) !== 'Completed')
+
+    return upcomingEvents.filter((event) => {
+      const startDate = new Date(event.startDateTime)
+      const searchableText = [
+        event.title,
+        event.category,
+        startDate.toLocaleDateString(),
+        startDate.toISOString().slice(0, 10),
+      ]
+        .join(' ')
+        .toLowerCase()
+
+      const matchesSearch = !searchTerm || searchableText.includes(searchTerm)
+      const matchesCategory = selectedCategory === 'All Categories' || event.category === selectedCategory
+      const matchesAvailability = selectedAvailability === 'All Events' || event.status === selectedAvailability
+      const matchesTimeRange = isEventInTimeRange(event.startDateTime, selectedTimeRange)
+
+      return matchesSearch && matchesCategory && matchesAvailability && matchesTimeRange
+    })
+  }, [events, searchTerm, selectedAvailability, selectedCategory, selectedTimeRange])
+
+  const updateSearchParams = (key: string, value: string) => {
+    const nextParams = new URLSearchParams(searchParams)
+
+    if (value) {
+      nextParams.set(key, value)
+    } else {
+      nextParams.delete(key)
+    }
+
+    setSearchParams(nextParams, { replace: true })
+  }
 
   const { mutateAsync: cancelEventAsync, isPending: isCanceling } = useMutation({
     mutationFn: (eventId: number) => cancelEvent(eventId, { confirm: true }),
@@ -64,6 +137,65 @@ function EventsPage() {
           ) : null}
         </header>
 
+        <div className="mb-6 flex flex-wrap gap-3">
+          {timeRangeOptions.map((range) => {
+            const isActive = selectedTimeRange === range
+
+            return (
+              <button
+                key={range}
+                type="button"
+                onClick={() => updateSearchParams('range', range === 'All Events' ? '' : range)}
+                className={[
+                  'rounded-full border px-5 py-3 text-sm font-semibold transition',
+                  isActive
+                    ? 'border-[var(--primary)] bg-[var(--primary)] text-[var(--on-primary)] shadow-sm'
+                    : 'border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] text-[var(--on-surface)] hover:border-[var(--primary-fixed-dim)] hover:text-[var(--primary)]',
+                ].join(' ')}
+                aria-pressed={isActive}
+              >
+                {range}
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="mb-6 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] p-4 shadow-sm">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-semibold text-[var(--on-surface)]">Category</span>
+              <select
+                value={selectedCategory}
+                onChange={(event) => updateSearchParams('category', event.target.value === 'All Categories' ? '' : event.target.value)}
+                className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-sm text-[var(--on-surface)] outline-none transition focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
+                aria-label="Filter by category"
+              >
+                {categoryOptions.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-sm font-semibold text-[var(--on-surface)]">Availability</span>
+              <select
+                value={selectedAvailability}
+                onChange={(event) => updateSearchParams('availability', event.target.value === 'All Events' ? '' : event.target.value)}
+                className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-sm text-[var(--on-surface)] outline-none transition focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
+                aria-label="Filter by availability"
+              >
+                {availabilityOptions.map((availability) => (
+                  <option key={availability} value={availability}>
+                    {availability}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </div>
+
         {error && (
           <EventErrorState>
             <p>{error instanceof Error ? error.message : 'An error occurred'}</p>
@@ -74,16 +206,14 @@ function EventsPage() {
           <EventLoadingState className="h-[200px]" message="Loading events..." />
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {events.filter((event) => getEventLifecycleStatus(event) !== 'Completed').length === 0 && !error ? (
+            {visibleEvents.length === 0 && !error ? (
               <EventEmptyState
                 className="col-span-full"
-                title="No events found"
-                description="The backend database is empty or not seeded yet."
+                title={searchTerm ? 'No matching events' : 'No events found'}
+                description={searchTerm ? 'Try a different title, category, or date.' : 'The backend database is empty or not seeded yet.'}
               />
             ) : (
-              events
-                .filter((event) => getEventLifecycleStatus(event) !== 'Completed')
-                .map((event) => (
+              visibleEvents.map((event) => (
                 <EventCardShell key={event.id}>
                   {event.imageUrl ? (
                     <div className="mb-5 overflow-hidden rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)]">

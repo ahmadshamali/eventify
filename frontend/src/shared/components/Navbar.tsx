@@ -1,5 +1,5 @@
-import { NavLink, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useAuth } from '../../context/AuthContext'
 
 type NavItem = {
@@ -48,15 +48,28 @@ function NavButton({ to, label, icon, compact = false }: { to: string; label: st
 
 export default function Navbar() {
 	const navigate = useNavigate()
+	const location = useLocation()
 	const { role, fullName, signOut } = useAuth()
 	const [isLight, setIsLight] = useState(() => localStorage.getItem('eventify-theme') === 'light')
+	const [searchTerm, setSearchTerm] = useState('')
 
 	const visibleItems = navItems.filter((item) => (role ? item.roles.includes(role) : false))
+
+	useEffect(() => {
+		const currentSearch = new URLSearchParams(location.search).get('search') ?? ''
+		setSearchTerm(currentSearch)
+	}, [location.search])
 
 	useEffect(() => {
 		document.documentElement.classList.toggle('light', isLight)
 		localStorage.setItem('eventify-theme', isLight ? 'light' : 'dark')
 	}, [isLight])
+
+	const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault()
+		const query = searchTerm.trim()
+		navigate(query ? `/events?search=${encodeURIComponent(query)}` : '/events')
+	}
 
 	const handleSignOut = () => {
 		signOut()
@@ -109,14 +122,24 @@ export default function Navbar() {
 						<span className="material-symbols-outlined" aria-hidden="true">school</span>
 						Eventify
 					</NavLink>
-					<div className="relative hidden w-[min(32vw,420px)] md:block">
+					<form className="relative hidden w-[min(32vw,420px)] md:block" onSubmit={handleSearchSubmit}>
 						<span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--on-surface-variant)]" aria-hidden="true">search</span>
 						<input
-							className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] py-2 pr-4 pl-10 text-sm text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
-							placeholder="Search events, users, or reports..."
+							value={searchTerm}
+							onChange={(event) => setSearchTerm(event.target.value)}
+							className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] py-2 pr-12 pl-10 text-sm text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
+							placeholder="Search events by title, category, or date..."
 							type="search"
+							aria-label="Search events"
 						/>
-					</div>
+						<button
+							type="submit"
+							className="absolute top-1/2 right-1 inline-flex h-8 -translate-y-1/2 items-center justify-center rounded-md px-2 text-[var(--on-surface-variant)] transition hover:bg-[var(--surface-container-high)] hover:text-[var(--primary)]"
+							aria-label="Search events"
+						>
+							<span className="material-symbols-outlined text-[20px]" aria-hidden="true">search</span>
+						</button>
+					</form>
 				</div>
 
 				<div className="flex items-center gap-3">
