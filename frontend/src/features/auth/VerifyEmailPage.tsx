@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useForm, type SubmitHandler } from 'react-hook-form'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import * as z from 'zod'
 
 import { verifyEmail } from './authApi'
@@ -79,9 +79,12 @@ function VerifyEmailPage() {
           </span>
           <h1 className="font-['Hanken_Grotesk'] text-4xl font-semibold leading-none tracking-tight text-[var(--on-surface)] md:text-5xl">Verify your email</h1>
           <p className="text-[var(--on-surface-variant)]">
-            Confirm your account to continue. Organizers will still need admin approval after verification.
+            Confirm your account to continue.
           </p>
-          {emailFromUrl ? <p className="text-sm text-[var(--primary)]">Verification was sent to {emailFromUrl}</p> : null}
+          <p className="text-[var(--on-surface-variant)]">
+          Organizers will still need admin approval after verification.
+          </p>
+          {emailFromUrl ? <p className="text-sm text-[var(--primary)]">Verification was sent to {emailFromUrl} Check Spam folder</p> : null}
         </div>
 
         <form className="grid gap-4 p-8 md:p-12" onSubmit={handleSubmit(onSubmit)}>
@@ -119,12 +122,12 @@ function VerifyEmailPage() {
             {isSubmitting ? 'Verifying...' : isSuccess ? 'Verified' : 'Verify email'}
           </Button>
 
-          <p className="text-center text-[var(--on-surface-variant)]">
+          {/* <p className="text-center text-[var(--on-surface-variant)]">
             Already verified?{' '}
             <Link className="text-[var(--primary)] transition hover:text-[var(--primary-fixed-dim)]" to="/login">
               Go to login
             </Link>
-          </p>
+          </p> */}
         </form>
       </section>
     </div>
