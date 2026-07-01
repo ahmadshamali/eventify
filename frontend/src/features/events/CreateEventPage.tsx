@@ -49,6 +49,7 @@ function CreateEventPage() {
     const [additionalDetails, setAdditionalDetails] = useState('')
     const [isUploadingImage, setIsUploadingImage] = useState(false)
     const [imageUploadError, setImageUploadError] = useState('')
+    const [activeStep, setActiveStep] = useState(0)
     const watchedStartDate = watch('date')
     const watchedEndDate = watch('endDate')
 
@@ -173,19 +174,19 @@ function CreateEventPage() {
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                     <aside className="lg:col-span-3">
                         <div className="sticky top-24 space-y-2 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-4">
-                            {['Basic Info', 'Description', 'Schedule', 'Publish'].map((step, index) => (
+                            {['Basic Info', 'Description', 'Schedule and Capacity', 'Publish'].map((step, index) => (
                                 <div
                                     key={step}
                                     className={[
                                         'flex items-center gap-3 border-l-4 px-4 py-3',
-                                        index === 0
+                                        index === activeStep
                                             ? 'border-[var(--primary-fixed-dim)] bg-[var(--surface-container-high)] text-[var(--primary)]'
                                             : 'border-[var(--outline-variant)] text-[var(--on-surface-variant)]',
                                     ].join(' ')}
                                 >
                                     <span className={[
                                         'flex h-8 w-8 items-center justify-center rounded-full font-mono text-xs font-bold',
-                                        index === 0 ? 'bg-[var(--primary-container)] text-[var(--on-primary)]' : 'bg-[var(--surface-container-highest)] text-[var(--on-surface-variant)]',
+                                        index === activeStep ? 'bg-[var(--primary-container)] text-[var(--on-primary)]' : 'bg-[var(--surface-container-highest)] text-[var(--on-surface-variant)]',
                                     ].join(' ')}>
                                         {String(index + 1).padStart(2, '0')}
                                     </span>
@@ -196,7 +197,10 @@ function CreateEventPage() {
                     </aside>
                     <div className="rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:p-8 lg:col-span-9">
                     <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
-                        <section className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-5">
+                        <section
+                            className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-5"
+                            onFocusCapture={() => setActiveStep(0)}
+                        >
                             <h2 className="mb-4 font-['Hanken_Grotesk'] text-xl font-semibold text-[var(--on-surface)]">Event Details</h2>
                             <div className="flex flex-col gap-4">
                                 <div>
@@ -206,38 +210,6 @@ function CreateEventPage() {
                                       {...register('title')}
                                     />
                                     {errors.title && <p className="mt-1 text-sm text-[var(--error)]">{errors.title.message}</p>}
-                                </div>
-
-                                <div>
-                                    <textarea
-                                      className="min-h-[120px] w-full resize-y rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
-                                      placeholder={'description'}
-                                      {...register('description')}
-                                    />
-                                    {errors.description && <p className="mt-1 text-sm text-[var(--error)]">{errors.description.message}</p>}
-                                </div>
-
-                                <div>
-                                    <textarea
-                                      className="min-h-[90px] w-full resize-y rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
-                                      placeholder={'additional details for AI description (optional)'}
-                                      value={additionalDetails}
-                                      onChange={(event) => setAdditionalDetails(event.target.value)}
-                                    />
-                                    <div className="mt-2 flex items-center justify-between gap-3">
-                                        <p className="text-xs text-[var(--on-surface-variant)]">AI uses title, category, and these details.</p>
-                                        <button
-                                            type="button"
-                                            onClick={handleGenerateDescription}
-                                            disabled={isGeneratingDescription}
-                                            className="rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30 disabled:cursor-not-allowed disabled:opacity-60"
-                                        >
-                                            {isGeneratingDescription ? 'Generating...' : 'Generate Description'}
-                                        </button>
-                                    </div>
-                                    {generateError ? (
-                                        <p className="mt-1 text-sm text-[var(--error)]">{generateError.message}</p>
-                                    ) : null}
                                 </div>
 
                                 <div>
@@ -260,7 +232,10 @@ function CreateEventPage() {
                                             <p className="text-sm font-medium text-[var(--on-surface)]">Event Image</p>
                                             <p className="text-xs text-[var(--on-surface-variant)]">Upload from device or paste an image URL</p>
                                         </div>
-                                        <label className="cursor-pointer rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30">
+                                        <label
+                                            className="cursor-pointer rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30"
+                                            onClick={() => setActiveStep(0)}
+                                        >
                                             {isUploadingImage ? 'Uploading...' : 'Upload Image'}
                                             <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={isUploadingImage} />
                                         </label>
@@ -284,10 +259,45 @@ function CreateEventPage() {
                                     />
                                     {errors.eventLink && <p className="mt-1 text-sm text-[var(--error)]">{errors.eventLink.message}</p>}
                                 </div>
+
+                                <div onFocusCapture={() => setActiveStep(1)}>
+                                    <textarea
+                                      className="min-h-[120px] w-full resize-y rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
+                                      placeholder={'description'}
+                                      {...register('description')}
+                                    />
+                                    {errors.description && <p className="mt-1 text-sm text-[var(--error)]">{errors.description.message}</p>}
+                                </div>
+
+                                <div onFocusCapture={() => setActiveStep(1)}>
+                                    <textarea
+                                      className="min-h-[90px] w-full resize-y rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
+                                      placeholder={'additional details for AI description (optional)'}
+                                      value={additionalDetails}
+                                      onChange={(event) => setAdditionalDetails(event.target.value)}
+                                    />
+                                    <div className="mt-2 flex items-center justify-between gap-3">
+                                        <p className="text-xs text-[var(--on-surface-variant)]">AI uses title, category, and these details.</p>
+                                        <button
+                                            type="button"
+                                            onClick={handleGenerateDescription}
+                                            disabled={isGeneratingDescription}
+                                            className="rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                            {isGeneratingDescription ? 'Generating...' : 'Generate Description'}
+                                        </button>
+                                    </div>
+                                    {generateError ? (
+                                        <p className="mt-1 text-sm text-[var(--error)]">{generateError.message}</p>
+                                    ) : null}
+                                </div>
                             </div>
                         </section>
 
-                        <section className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-5">
+                        <section
+                            className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-5"
+                            onFocusCapture={() => setActiveStep(2)}
+                        >
                             <h2 className="mb-4 font-['Hanken_Grotesk'] text-xl font-semibold text-[var(--on-surface)]">Schedule and Capacity</h2>
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div>
@@ -354,7 +364,10 @@ function CreateEventPage() {
                             </div>
                         </section>
 
-                        <section className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-5">
+                        <section
+                            className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-5"
+                            onFocusCapture={() => setActiveStep(3)}
+                        >
                             <div className="flex flex-col gap-4">
                                 <button
                                     className="rounded-lg bg-[var(--primary-container)] px-6 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-primary)] transition hover:bg-[var(--primary-fixed-dim)] disabled:cursor-wait disabled:opacity-70"

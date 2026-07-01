@@ -127,7 +127,7 @@ function LoginPage() {
           <p className="text-center text-[var(--on-surface-variant)]">
             Don&apos;t have an account?{' '}
             <Link className="text-[var(--primary)] transition hover:text-[var(--primary-fixed-dim)]" to="/register">
-              Go to register
+              Sign up
             </Link>
           </p>
         </form>

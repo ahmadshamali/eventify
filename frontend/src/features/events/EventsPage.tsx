@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -12,7 +12,7 @@ import EventPageBackdrop from '../../shared/components/events/EventPageBackdrop'
 import EventPrimaryLinkButton from '../../shared/components/events/EventPrimaryLinkButton'
 import EventStatusBadge from '../../shared/components/events/EventStatusBadge'
 
-import { cancelEvent, fetchEvents } from './eventApi'
+import { fetchEvents } from './eventApi'
 import type { Event } from './event.types'
 import { formatEventStartTime, getEventLifecycleStatus } from './eventTime'
 
@@ -103,15 +103,26 @@ function EventsPage() {
     },
   })
 
-  const handleCancel = async (eventId: number, eventTitle: string) => {
-    const confirmed = window.confirm(`Are you sure you want to cancel ${eventTitle}?`)
-    if (!confirmed) {
-      return
-    }
-    await cancelEventAsync(eventId)
-  }
+      const matchesSearch = !searchTerm || searchableText.includes(searchTerm)
+      const matchesCategory = selectedCategory === 'All Categories' || event.category === selectedCategory
+      const matchesAvailability = selectedAvailability === 'All Events' || event.status === selectedAvailability
+      const matchesTimeRange = isEventInTimeRange(event.startDateTime, selectedTimeRange)
 
-  const canManageEvent = (eventOrganizerId: number | null) => role === 'organizer' && String(eventOrganizerId) === userId
+      return matchesSearch && matchesCategory && matchesAvailability && matchesTimeRange
+    })
+  }, [events, searchTerm, selectedAvailability, selectedCategory, selectedTimeRange])
+
+  const updateSearchParams = (key: string, value: string) => {
+    const nextParams = new URLSearchParams(searchParams)
+
+    if (value) {
+      nextParams.set(key, value)
+    } else {
+      nextParams.delete(key)
+    }
+
+    setSearchParams(nextParams, { replace: true })
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
@@ -255,55 +266,6 @@ function EventsPage() {
                           Link
                         </a>
                       ) : null}
-                      {canManageEvent(event.organizerId) && getEventLifecycleStatus(event) === 'Upcoming' ? (
-                        <>
-                          <Link
-                            to={`/events/${event.id}/edit`}
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[var(--outline-variant)] text-[var(--on-surface)] transition hover:bg-[var(--surface-container-high)] hover:text-[var(--primary)]"
-                            aria-label={`Edit ${event.title}`}
-                            title="Edit event"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="h-5 w-5"
-                            >
-                              <path d="M12 20h9" />
-                              <path d="m16.5 3.5 4 4L7 21l-4 1 1-4Z" />
-                            </svg>
-                          </Link>
-                          <button
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[var(--error)]/40 bg-[var(--error-container)]/50 text-[var(--on-error-container)] transition hover:bg-[var(--error-container)] disabled:cursor-not-allowed disabled:opacity-60"
-                            onClick={() => handleCancel(event.id, event.title)}
-                            disabled={isCanceling}
-                            aria-label={`Delete ${event.title}`}
-                            title="Delete event"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              className="h-5 w-5"
-                            >
-                              <path d="M3 6h18" />
-                              <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
-                              <path d="M19 6l-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6" />
-                              <path d="M10 11v6" />
-                              <path d="M14 11v6" />
-                            </svg>
-                          </button>
-                        </>
-                      ) : null}
-
                       <EventPrimaryLinkButton to={`/events/${event.id}/details`}>Details</EventPrimaryLinkButton>
                     </div>
                   </div>

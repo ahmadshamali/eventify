@@ -2,14 +2,6 @@ import * as z from 'zod'
 
 import type { CreateEventPayload, Event } from './event.types'
 
-const isAbsoluteOrRelativeUploadPath = (value: string) => {
-  if (/^(https?:)?\/\//i.test(value)) {
-    return true
-  }
-
-  return value.startsWith('/')
-}
-
 export const eventCategories = [
   'Technology',
   'Business & Entrepreneurship',
@@ -25,7 +17,7 @@ export const eventFormSchema = z.object({
   time: z.string().min(1, { message: 'Time is required' }),
   endDate: z.string().min(1, { message: 'End date is required' }),
   endTime: z.string().min(1, { message: 'End time is required' }),
-  imageUrl: z.string().refine(isAbsoluteOrRelativeUploadPath, { message: 'Image URL must be a valid URL or upload path' }).optional().or(z.literal('')),
+  imageUrl: z.string().url({ message: 'Image URL must be a valid URL' }).optional().or(z.literal('')),
   eventLink: z.string().url({ message: 'Event link must be a valid URL' }).optional().or(z.literal('')),
   location: z.string().min(1, { message: 'Location is required' }).max(255, { message: 'Location must be at most 255 characters' }),
   category: z.enum(eventCategories),
