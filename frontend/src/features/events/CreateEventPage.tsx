@@ -250,7 +250,7 @@ function CreateEventPage() {
                                     {errors.imageUrl && <p className="mt-1 text-sm text-[var(--error)]">{errors.imageUrl.message}</p>}
                                 </div>
 
-                                                                <div>
+                                <div>
                                     <input
                                       type="url"
                                       className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
@@ -260,7 +260,16 @@ function CreateEventPage() {
                                     {errors.eventLink && <p className="mt-1 text-sm text-[var(--error)]">{errors.eventLink.message}</p>}
                                 </div>
 
-                                <div onFocusCapture={() => setActiveStep(1)}>
+                            </div>
+                        </section>
+
+                        <section
+                            className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-5"
+                            onFocusCapture={() => setActiveStep(1)}
+                        >
+                            <h2 className="mb-4 font-['Hanken_Grotesk'] text-xl font-semibold text-[var(--on-surface)]">Description</h2>
+                            <div className="flex flex-col gap-4">
+                                <div>
                                     <textarea
                                       className="min-h-[120px] w-full resize-y rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                       placeholder={'description'}
@@ -269,7 +278,7 @@ function CreateEventPage() {
                                     {errors.description && <p className="mt-1 text-sm text-[var(--error)]">{errors.description.message}</p>}
                                 </div>
 
-                                <div onFocusCapture={() => setActiveStep(1)}>
+                                <div>
                                     <textarea
                                       className="min-h-[90px] w-full resize-y rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                       placeholder={'additional details for AI description (optional)'}
