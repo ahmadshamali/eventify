@@ -48,7 +48,8 @@ const isEventInTimeRange = (eventDateTime: string, range: TimeRange) => {
 }
 
 function EventsPage() {
-  const { role } = useAuth()
+  const queryClient = useQueryClient()
+  const { role, userId } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
   const searchTerm = searchParams.get('search')?.trim().toLowerCase() ?? ''
   const selectedCategory = searchParams.get('category') ?? 'All Categories'
@@ -73,6 +74,34 @@ function EventsPage() {
       ]
         .join(' ')
         .toLowerCase()
+
+      const matchesSearch = !searchTerm || searchableText.includes(searchTerm)
+      const matchesCategory = selectedCategory === 'All Categories' || event.category === selectedCategory
+      const matchesAvailability = selectedAvailability === 'All Events' || event.status === selectedAvailability
+      const matchesTimeRange = isEventInTimeRange(event.startDateTime, selectedTimeRange)
+
+      return matchesSearch && matchesCategory && matchesAvailability && matchesTimeRange
+    })
+  }, [events, searchTerm, selectedAvailability, selectedCategory, selectedTimeRange])
+
+  const updateSearchParams = (key: string, value: string) => {
+    const nextParams = new URLSearchParams(searchParams)
+
+    if (value) {
+      nextParams.set(key, value)
+    } else {
+      nextParams.delete(key)
+    }
+
+    setSearchParams(nextParams, { replace: true })
+  }
+
+  const { mutateAsync: cancelEventAsync, isPending: isCanceling } = useMutation({
+    mutationFn: (eventId: number) => cancelEvent(eventId, { confirm: true }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['events'] })
+    },
+  })
 
       const matchesSearch = !searchTerm || searchableText.includes(searchTerm)
       const matchesCategory = selectedCategory === 'All Categories' || event.category === selectedCategory
