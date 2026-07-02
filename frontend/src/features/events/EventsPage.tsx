@@ -96,22 +96,22 @@ function EventsPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
+    <div className="events-page min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
       <EventPageBackdrop />
 
       <div className="mx-auto w-full max-w-[1280px]">
-        <header className="mb-8 flex flex-col justify-between gap-4 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:flex-row md:items-end">
+        <header className="events-page-hero mb-8 flex flex-col justify-between gap-4 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:flex-row md:items-end">
           <div>
-            <p className="font-mono text-xs uppercase tracking-widest text-[var(--primary)]">Eventify Catalog</p>
-            <h1 className="mt-2 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[var(--on-surface)]">
+            <p className="events-page-eyebrow font-mono text-xs uppercase tracking-widest text-[var(--primary)]">Eventify Catalog</p>
+            <h1 className="events-page-title mt-2 font-['Hanken_Grotesk'] text-4xl font-semibold tracking-tight text-[var(--on-surface)]">
               Events
             </h1>
-            <p className="mt-2 text-[var(--on-surface-variant)]">Discover and manage upcoming university events.</p>
+            <p className="events-page-subtitle mt-2 text-[var(--on-surface-variant)]">Discover and manage upcoming university events.</p>
           </div>
           {(role === 'organizer' || role === 'admin') ? (
             <Link
               to="/events/create"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--primary-container)] px-5 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-primary)] transition hover:bg-[var(--primary-fixed-dim)]"
+              className="events-page-create-link inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--primary-container)] px-5 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-primary)] transition hover:bg-[var(--primary-fixed-dim)]"
             >
               <span className="material-symbols-outlined text-lg" aria-hidden="true">add</span>
               New Event
@@ -119,7 +119,7 @@ function EventsPage() {
           ) : null}
         </header>
 
-        <div className="mb-6 flex flex-wrap gap-3">
+        <div className="events-page-range-list mb-6 flex flex-wrap gap-3">
           {timeRangeOptions.map((range) => {
             const isActive = selectedTimeRange === range
 
@@ -128,8 +128,9 @@ function EventsPage() {
                 key={range}
                 type="button"
                 onClick={() => updateSearchParams('range', range === 'All Events' ? '' : range)}
+                data-active={isActive}
                 className={[
-                  'rounded-full border px-5 py-3 text-sm font-semibold transition',
+                  'events-page-range-button rounded-full border px-5 py-3 text-sm font-semibold transition',
                   isActive
                     ? 'border-[var(--primary)] bg-[var(--primary)] text-[var(--on-primary)] shadow-sm'
                     : 'border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] text-[var(--on-surface)] hover:border-[var(--primary-fixed-dim)] hover:text-[var(--primary)]',
@@ -142,14 +143,14 @@ function EventsPage() {
           })}
         </div>
 
-        <div className="mb-6 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] p-4 shadow-sm">
+        <div className="events-page-filter-panel mb-6 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] p-4 shadow-sm">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-[var(--on-surface)]">Category</span>
+              <span className="events-page-filter-label mb-2 block text-sm font-semibold text-[var(--on-surface)]">Category</span>
               <select
                 value={selectedCategory}
                 onChange={(event) => updateSearchParams('category', event.target.value === 'All Categories' ? '' : event.target.value)}
-                className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-sm text-[var(--on-surface)] outline-none transition focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
+                className="events-page-filter-select w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-sm text-[var(--on-surface)] outline-none transition focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                 aria-label="Filter by category"
               >
                 {categoryOptions.map((category) => (
@@ -161,11 +162,11 @@ function EventsPage() {
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold text-[var(--on-surface)]">Availability</span>
+              <span className="events-page-filter-label mb-2 block text-sm font-semibold text-[var(--on-surface)]">Availability</span>
               <select
                 value={selectedAvailability}
                 onChange={(event) => updateSearchParams('availability', event.target.value === 'All Events' ? '' : event.target.value)}
-                className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-sm text-[var(--on-surface)] outline-none transition focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
+                className="events-page-filter-select w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-sm text-[var(--on-surface)] outline-none transition focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                 aria-label="Filter by availability"
               >
                 {availabilityOptions.map((availability) => (
@@ -196,9 +197,9 @@ function EventsPage() {
               />
             ) : (
               visibleEvents.map((event) => (
-                <EventCardShell key={event.id}>
+                <EventCardShell key={event.id} className="events-page-card">
                   {event.imageUrl ? (
-                    <div className="mb-5 overflow-hidden rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)]">
+                    <div className="events-page-card-image mb-5 overflow-hidden rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)]">
                       <img
                         src={event.imageUrl}
                         alt={event.title}
@@ -206,19 +207,19 @@ function EventsPage() {
                       />
                     </div>
                   ) : null}
-                  <div className="mb-4 flex items-start justify-between gap-3">
-                    <h3 className="font-['Hanken_Grotesk'] text-2xl font-semibold text-[var(--on-surface)]">{event.title}</h3>
+                  <div className="events-page-card-heading mb-4 flex items-start justify-between gap-3">
+                    <h3 className="events-page-card-title font-['Hanken_Grotesk'] text-2xl font-semibold text-[var(--on-surface)]">{event.title}</h3>
                     <div className="flex flex-col items-end gap-2">
-                      <EventStatusBadge tone={event.status === 'Full' ? 'full' : 'available'}>
+                      <EventStatusBadge className="events-page-card-status" tone={event.status === 'Full' ? 'full' : 'available'}>
                         {event.status === 'Full' ? 'Full' : 'Available'}
                       </EventStatusBadge>
                     </div>
                   </div>
-                  <p className="grow text-sm leading-6 text-[var(--on-surface-variant)]">
+                  <p className="events-page-card-description grow text-sm leading-6 text-[var(--on-surface-variant)]">
                     {event.description || 'No description provided.'}
                   </p>
-                  <div className="mt-8 border-t border-[var(--outline-variant)] pt-6">
-                    <div className="flex flex-col gap-1 text-sm text-[var(--on-surface-variant)]">
+                  <div className="events-page-card-footer mt-8 border-t border-[var(--outline-variant)] pt-6">
+                    <div className="events-page-card-meta flex flex-col gap-1 text-sm text-[var(--on-surface-variant)]">
                       <span>Starts: {formatEventStartTime(event.startDateTime)}</span>
                       <span>Location: {event.location}</span>
                       <span>
@@ -226,18 +227,18 @@ function EventsPage() {
                       </span>
                     </div>
 
-                    <div className="mt-4 flex items-end justify-end gap-3 pr-1 pb-1">
+                    <div className="events-page-card-actions mt-4 flex items-end justify-end gap-3 pr-1 pb-1">
                       {event.eventLink ? (
                         <a
                           href={event.eventLink}
                           target="_blank"
                           rel="noreferrer"
-                          className="rounded-lg border border-[var(--outline-variant)] px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-surface)] transition hover:bg-[var(--surface-container-high)] hover:text-[var(--primary)]"
+                          className="events-page-card-secondary-link rounded-lg border border-[var(--outline-variant)] px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-surface)] transition hover:bg-[var(--surface-container-high)] hover:text-[var(--primary)]"
                         >
                           Link
                         </a>
                       ) : null}
-                      <EventPrimaryLinkButton to={`/events/${event.id}/details`}>Details</EventPrimaryLinkButton>
+                      <EventPrimaryLinkButton className="events-page-card-details-link" to={`/events/${event.id}/details`}>Details</EventPrimaryLinkButton>
                     </div>
                   </div>
                 </EventCardShell>

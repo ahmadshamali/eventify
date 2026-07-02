@@ -33,10 +33,10 @@ function NavButton({ to, label, icon, compact = false }: { to: string; label: st
 					isActive
 						? compact
 							? 'text-[var(--primary)]'
-							: 'border-l-4 border-[var(--primary-fixed-dim)] bg-[var(--surface-container-high)] text-[var(--primary)]'
+							: 'border-l-4 border-[var(--nav-accent)] bg-[var(--nav-surface-active)] text-[var(--nav-accent)]'
 						: compact
 							? 'text-[var(--on-surface-variant)] hover:text-[var(--primary)]'
-							: 'border-l-4 border-transparent text-[var(--on-surface)] hover:bg-[var(--surface-container)] hover:text-[var(--primary)]',
+							: 'border-l-4 border-transparent text-[var(--nav-text)] hover:bg-[var(--nav-surface-hover)] hover:text-[var(--nav-accent)]',
 				].join(' ')
 			}
 		>
@@ -78,13 +78,13 @@ export default function Navbar() {
 
 	return (
 		<>
-			<aside className="fixed left-0 top-0 z-50 hidden h-screen w-[280px] flex-col border-r border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] lg:flex">
+			<aside className="fixed left-0 top-0 z-50 hidden h-screen w-[280px] flex-col border-r border-[var(--nav-border)] bg-[var(--nav-surface)] lg:flex">
 				<div className="flex h-full flex-col px-6 py-8">
 					<NavLink className="mb-10 flex items-center gap-3" to="/events">
-						<span className="material-symbols-outlined text-3xl text-[var(--primary-fixed-dim)]" aria-hidden="true">school</span>
+						<span className="material-symbols-outlined text-3xl text-[var(--nav-accent)]" aria-hidden="true">school</span>
 						<span>
-							<span className="block font-['Hanken_Grotesk'] text-2xl font-bold text-[var(--on-surface)]">Eventify</span>
-							<span className="block font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)]">University Admin</span>
+							<span className="block font-['Hanken_Grotesk'] text-2xl font-bold text-[var(--nav-accent)]">Eventify</span>
+							<span className="block font-mono text-xs uppercase tracking-wider text-[var(--nav-muted)]">University Admin</span>
 						</span>
 					</NavLink>
 
@@ -94,11 +94,11 @@ export default function Navbar() {
 						))}
 					</nav>
 
-					<div className="mt-8 border-t border-[var(--outline-variant)] pt-6">
+					<div className="mt-8 border-t border-[var(--nav-border)] pt-6">
 						{role === 'organizer' || role === 'admin' ? (
 							<NavLink
 								to="/events/create"
-								className="mb-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--primary-container)] px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-primary)] transition hover:bg-[var(--primary-fixed-dim)]"
+								className="mb-5 flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--nav-button)] px-4 py-3 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--nav-button-text)] transition hover:bg-[var(--nav-button-hover)]"
 							>
 								<span className="material-symbols-outlined text-lg" aria-hidden="true">add</span>
 								New Event
@@ -107,7 +107,7 @@ export default function Navbar() {
 						<button
 							type="button"
 							onClick={handleSignOut}
-							className="flex w-full items-center gap-3 px-4 py-3 font-mono text-xs uppercase tracking-wider text-[var(--on-surface-variant)] transition hover:bg-[var(--surface-container)] hover:text-[var(--error)]"
+							className="flex w-full items-center gap-3 px-4 py-3 font-mono text-xs uppercase tracking-wider text-[var(--nav-text)] transition hover:bg-[var(--nav-surface-hover)] hover:text-[var(--error)]"
 						>
 							<span className="material-symbols-outlined" aria-hidden="true">logout</span>
 							Logout

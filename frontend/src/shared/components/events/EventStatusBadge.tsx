@@ -5,6 +5,7 @@ type EventStatusTone = 'available' | 'full' | 'completed' | 'active' | 'neutral'
 type EventStatusBadgeProps = {
   tone: EventStatusTone
   children: ReactNode
+  className?: string
 }
 
 const toneClasses: Record<EventStatusTone, string> = {
@@ -15,9 +16,9 @@ const toneClasses: Record<EventStatusTone, string> = {
   neutral: 'border-[var(--outline-variant)] bg-[var(--surface-container-highest)] text-[var(--on-surface)]',
 }
 
-function EventStatusBadge({ tone, children }: EventStatusBadgeProps) {
+function EventStatusBadge({ tone, children, className = '' }: EventStatusBadgeProps) {
   return (
-    <span className={['rounded border px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider', toneClasses[tone]].join(' ')}>
+    <span className={['rounded border px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider', toneClasses[tone], className].join(' ')}>
       {children}
     </span>
   )

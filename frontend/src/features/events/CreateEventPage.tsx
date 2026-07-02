@@ -158,7 +158,7 @@ function CreateEventPage() {
         }
 
     return (
-        <div className="min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
+        <div className="create-event-page min-h-[calc(100vh-4rem)] px-4 py-8 md:px-8">
             <EventPageBackdrop />
 
             <div className="mx-auto w-full max-w-5xl">
@@ -173,24 +173,25 @@ function CreateEventPage() {
                 </header>
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                     <aside className="lg:col-span-3">
-                        <div className="sticky top-24 space-y-2 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-4">
+                        <div className="create-event-stepper sticky top-24 space-y-2 rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-4">
                             {['Basic Info', 'Description', 'Schedule and Capacity', 'Publish'].map((step, index) => (
                                 <div
                                     key={step}
+                                    data-active={index === activeStep}
                                     className={[
-                                        'flex items-center gap-3 border-l-4 px-4 py-3',
+                                        'create-event-step flex items-center gap-3 border-l-4 px-4 py-3',
                                         index === activeStep
                                             ? 'border-[var(--primary-fixed-dim)] bg-[var(--surface-container-high)] text-[var(--primary)]'
                                             : 'border-[var(--outline-variant)] text-[var(--on-surface-variant)]',
                                     ].join(' ')}
                                 >
                                     <span className={[
-                                        'flex h-8 w-8 items-center justify-center rounded-full font-mono text-xs font-bold',
+                                        'create-event-step-number flex h-8 w-8 items-center justify-center rounded-full font-mono text-xs font-bold',
                                         index === activeStep ? 'bg-[var(--primary-container)] text-[var(--on-primary)]' : 'bg-[var(--surface-container-highest)] text-[var(--on-surface-variant)]',
                                     ].join(' ')}>
                                         {String(index + 1).padStart(2, '0')}
                                     </span>
-                                    <span className="font-mono text-xs uppercase tracking-wider">{step}</span>
+                                    <span className="create-event-step-label font-mono text-xs uppercase tracking-wider">{step}</span>
                                 </div>
                             ))}
                         </div>
@@ -233,7 +234,7 @@ function CreateEventPage() {
                                             <p className="text-xs text-[var(--on-surface-variant)]">Upload from device or paste an image URL</p>
                                         </div>
                                         <label
-                                            className="cursor-pointer rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30"
+                                            className="create-event-upload-button cursor-pointer rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30"
                                             onClick={() => setActiveStep(0)}
                                         >
                                             {isUploadingImage ? 'Uploading...' : 'Upload Image'}
