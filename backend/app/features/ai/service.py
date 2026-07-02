@@ -13,8 +13,11 @@ def _build_prompt(title: str, category: str, additional_details: str | None) -> 
 		f"Event title: {title.strip()}\n"
 		f"Category: {category.strip()}\n"
 		f"Organizer details: {details_block}\n\n"
-		"Write one engaging event description between 20 and 100 words. "
-		"Use plain text only. Do not invent specific logistics that are not provided."
+		"Write a concise and engaging event description based on the provided event title, category, and any optional additional details."
+		"Requirements:"
+        "- 20–50 words."
+        "- Professional and inviting tone."
+        "- Focus only on the information provided."
 	)
 
 
@@ -39,7 +42,7 @@ def generate_event_description(title: str, category: str, additional_details: st
 			},
 		],
 		'temperature': 0.7,
-		'max_tokens': 260,
+		# 'max_tokens': 260,
 	}
 
 	req = request.Request(
