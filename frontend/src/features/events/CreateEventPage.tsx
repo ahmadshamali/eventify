@@ -18,6 +18,65 @@ import {
     type EventFormValues,
 } from './eventForm'
 
+const universityBuildings = [
+    'A.Shaheen',
+    'Masruji',
+    'Bahrain',
+    'Aggad',
+    'WKS',
+    'Masri',
+    'Bamieh',
+    'EL-haj',
+    'GYM',
+    'Al.Juraysi',
+    'O.Abdulhadi',
+    'Alsadik',
+    'IOL',
+    'PNH',
+    'Darwazah',
+    'SCI',
+    'S.Abdulhadi',
+    'N.Shaheen',
+    'Aweidah',
+    'Alghanim',
+    'Maktoum',
+    'KNH',
+    'NSA',
+    'Sh.Shaheen',
+    'Zeenni',
+    'Khoury',
+] as const
+
+const buildingPattern = universityBuildings.map((building) => building.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')
+
+const buildLocationValue = (building: string, roomHall: string) => {
+    const trimmedBuilding = building.trim()
+    const trimmedRoomHall = roomHall.trim()
+
+    return trimmedRoomHall ? `${trimmedBuilding} - ${trimmedRoomHall}` : trimmedBuilding
+}
+
+const splitLocationValue = (location: string) => {
+    const trimmedLocation = location.trim()
+    const building = universityBuildings.find((item) => trimmedLocation === item || trimmedLocation.startsWith(`${item} - `))
+
+    if (!building) {
+        return { building: trimmedLocation, roomHall: '' }
+    }
+
+    return {
+        building,
+        roomHall: trimmedLocation === building ? '' : trimmedLocation.slice(`${building} - `.length),
+    }
+}
+
+const getTomorrowDateInputValue = () => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    return `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`
+}
+
 function CreateEventPage() {
         const { eventId } = useParams<{ eventId: string }>()
         const navigate = useNavigate()
@@ -50,8 +109,11 @@ function CreateEventPage() {
     const [isUploadingImage, setIsUploadingImage] = useState(false)
     const [imageUploadError, setImageUploadError] = useState('')
     const [activeStep, setActiveStep] = useState(0)
+    const [selectedBuilding, setSelectedBuilding] = useState('')
+    const [roomHall, setRoomHall] = useState('')
     const watchedStartDate = watch('date')
     const watchedEndDate = watch('endDate')
+    const minimumEventDate = getTomorrowDateInputValue()
 
         useEffect(() => {
             if (!editingEvent) {
@@ -59,6 +121,9 @@ function CreateEventPage() {
             }
 
             reset(mapEventToFormValues(editingEvent))
+            const locationParts = splitLocationValue(editingEvent.location)
+            setSelectedBuilding(locationParts.building)
+            setRoomHall(locationParts.roomHall)
         }, [editingEvent, reset])
 
     useEffect(() => {
@@ -113,6 +178,22 @@ function CreateEventPage() {
 
         const handleGenerateDescription = async () => {
             await generateDescriptionAsync()
+        }
+
+        const syncLocationValue = (building: string, roomHallValue: string) => {
+            setValue('location', buildLocationValue(building, roomHallValue), { shouldValidate: true, shouldDirty: true })
+        }
+
+        const handleBuildingChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+            const building = event.target.value
+            setSelectedBuilding(building)
+            syncLocationValue(building, roomHall)
+        }
+
+        const handleRoomHallChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+            const value = event.target.value
+            setRoomHall(value)
+            syncLocationValue(selectedBuilding, value)
         }
 
         const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -197,7 +278,11 @@ function CreateEventPage() {
                         </div>
                     </aside>
                     <div className="rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-container-low)] p-6 shadow-sm md:p-8 lg:col-span-9">
-                    <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
+                    <form
+                        className="flex flex-col gap-5"
+                        onSubmitCapture={() => syncLocationValue(selectedBuilding, roomHall)}
+                        onSubmit={handleSubmit(onSubmit)}
+                    >
                         <section
                             className="rounded-xl border border-[var(--outline-variant)] bg-[var(--background)] p-5"
                             onFocusCapture={() => setActiveStep(0)}
@@ -315,6 +400,7 @@ function CreateEventPage() {
                                         type="date"
                                         lang="en-GB"
                                         style={{ colorScheme: 'dark' }}
+                                        min={isEditMode ? undefined : minimumEventDate}
                                         className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
                                         {...register('date')}
                                     />
@@ -352,12 +438,40 @@ function CreateEventPage() {
                                     {errors.endTime && <p className="mt-1 text-sm text-[var(--error)]">{errors.endTime.message}</p>}
                                 </div>
 
-                                <div className="md:col-span-2">
+                                <div>
+                                    <label htmlFor="event-building" className="mb-1 block text-sm font-medium text-[var(--on-surface)]">
+                                        Building
+                                    </label>
                                     <input
+                                        id="event-building"
+                                        list="event-building-options"
+                                        required
+                                        pattern={buildingPattern}
                                         className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
-                                        placeholder={'location'}
-                                        {...register('location')}
+                                        placeholder={'search building'}
+                                        title="Please select one of the listed buildings"
+                                        value={selectedBuilding}
+                                        onChange={handleBuildingChange}
                                     />
+                                    <datalist id="event-building-options">
+                                        {universityBuildings.map((building) => (
+                                            <option key={building} value={building} />
+                                        ))}
+                                    </datalist>
+                                </div>
+
+                                <div>
+                                    <label htmlFor="event-room-hall" className="mb-1 block text-sm font-medium text-[var(--on-surface)]">
+                                        Room / Hall (Optional)
+                                    </label>
+                                    <input
+                                        id="event-room-hall"
+                                        className="w-full rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-low)] px-4 py-3 text-[var(--on-surface)] outline-none transition placeholder:text-[var(--on-surface-variant)]/60 focus:border-[var(--primary-fixed-dim)] focus:ring-2 focus:ring-[var(--primary-fixed-dim)]/20"
+                                        placeholder={'Room 205, Lobby, Hall A'}
+                                        value={roomHall}
+                                        onChange={handleRoomHallChange}
+                                    />
+                                    <input type="hidden" {...register('location')} />
                                     {errors.location && <p className="mt-1 text-sm text-[var(--error)]">{errors.location.message}</p>}
                                 </div>
 
