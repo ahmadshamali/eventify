@@ -83,7 +83,7 @@ export default function Navbar() {
 					<NavLink className="mb-10 flex items-center gap-3" to="/events">
 						<span className="material-symbols-outlined text-3xl text-[var(--nav-accent)]" aria-hidden="true">school</span>
 						<span>
-							<span className="block font-['Hanken_Grotesk'] text-2xl font-bold text-[var(--nav-accent)]">Eventify</span>
+							<span className="block font-['Hanken_Grotesk'] text-2xl font-bold text-[var(--nav-text)]">Eventify</span>
 							<span className="block font-mono text-xs uppercase tracking-wider text-[var(--nav-muted)]">University Admin</span>
 						</span>
 					</NavLink>
