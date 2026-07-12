@@ -2,6 +2,8 @@ export interface CertificateRead {
 	attendance_id: number
 	event_id: number
 	event_title: string
+	event_date: string
+	organization_name: string
 	student_id: number
 	student_name: string
 	student_email: string

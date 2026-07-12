@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 
 from app.features.certificates.schemas import CertificateGenerationRead
 from app.models.attendance import Attendance
@@ -43,9 +43,11 @@ def generate_event_certificates(db: Session, event_id: int, organizer: User, bas
 
 
 def list_my_certificates(db: Session, student: User, base_url: str) -> list[dict]:
+	organizer_alias = aliased(User)
 	rows = (
-		db.query(Attendance, Event)
+		db.query(Attendance, Event, organizer_alias)
 		.join(Event, Event.id == Attendance.event_id)
+		.outerjoin(organizer_alias, organizer_alias.user_id == Event.organizer_id)
 		.filter(Attendance.student_id == student.user_id, Attendance.certificate_issued_at.is_not(None))
 		.order_by(Attendance.certificate_issued_at.desc())
 		.all()
@@ -56,6 +58,8 @@ def list_my_certificates(db: Session, student: User, base_url: str) -> list[dict
 			"attendance_id": attendance.id,
 			"event_id": event.id,
 			"event_title": event.title,
+			"event_date": event.start_datetime,
+			"organization_name": organizer.full_name if organizer else "Eventify",
 			"student_id": attendance.student_id,
 			"student_name": student.full_name,
 			"student_email": student.email,
@@ -63,15 +67,18 @@ def list_my_certificates(db: Session, student: User, base_url: str) -> list[dict
 			"certificate_issued_at": attendance.certificate_issued_at,
 			"verification_url": _verification_url(base_url, attendance.id),
 		}
-		for attendance, event in rows
+		for attendance, event, organizer in rows
 	]
 
 
 def get_certificate(db: Session, attendance_id: int, base_url: str) -> dict:
+	student_alias = aliased(User)
+	organizer_alias = aliased(User)
 	row = (
-		db.query(Attendance, Event, User)
+		db.query(Attendance, Event, student_alias, organizer_alias)
 		.join(Event, Event.id == Attendance.event_id)
-		.join(User, User.user_id == Attendance.student_id)
+		.join(student_alias, student_alias.user_id == Attendance.student_id)
+		.outerjoin(organizer_alias, organizer_alias.user_id == Event.organizer_id)
 		.filter(Attendance.id == attendance_id)
 		.first()
 	)
@@ -79,7 +86,7 @@ def get_certificate(db: Session, attendance_id: int, base_url: str) -> dict:
 	if not row:
 		raise HTTPException(status_code=404, detail="Certificate not found.")
 
-	attendance, event, student = row
+	attendance, event, student, organizer = row
 	if attendance.certificate_issued_at is None:
 		raise HTTPException(status_code=404, detail="Certificate not found.")
 
@@ -87,6 +94,8 @@ def get_certificate(db: Session, attendance_id: int, base_url: str) -> dict:
 		"attendance_id": attendance.id,
 		"event_id": event.id,
 		"event_title": event.title,
+		"event_date": event.start_datetime,
+		"organization_name": organizer.full_name if organizer else "Eventify",
 		"student_id": student.user_id,
 		"student_name": student.full_name,
 		"student_email": student.email,

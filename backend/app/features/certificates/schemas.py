@@ -7,6 +7,8 @@ class CertificateRead(BaseModel):
 	attendance_id: int
 	event_id: int
 	event_title: str
+	event_date: datetime
+	organization_name: str
 	student_id: int
 	student_name: str
 	student_email: str
