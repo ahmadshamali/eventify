@@ -10,6 +10,7 @@ type ScanState = 'idle' | 'scanning' | 'success' | 'error'
 
 export default function AttendanceScanPage() {
   const scannerRef = useRef<Html5Qrcode | null>(null)
+  const handledScanRef = useRef(false)
   const [scanState, setScanState] = useState<ScanState>('idle')
   const [lastScanned, setLastScanned] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -45,6 +46,7 @@ export default function AttendanceScanPage() {
     setScanState('scanning')
     setLastScanned(null)
     setErrorMsg(null)
+    handledScanRef.current = false
 
     if (!scannerRef.current) {
       scannerRef.current = new Html5Qrcode('qr-reader')
@@ -55,7 +57,8 @@ export default function AttendanceScanPage() {
         { facingMode: 'environment' },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         async (decodedText) => {
-          if (mutation.isPending) return
+          if (handledScanRef.current || mutation.isPending) return
+          handledScanRef.current = true
           setLastScanned(decodedText)
           await stopScanner()
           mutation.mutate(decodedText)
@@ -71,6 +74,7 @@ export default function AttendanceScanPage() {
 
   const reset = async () => {
     await stopScanner()
+    handledScanRef.current = false
     setScanState('idle')
     setLastScanned(null)
     setErrorMsg(null)

@@ -13,6 +13,7 @@ class Attendance(Base):
 	student_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False, index=True)
 	scanned_by = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
 	attended_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+	certificate_issued_at = Column(DateTime(timezone=True), nullable=True, index=True)
 
 	__table_args__ = (
 		UniqueConstraint("registration_id", name="uq_attendance_registration"),

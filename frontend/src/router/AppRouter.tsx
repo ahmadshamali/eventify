@@ -18,6 +18,8 @@ import EventDetailsPage from '../features/events/EventDetailsPage'
 import MyRegistrationsPage from '../features/events/MyRegistrationsPage.tsx'
 import EventFeedbacksPage from '../features/feedback/EventFeedbacksPage'
 import AdminDashboardPage from '../features/admin/AdminDashboardPage'
+import CertificatesPage from '../features/certificates/CertificatesPage'
+import CertificateDetailPage from '../features/certificates/CertificateDetailPage'
 
 function ProtectedLayout() {
   return (
@@ -88,6 +90,8 @@ export default function AppRouter() {
         {/* Default */}
         <Route path="/" element={<Navigate to={isAuthenticated ? '/events' : '/login'} replace />} />
 
+        <Route path="/certificate/:attendanceId" element={<CertificateDetailPage />} />
+
         {/* Auth */}
         <Route element={<GuestOnlyRoute />}>
           <Route path="/login" element={<LoginPage />} />
@@ -110,7 +114,7 @@ export default function AppRouter() {
               />
               <Route
                 path="/certificates"
-                element={<PlaceholderPage title="Certificates" subtitle="View and download your earned certificates." />}
+                element={<CertificatesPage />}
               />
             </Route>
 

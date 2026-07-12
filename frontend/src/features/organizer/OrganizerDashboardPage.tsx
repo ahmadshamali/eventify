@@ -7,6 +7,7 @@ import { useToast } from '../../context/ToastContext'
 import EventPageBackdrop from '../../shared/components/events/EventPageBackdrop'
 
 import { cancelEvent, fetchEvents } from '../events/eventApi'
+import { generateCertificatesForEvent } from '../certificates/certificateApi'
 import type { Event } from '../events/event.types'
 import { formatEventStartTime } from '../events/eventTime'
 import {
@@ -34,12 +35,16 @@ function EventCard({
   event,
   tab,
   isCanceling,
+  isGeneratingCertificates,
   onCancel,
+  onGenerateCertificates,
 }: {
   event: Event
   tab: EventTab
   isCanceling: boolean
+  isGeneratingCertificates: boolean
   onCancel: (event: Event) => void
+  onGenerateCertificates: (event: Event) => void
 }) {
   const fillRate = getFillRate(event)
 
@@ -75,12 +80,22 @@ function EventCard({
       {tab !== 'canceled' ? (
         <div className="organizer-dashboard-event-actions mt-5 flex flex-wrap gap-2">
           {tab === 'completed' ? (
-            <Link
-              to={`/events/${event.id}/feedbacks`}
-              className="organizer-dashboard-action organizer-dashboard-action-secondary rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30"
-            >
-              View Feedback
-            </Link>
+            <>
+              <Link
+                to={`/events/${event.id}/feedbacks`}
+                className="organizer-dashboard-action organizer-dashboard-action-secondary rounded-lg border border-[var(--tertiary-container)]/40 bg-[var(--secondary-container)]/20 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--tertiary)] transition hover:bg-[var(--secondary-container)]/30"
+              >
+                View Feedback
+              </Link>
+              <button
+                type="button"
+                onClick={() => onGenerateCertificates(event)}
+                disabled={isGeneratingCertificates}
+                className="organizer-dashboard-action organizer-dashboard-action-secondary rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-high)] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[var(--on-surface)] transition hover:text-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Generate Certificates
+              </button>
+            </>
           ) : (
             <>
             <Link
@@ -135,6 +150,22 @@ export default function OrganizerDashboardPage() {
     },
   })
 
+  const { mutateAsync: generateCertificatesAsync, isPending: isGeneratingCertificates } = useMutation({
+    mutationFn: (eventId: number) => generateCertificatesForEvent(eventId),
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({ queryKey: ['certificates'] })
+      addToast(
+        data.generated_count > 0
+          ? `Generated ${data.generated_count} certificate${data.generated_count === 1 ? '' : 's'} for "${data.event_title}".`
+          : `No new certificates were created for "${data.event_title}".`,
+        'success',
+      )
+    },
+    onError: (mutationError: Error) => {
+      addToast(mutationError.message || 'Unable to generate certificates', 'error')
+    },
+  })
+
   const myEvents = useMemo(() => getOrganizerEvents(events, userId), [events, userId])
   const upcomingEvents = useMemo(() => getUpcomingOrganizerEvents(myEvents), [myEvents])
   const completedEvents = useMemo(() => getCompletedOrganizerEvents(myEvents), [myEvents])
@@ -152,6 +183,15 @@ export default function OrganizerDashboardPage() {
     if (confirmed) {
       await cancelEventAsync(event.id)
     }
+  }
+
+  const handleGenerateCertificates = async (event: Event) => {
+    const confirmed = window.confirm(`Generate certificates for all attended students in ${event.title}?`)
+    if (!confirmed) {
+      return
+    }
+
+    await generateCertificatesAsync(event.id)
   }
 
   const tabs: { id: EventTab; label: string; count: number }[] = [
@@ -236,7 +276,9 @@ export default function OrganizerDashboardPage() {
                     event={event}
                     tab={activeTab}
                     isCanceling={isCanceling}
+                    isGeneratingCertificates={isGeneratingCertificates}
                     onCancel={handleCancel}
+                    onGenerateCertificates={handleGenerateCertificates}
                   />
                 ))}
               </div>
